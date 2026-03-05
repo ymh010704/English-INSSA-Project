@@ -1,0 +1,8 @@
+{
+  "name": "backend",
+  "type": "module",
+  "dependencies": {
+    "express": "^4.19.2",
+    "mysql2": "^3.11.0"
+  }
+}
