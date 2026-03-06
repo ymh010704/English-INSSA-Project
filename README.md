@@ -1,16 +1,11 @@
-# React + Vite
+## 🛠️ 개발 환경 동기화 가이드
+메인 브랜치 업데이트 후, 로컬 환경에서 정상적인 화면 출력을 위해 아래 과정을 반드시 수행해 주세요.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+1. 패키지 및 정적 파일 빌드:
+   `npm install` 후 `npm run build`를 실행하여 `dist` 폴더를 생성합니다.
+   
+2. 도커 컨테이너 재빌드:
+   `docker compose down` 후 `docker compose up -d --build`를 실행하여 수정된 Nginx 및 서버 설정을 반영합니다.
+   
+3. 접속 확인:
+   `http://localhost`에서 리액트 메인 화면이 뜨는지 확인해주세요.
