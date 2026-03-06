@@ -65,12 +65,12 @@ function Nav({ scrolled }) {
         ))}
       </ul>
       <div style={{ display: "flex", gap: 12 }}>
-        <button onClick={() => navigate("/dashboard")} style={{
+        <button onClick={() => navigate("/login")} style={{
           padding: "10px 22px", borderRadius: 100, border: "1.5px solid #ddd",
           background: "transparent", fontSize: 13, fontWeight: 600, cursor: "pointer",
           fontFamily: "'Noto Sans KR', sans-serif", color: G.black,
         }}>로그인</button>
-        <button onClick={() => navigate("/dashboard")} style={{
+        <button onClick={() => navigate("/login")} style={{
           padding: "10px 24px", borderRadius: 100, border: "none",
           background: G.black, color: G.white, fontSize: 13, fontWeight: 700,
           cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif",
@@ -194,7 +194,7 @@ function Hero() {
             원어민들도 똑같이 있어요. AI와 함께 자연스럽게 익혀보세요.
           </p>
           <div style={{ display: "flex", gap: 14, alignItems: "center", flexWrap: "wrap", marginBottom: 44 }}>
-            <button onClick={() => navigate("/dashboard")} style={{
+            <button onClick={() => navigate("/login")} style={{
               padding: "16px 32px", borderRadius: 100, fontSize: 15, fontWeight: 700,
               border: "none", cursor: "pointer", background: G.accent, color: G.white,
               boxShadow: "0 8px 30px rgba(255,77,0,0.3)", fontFamily: "'Noto Sans KR', sans-serif",
@@ -360,7 +360,7 @@ function FinalCTA() {
         </h2>
         <p style={{ fontSize: 17, color: G.gray, marginBottom: 44, fontWeight: 300 }}>신용카드 필요 없어요. 무료로 시작하고, 마음에 들면 계속하세요.</p>
         <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
-          <button onClick={() => navigate("/dashboard")} style={{ padding: "16px 36px", borderRadius: 100, fontSize: 15, fontWeight: 700, border: "none", cursor: "pointer", background: G.accent, color: G.white, boxShadow: "0 8px 30px rgba(255,77,0,0.3)", fontFamily: "'Noto Sans KR', sans-serif" }}>무료로 시작하기 →</button>
+          <button onClick={() => navigate("/login")} style={{ padding: "16px 36px", borderRadius: 100, fontSize: 15, fontWeight: 700, border: "none", cursor: "pointer", background: G.accent, color: G.white, boxShadow: "0 8px 30px rgba(255,77,0,0.3)", fontFamily: "'Noto Sans KR', sans-serif" }}>무료로 시작하기 →</button>
           <button style={{ padding: "16px 36px", borderRadius: 100, fontSize: 15, fontWeight: 600, border: `2px solid ${G.black}`, cursor: "pointer", background: "transparent", fontFamily: "'Noto Sans KR', sans-serif", color: G.black }}>앱 다운로드</button>
         </div>
       </Reveal>

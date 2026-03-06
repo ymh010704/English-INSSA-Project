@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const G = {
@@ -8,13 +8,166 @@ const G = {
   green: "#10b981", blue: "#3b82f6", purple: "#8b5cf6",
 };
 
+const SLANG_DATA = [
+  { word: "No cap", meaning: "진심으로, 거짓말 아님", category: "SNS / 일상", emoji: "🔥" },
+  { word: "It's giving", meaning: "~느낌이야, ~분위기다", category: "Gen Z", emoji: "✨" },
+  { word: "Lowkey", meaning: "은근히, 살짝", category: "일상 / 강조", emoji: "🤫" },
+  { word: "Slay", meaning: "완전 잘해냈어, 멋지다", category: "칭찬 / 긍정", emoji: "👑" },
+  { word: "Vibe check", meaning: "분위기 파악, 상태 확인", category: "SNS / 일상", emoji: "📡" },
+  { word: "Ghosted", meaning: "갑자기 연락을 끊다", category: "연애 / SNS", emoji: "👻" },
+  { word: "No worries", meaning: "괜찮아, 신경 쓰지 마", category: "일상", emoji: "😌" },
+  { word: "Bussin", meaning: "완전 맛있다, 대박이다", category: "음식 / 긍정", emoji: "🤤" },
+  { word: "Highkey", meaning: "확실히, 대놓고", category: "일상 / 강조", emoji: "📢" },
+  { word: "Periodt", meaning: "딱 잘라 말해서, 끝", category: "Gen Z", emoji: "💅" },
+  { word: "Bet", meaning: "알겠어, 좋아", category: "동의 / 긍정", emoji: "🤝" },
+  { word: "Stan", meaning: "열렬히 좋아하다, 팬이다", category: "SNS", emoji: "⭐" },
+  { word: "Tea", meaning: "가십, 뒷얘기", category: "SNS / 일상", emoji: "☕" },
+  { word: "Extra", meaning: "과하다, 오버스럽다", category: "성격 표현", emoji: "💥" },
+  { word: "Flex", meaning: "자랑하다, 과시하다", category: "SNS / 일상", emoji: "💪" },
+];
+
+/* ── 검색창 ── */
+function SearchBar() {
+  const navigate = useNavigate();
+  const [query, setQuery] = useState("");
+  const [focused, setFocused] = useState(false);
+  const [recent, setRecent] = useState(
+    JSON.parse(localStorage.getItem("recentSearch") || "[]")
+  );
+  const ref = useRef(null);
+
+  const results = query.trim()
+    ? SLANG_DATA.filter(s =>
+        s.word.toLowerCase().includes(query.toLowerCase()) ||
+        s.meaning.includes(query) ||
+        s.category.includes(query)
+      ).slice(0, 5)
+    : [];
+
+  function saveRecent(word) {
+    const updated = [word, ...recent.filter(r => r !== word)].slice(0, 5);
+    setRecent(updated);
+    localStorage.setItem("recentSearch", JSON.stringify(updated));
+  }
+
+  function handleSelect(word) {
+    saveRecent(word);
+    setQuery("");
+    setFocused(false);
+    navigate("/card-study");
+  }
+
+  function removeRecent(word, e) {
+    e.stopPropagation();
+    const updated = recent.filter(r => r !== word);
+    setRecent(updated);
+    localStorage.setItem("recentSearch", JSON.stringify(updated));
+  }
+
+  useEffect(() => {
+    function handleClick(e) {
+      if (ref.current && !ref.current.contains(e.target)) setFocused(false);
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  const showDropdown = focused && (results.length > 0 || (query === "" && recent.length > 0));
+
+  return (
+    <div ref={ref} style={{ position: "relative", width: "100%", maxWidth: 800 }}>
+      <div style={{
+        display: "flex", alignItems: "center", gap: 10,
+        background: "#ffffff", borderRadius: 14,
+        border: `1.5px solid ${focused ? G.accent : "rgba(0,0,0,0.08)"}`,
+        padding: "11px 16px", transition: "border-color 0.2s",
+        boxShadow: focused ? "0 4px 20px rgba(255,77,0,0.1)" : "0 2px 8px rgba(0,0,0,0.04)",
+      }}>
+        <span style={{ fontSize: 16, flexShrink: 0 }}>🔍</span>
+        <input
+          value={query}
+          onChange={e => setQuery(e.target.value)}
+          onFocus={() => setFocused(true)}
+          placeholder="슬랭 단어 검색... (예: No cap, 은근히)"
+          style={{ flex: 1, border: "none", outline: "none", fontSize: 14, fontFamily: "'Noto Sans KR', sans-serif", background: "transparent", color: G.black }}
+        />
+        {query && (
+          <button onClick={() => setQuery("")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 14, color: G.gray, flexShrink: 0 }}>✕</button>
+        )}
+      </div>
+
+      {/* 드롭다운 */}
+      {showDropdown && (
+        <div style={{
+          position: "absolute", top: "calc(100% + 8px)", left: 0, right: 0,
+          background: "#ffffff", borderRadius: 16, border: "1px solid rgba(0,0,0,0.07)",
+          boxShadow: "0 12px 40px rgba(0,0,0,0.12)", zIndex: 100, overflow: "hidden",
+        }}>
+          {/* 검색 결과 */}
+          {results.length > 0 && (
+            <div>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: G.gray, padding: "12px 16px 6px", textTransform: "uppercase" }}>검색 결과</div>
+              {results.map(s => (
+                <div key={s.word} onClick={() => handleSelect(s.word)} style={{
+                  display: "flex", alignItems: "center", gap: 12,
+                  padding: "10px 16px", cursor: "pointer", transition: "background 0.15s",
+                }}
+                  onMouseEnter={e => e.currentTarget.style.background = G.lightGray}
+                  onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                >
+                  <span style={{ fontSize: 20 }}>{s.emoji}</span>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: G.black }}>{s.word}</div>
+                    <div style={{ fontSize: 12, color: G.gray }}>{s.meaning}</div>
+                  </div>
+                  <div style={{ fontSize: 10, background: "rgba(255,77,0,0.08)", color: G.accent, padding: "3px 8px", borderRadius: 100, fontWeight: 600, whiteSpace: "nowrap" }}>{s.category}</div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* 검색 결과 없음 */}
+          {query && results.length === 0 && (
+            <div style={{ padding: "20px 16px", textAlign: "center", fontSize: 13, color: G.gray }}>
+              '{query}' 검색 결과가 없어요 😅
+            </div>
+          )}
+
+          {/* 최근 검색어 */}
+          {query === "" && recent.length > 0 && (
+            <div>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: G.gray, padding: "12px 16px 6px", textTransform: "uppercase" }}>최근 검색어</div>
+              {recent.map(r => (
+                <div key={r} onClick={() => { setQuery(r); }} style={{
+                  display: "flex", alignItems: "center", gap: 10,
+                  padding: "10px 16px", cursor: "pointer", transition: "background 0.15s",
+                }}
+                  onMouseEnter={e => e.currentTarget.style.background = G.lightGray}
+                  onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                >
+                  <span style={{ fontSize: 14, color: G.gray }}>🕐</span>
+                  <span style={{ flex: 1, fontSize: 13, fontWeight: 500, color: G.black }}>{r}</span>
+                  <button onClick={(e) => removeRecent(r, e)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: G.gray }}>✕</button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ── SIDEBAR ── */
 function Sidebar({ active, setActive }) {
   const navigate = useNavigate();
   const menus = [
     { id: "home",     icon: "🏠", label: "홈",          path: "/dashboard" },
+    { id: "bookmark", icon: "⭐", label: "북마크",       path: "/bookmark" },
     { id: "today",    icon: "🃏", label: "오늘의 학습",  path: "/card-study" },
     { id: "practice", icon: "✍️", label: "연습",         path: "/practice" },
+    { id: "conversation", icon: "💬", label: "회화 학습",    path: "/conversation" },
+    { id: "community",    icon: "🌐", label: "커뮤니티",      path: "/community" },
     { id: "ai",       icon: "🤖", label: "AI 회화",      path: "/ai-chat" },
     { id: "review",   icon: "🔁", label: "복습",         path: "/review" },
     { id: "progress", icon: "📊", label: "진도 관리",    path: "/progress" },
@@ -48,11 +201,25 @@ function Sidebar({ active, setActive }) {
           </button>
         ))}
       </nav>
+      {/* 설정 버튼 */}
+      <button onClick={() => navigate("/settings")} style={{
+        display: "flex", alignItems: "center", gap: 12,
+        padding: "12px 14px", borderRadius: 12, border: "none", cursor: "pointer",
+        background: "transparent", color: "rgba(255,255,255,0.5)",
+        fontSize: 14, fontWeight: 400, fontFamily: "'Noto Sans KR', sans-serif",
+        textAlign: "left", width: "100%", marginBottom: 8, transition: "all 0.15s",
+      }}
+        onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.06)"; e.currentTarget.style.color = G.white; }}
+        onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "rgba(255,255,255,0.5)"; }}
+      >
+        <span style={{ fontSize: 18 }}>⚙️</span> 설정
+      </button>
+
       {/* User */}
       <div style={{ borderTop: "1px solid rgba(255,255,255,0.07)", paddingTop: 20, display: "flex", alignItems: "center", gap: 10 }}>
-        <div style={{ width: 36, height: 36, borderRadius: "50%", background: G.accent, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700, color: G.white, flexShrink: 0 }}>민</div>
+        <div style={{ width: 36, height: 36, borderRadius: "50%", background: G.accent, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700, color: G.white, flexShrink: 0 }}>경</div>
         <div>
-          <div style={{ fontSize: 13, fontWeight: 700, color: G.white }}>김민지</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: G.white }}>이경현</div>
           <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)" }}>Intermediate</div>
         </div>
       </div>
@@ -61,13 +228,17 @@ function Sidebar({ active, setActive }) {
 }
 
 /* ── STAT CARD ── */
-function StatCard({ icon, label, value, sub, color = G.accent, bg }) {
+function StatCard({ icon, label, value, sub, color = G.accent, bg, onClick }) {
   return (
-    <div style={{
+    <div onClick={onClick} style={{
       background: bg || G.white, borderRadius: 20, padding: "24px 26px",
       border: "1px solid rgba(0,0,0,0.05)", flex: 1, minWidth: 0,
       fontFamily: "'Noto Sans KR', sans-serif",
-    }}>
+      cursor: onClick ? "pointer" : "default", transition: "transform 0.15s",
+    }}
+      onMouseEnter={e => onClick && (e.currentTarget.style.transform = "translateY(-2px)")}
+      onMouseLeave={e => (e.currentTarget.style.transform = "none")}
+    >
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
         <div style={{ width: 44, height: 44, borderRadius: 14, background: `${color}18`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>{icon}</div>
         {sub && <div style={{ fontSize: 11, color: G.green, fontWeight: 700, background: "#d1fae5", padding: "3px 9px", borderRadius: 100 }}>{sub}</div>}
@@ -79,8 +250,7 @@ function StatCard({ icon, label, value, sub, color = G.accent, bg }) {
 }
 
 /* ── TODAY CARD PREVIEW ── */
-function TodayCard() {
-  const navigate = useNavigate();
+function TodayCard({ navigate }) {
   const [flipped, setFlipped] = useState(false);
   return (
     <div style={{
@@ -138,7 +308,7 @@ function TodayCard() {
 }
 
 /* ── AI CHAT PREVIEW ── */
-function AIChatPreview() {
+function AIChatPreview({ navigate }) {
   const [input, setInput] = useState("");
   const msgs = [
     { from: "ai",   text: "Hey! Let's practice using 'no cap' today. Can you use it in a sentence? 😊" },
@@ -157,7 +327,9 @@ function AIChatPreview() {
           <div style={{ fontSize: 15, fontWeight: 700, color: G.black }}>🤖 AI 회화 연습</div>
           <div style={{ fontSize: 12, color: G.gray, marginTop: 2 }}>원어민 친구와 대화 연습</div>
         </div>
-        <div style={{ width: 10, height: 10, borderRadius: "50%", background: G.green, boxShadow: `0 0 0 3px ${G.green}30` }} />
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ width: 10, height: 10, borderRadius: "50%", background: G.green, boxShadow: `0 0 0 3px ${G.green}30` }} />
+        </div>
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 10, flex: 1 }}>
@@ -176,17 +348,19 @@ function AIChatPreview() {
       <div style={{ display: "flex", gap: 8 }}>
         <input
           value={input} onChange={e => setInput(e.target.value)}
-          placeholder="영어로 입력해보세요..."
-          style={{ flex: 1, padding: "10px 14px", borderRadius: 12, border: "1.5px solid #e5e7eb", fontSize: 13, outline: "none", fontFamily: "'Noto Sans KR', sans-serif", background: G.lightGray }}
+          onClick={() => navigate("/ai-chat")}
+          placeholder="클릭해서 AI 회화 시작하기 →"
+          style={{ flex: 1, padding: "10px 14px", borderRadius: 12, border: "1.5px solid #e5e7eb", fontSize: 13, outline: "none", fontFamily: "'Noto Sans KR', sans-serif", background: G.lightGray, cursor: "pointer" }}
+          readOnly
         />
-        <button style={{ width: 40, height: 40, borderRadius: 12, border: "none", background: G.accent, color: G.white, fontSize: 16, cursor: "pointer", flexShrink: 0 }}>↑</button>
+        <button onClick={() => navigate("/ai-chat")} style={{ width: 40, height: 40, borderRadius: 12, border: "none", background: G.accent, color: G.white, fontSize: 16, cursor: "pointer", flexShrink: 0 }}>↑</button>
       </div>
     </div>
   );
 }
 
 /* ── WEEKLY PROGRESS ── */
-function WeeklyProgress() {
+function WeeklyProgress({ navigate }) {
   const days = [
     { d: "월", done: true,  count: 3 },
     { d: "화", done: true,  count: 5 },
@@ -207,7 +381,7 @@ function WeeklyProgress() {
           <div style={{ fontSize: 15, fontWeight: 700, color: G.black }}>📅 이번 주 학습</div>
           <div style={{ fontSize: 12, color: G.gray, marginTop: 2 }}>4일 연속 학습 중 🔥</div>
         </div>
-        <div style={{ fontSize: 12, color: G.accent, fontWeight: 700, cursor: "pointer" }}>전체 보기 →</div>
+        <div onClick={() => navigate("/progress")} style={{ fontSize: 12, color: G.accent, fontWeight: 700, cursor: "pointer" }}>전체 보기 →</div>
       </div>
       <div style={{ display: "flex", gap: 8, alignItems: "flex-end" }}>
         {days.map(d => (
@@ -229,7 +403,7 @@ function WeeklyProgress() {
 }
 
 /* ── CATEGORY PROGRESS ── */
-function CategoryProgress() {
+function CategoryProgress({ navigate }) {
   const cats = [
     { label: "SNS / 일상 표현", pct: 72, color: G.accent,  icon: "📱" },
     { label: "감탄 / 리액션",   pct: 55, color: G.blue,    icon: "😮" },
@@ -238,7 +412,10 @@ function CategoryProgress() {
   ];
   return (
     <div style={{ background: G.white, borderRadius: 24, padding: 28, border: "1px solid rgba(0,0,0,0.05)", fontFamily: "'Noto Sans KR', sans-serif" }}>
-      <div style={{ fontSize: 15, fontWeight: 700, color: G.black, marginBottom: 4 }}>🎯 카테고리별 숙련도</div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+        <div style={{ fontSize: 15, fontWeight: 700, color: G.black }}>🎯 카테고리별 숙련도</div>
+        <div onClick={() => navigate("/progress")} style={{ fontSize: 12, color: G.accent, fontWeight: 700, cursor: "pointer" }}>전체 보기 →</div>
+      </div>
       <div style={{ fontSize: 12, color: G.gray, marginBottom: 22 }}>더 연습이 필요한 분야를 확인해요</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         {cats.map(c => (
@@ -260,7 +437,7 @@ function CategoryProgress() {
 }
 
 /* ── RECENT SLANG LIST ── */
-function RecentSlang() {
+function RecentSlang({ navigate }) {
   const list = [
     { word: "Lowkey",      meaning: "은근히, 살짝",    tag: "일상",    know: true  },
     { word: "It's giving", meaning: "~느낌이야",       tag: "Gen Z",   know: true  },
@@ -275,7 +452,7 @@ function RecentSlang() {
           <div style={{ fontSize: 15, fontWeight: 700, color: G.black }}>📖 최근 학습한 표현</div>
           <div style={{ fontSize: 12, color: G.gray, marginTop: 2 }}>총 48개 학습 완료</div>
         </div>
-        <div style={{ fontSize: 12, color: G.accent, fontWeight: 700, cursor: "pointer" }}>전체 보기 →</div>
+        <div onClick={() => navigate("/review")} style={{ fontSize: 12, color: G.accent, fontWeight: 700, cursor: "pointer" }}>전체 보기 →</div>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {list.map((s, i) => (
@@ -301,15 +478,16 @@ function RecentSlang() {
 
 /* ── MAIN CONTENT ── */
 function MainContent() {
+  const navigate = useNavigate();
   return (
     <main style={{ flex: 1, padding: "36px 40px", overflowY: "auto", background: G.lightGray, fontFamily: "'Noto Sans KR', sans-serif", minHeight: "100vh" }}>
 
       {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 32 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
         <div>
           <div style={{ fontSize: 13, color: G.gray, marginBottom: 4 }}>좋은 오전이에요 ☀️</div>
           <h1 style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 26, fontWeight: 900, letterSpacing: -0.8, color: G.black }}>
-            오늘도 한 표현씩, <span style={{ color: G.accent }}>민지님!</span>
+            오늘도 한 표현씩, <span style={{ color: G.accent }}>경현님!</span>
           </h1>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -322,28 +500,74 @@ function MainContent() {
         </div>
       </div>
 
+      {/* 검색창 */}
+      <div style={{ marginBottom: 28 }}>
+        <SearchBar />
+      </div>
+
       {/* Stat Cards */}
       <div style={{ display: "flex", gap: 16, marginBottom: 20 }}>
-        <StatCard icon="📚" label="오늘 학습한 표현" value="3" sub="+2 어제보다" color={G.accent} />
-        <StatCard icon="✅" label="완료한 카드" value="48" sub="이번 달" color={G.blue} />
-        <StatCard icon="🎯" label="AI 대화 횟수" value="12" sub="이번 주" color={G.purple} />
-        <StatCard icon="💪" label="평균 정확도" value="87%" sub="↑ 5%" color={G.green} />
+        <StatCard icon="📚" label="오늘 학습한 표현" value="3" sub="+2 어제보다" color={G.accent} onClick={() => navigate("/card-study")} />
+        <StatCard icon="✅" label="완료한 카드" value="48" sub="이번 달" color={G.blue} onClick={() => navigate("/progress")} />
+        <StatCard icon="🎯" label="AI 대화 횟수" value="12" sub="이번 주" color={G.purple} onClick={() => navigate("/ai-chat")} />
+        <StatCard icon="💪" label="평균 정확도" value="87%" sub="↑ 5%" color={G.green} onClick={() => navigate("/progress")} />
       </div>
 
       {/* Today + AI */}
       <div style={{ display: "flex", gap: 20, marginBottom: 20 }}>
-        <TodayCard />
-        <AIChatPreview />
+        <TodayCard navigate={navigate} />
+        <AIChatPreview navigate={navigate} />
       </div>
 
       {/* Weekly + Category */}
       <div style={{ display: "flex", gap: 20, marginBottom: 20 }}>
-        <div style={{ flex: 1 }}><WeeklyProgress /></div>
-        <div style={{ flex: 1 }}><CategoryProgress /></div>
+        <div style={{ flex: 1 }}><WeeklyProgress navigate={navigate} /></div>
+        <div style={{ flex: 1 }}><CategoryProgress navigate={navigate} /></div>
+      </div>
+
+      {/* 회화 학습 배너 */}
+      <div onClick={() => navigate("/conversation")} style={{
+        background: `linear-gradient(135deg, #0d1b2a 0%, #1e3a5f 100%)`,
+        borderRadius: 20, padding: "24px 28px", marginBottom: 20, cursor: "pointer",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        border: "1px solid rgba(255,255,255,0.06)",
+        boxShadow: "0 4px 20px rgba(0,0,0,0.08)", transition: "transform 0.2s",
+      }}
+        onMouseEnter={e => e.currentTarget.style.transform = "translateY(-2px)"}
+        onMouseLeave={e => e.currentTarget.style.transform = "none"}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <div style={{ fontSize: 36 }}>💬</div>
+          <div>
+            <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 15, fontWeight: 900, color: "#ffffff", marginBottom: 4 }}>회화 학습</div>
+            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.5)" }}>상황별 패턴 · 핵심 표현 · 실전 대화문 · 문법 포인트</div>
+          </div>
+        </div>
+        <div style={{ background: "rgba(255,77,0,1)", color: "#ffffff", fontSize: 12, fontWeight: 700, padding: "8px 18px", borderRadius: 100, fontFamily: "'Noto Sans KR', sans-serif", whiteSpace: "nowrap", boxShadow: "0 4px 14px rgba(255,77,0,0.4)" }}>학습하기 →</div>
+      </div>
+
+      {/* 커뮤니티 배너 */}
+      <div onClick={() => navigate("/community")} style={{
+        background: `linear-gradient(135deg, #4c1d95, #7c3aed)`,
+        borderRadius: 20, padding: "24px 28px", marginBottom: 20, cursor: "pointer",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        boxShadow: "0 4px 20px rgba(124,58,237,0.2)", transition: "transform 0.2s",
+      }}
+        onMouseEnter={e => e.currentTarget.style.transform = "translateY(-2px)"}
+        onMouseLeave={e => e.currentTarget.style.transform = "none"}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <div style={{ fontSize: 36 }}>🌐</div>
+          <div>
+            <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 15, fontWeight: 900, color: "#ffffff", marginBottom: 4 }}>커뮤니티</div>
+            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.5)" }}>새 슬랭 제보 · 좋아요 · 댓글 · 이번 주 핫 랭킹</div>
+          </div>
+        </div>
+        <div style={{ background: "#7c3aed", color: "#ffffff", fontSize: 12, fontWeight: 700, padding: "8px 18px", borderRadius: 100, fontFamily: "'Noto Sans KR', sans-serif", whiteSpace: "nowrap", border: "1px solid rgba(255,255,255,0.2)" }}>참여하기 →</div>
       </div>
 
       {/* Recent Slang */}
-      <RecentSlang />
+      <RecentSlang navigate={navigate} />
     </main>
   );
 }

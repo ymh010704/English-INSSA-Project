@@ -1,12 +1,16 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
-import CardStudy from "./pages/Cardstudy";
+import CardStudy from "./pages/CardStudy";
 import Practice from "./pages/Practice";
 import AiChat from "./pages/AiChat";
 import Review from "./pages/Review";
 import Progress from "./pages/Progress";
 import Login from "./pages/Login";
+import Bookmark from "./pages/Bookmark";
+import Settings from "./pages/Settings";
+import ConversationLearn from "./pages/ConversationLearn";
+import Community from "./pages/Community";
 
 export default function App() {
   return (
@@ -20,6 +24,10 @@ export default function App() {
         <Route path="/review" element={<Review />} />
         <Route path="/progress" element={<Progress />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/bookmark" element={<Bookmark />} />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="/conversation" element={<ConversationLearn />} />
+        <Route path="/community" element={<Community />} />
       </Routes>
     </BrowserRouter>
   );

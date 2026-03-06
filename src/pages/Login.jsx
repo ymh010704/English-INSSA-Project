@@ -53,7 +53,7 @@ export default function Login() {
   }
 
   const titles = {
-    login:  { emoji: "👋", main: "다시 돌아왔군요!",   sub: "오늘도 원어민처럼 말해봐요 🔥" },
+    login:  { emoji: "👋", main: "어서오세요!",   sub: "오늘도 원어민처럼 말해봐요 🔥" },
     signup: { emoji: "🎉", main: "인싸 되러 왔나요?",  sub: "지금 가입하면 무료로 시작할 수 있어요" },
     forgot: { emoji: "🔑", main: "비밀번호 찾기",      sub: "가입한 이메일로 재설정 링크를 보내드려요" },
   };

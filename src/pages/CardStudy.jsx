@@ -107,6 +107,25 @@ export default function CardStudy() {
   const [known, setKnown] = useState(0);
   const [done, setDone] = useState(false);
   const [leaving, setLeaving] = useState(null);
+  const [bookmarked, setBookmarked] = useState(() => {
+    const saved = localStorage.getItem("bookmarks");
+    const list = saved ? JSON.parse(saved) : [];
+    return list.map(b => b.id);
+  });
+
+  function toggleBookmark(card) {
+    const saved = localStorage.getItem("bookmarks");
+    let list = saved ? JSON.parse(saved) : [];
+    const exists = list.find(b => b.word === card.word);
+    if (exists) {
+      list = list.filter(b => b.word !== card.word);
+      setBookmarked(prev => prev.filter(id => id !== card.word));
+    } else {
+      list = [...list, { id: card.word, ...card }];
+      setBookmarked(prev => [...prev, card.word]);
+    }
+    localStorage.setItem("bookmarks", JSON.stringify(list));
+  }
 
   const card = CARDS[index];
   const total = CARDS.length;
@@ -134,7 +153,7 @@ export default function CardStudy() {
       {/* 상단 헤더 */}
       <div style={{ background: G.white, borderBottom: "1px solid rgba(0,0,0,0.06)", padding: "18px 40px", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
         <button onClick={() => navigate("/dashboard")} style={{ display: "flex", alignItems: "center", gap: 6, background: "transparent", border: "none", cursor: "pointer", fontSize: 14, color: G.gray, fontFamily: "'Noto Sans KR', sans-serif", fontWeight: 500 }}>
-          ← 대시보드
+          ← 뒤로가기
         </button>
         <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 15, fontWeight: 900, color: G.black }}>
           오늘의 <span style={{ color: G.accent }}>학습</span>
@@ -155,6 +174,21 @@ export default function CardStudy() {
           <div style={{ background: "rgba(255,77,0,0.1)", border: "1px solid rgba(255,77,0,0.2)", color: G.accent, fontSize: 11, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase", padding: "7px 18px", borderRadius: 100 }}>
             {card.emoji} {card.category}
           </div>
+        </div>
+
+        {/* 북마크 버튼 */}
+        <div style={{ marginBottom: 16, display: "flex", justifyContent: "flex-end", width: "100%", maxWidth: 640 }}>
+          <button onClick={() => toggleBookmark(card)} style={{
+            background: bookmarked.includes(card.word) ? G.accent2 : "rgba(255,255,255,0.8)",
+            border: `1.5px solid ${bookmarked.includes(card.word) ? G.accent2 : "#e5dfd5"}`,
+            borderRadius: 100, padding: "7px 16px", cursor: "pointer",
+            fontSize: 13, fontWeight: 700, display: "flex", alignItems: "center", gap: 6,
+            fontFamily: "'Noto Sans KR', sans-serif",
+            transition: "all 0.2s",
+            color: bookmarked.includes(card.word) ? G.black : G.gray,
+          }}>
+            {bookmarked.includes(card.word) ? "⭐ 저장됨" : "☆ 북마크"}
+          </button>
         </div>
 
         {/* 카드 */}
