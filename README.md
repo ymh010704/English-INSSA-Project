@@ -1,18 +1,16 @@
-# English-INSSA-Project
+# React + Vite
 
-전종설(2) 공동 작업
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-# 1) 우선 해야할 작업
+Currently, two official plugins are available:
 
-`개인 로컬 폴더에서 git clone 하시구  push는 main 말고 각자 작업 공간에 해주세요!
-  아래 따라 하시면 됩니다.
-`
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-##### 현재 AWS EC2 웹서버 작동 확인 완료 + docker 기본 틀 잡기 완료
+## React Compiler
 
-```bash
-$ git clone https://github.com/ymh010704/English-INSSA-Project
-$ cd English-INSSA-Project
-$ cp .env.example .env
-$ docker compose up -d
-```
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+
+## Expanding the ESLint configuration
+
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
