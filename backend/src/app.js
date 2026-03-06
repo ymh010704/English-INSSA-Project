@@ -1,20 +1,31 @@
-const express = require("express");
-const routes = require("./routes");
-const { notFound } = require("./middlewares/notfound.middleware");
-const { errorHandler } = require("./middlewares/error.middleware");
+import express from "express";
+import path from "path";
+import { fileURLToPath } from "url";
+import routes from "./routes/index.js"; // 경로 확인 필요
+import { notFound } from "./middlewares/notfound.middleware.js";
+import { errorHandler } from "./middlewares/error.middleware.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
 app.use(express.json());
 
-// 기본 헬스체크
-app.get("/health", (req, res) => res.json({ ok: true }));
+// 빌드된 리액트 파일(dist) 폴더 연결
+app.use(express.static(path.join(__dirname, "../../dist")));
 
-// /api 라우트
+// 헬스체크 및 API 라우트
+app.get("/health", (req, res) => res.json({ ok: true }));
 app.use("/api", routes);
 
-// 404 / 에러 핸들러
+// 그 외 모든 주소는 리액트 화면(index.html)으로 연결
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../../dist/index.html"));
+});
+
+// 에러 핸들러
 app.use(notFound);
 app.use(errorHandler);
 
-module.exports = { app };
+export { app };
