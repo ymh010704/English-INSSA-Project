@@ -206,7 +206,7 @@ function Hero() {
             }}>▶ 미리보기</button>
           </div>
           <div style={{ display: "flex", gap: 28 }}>
-            {[["4.8★", "앱 평점"], ["12만+", "누적 학습자"], ["3,000+", "검수된 표현"]].map(([num, label], i) => (
+            {[["4.8", "앱 평점"], ["12만+", "누적 학습자"], ["3,000+", "검수된 표현"]].map(([num, label], i) => (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 20 }}>
                 {i > 0 && <div style={{ width: 1, height: 36, background: "#ddd" }} />}
                 <div>

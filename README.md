@@ -9,3 +9,12 @@
    
 3. 접속 확인:
    `http://localhost`에서 리액트 메인 화면이 뜨는지 확인해주세요.
+
+
+## 에러 날 때
+1. `npm install`부터 에러가 난다
+   > 폴더 위치(파일 위치) 체크하기
+
+2. `docker compose up -d --build`가 안 된다
+   > .env 파일이 없어서 생긴 문제일 수 있음
+   > `cp .env.example .env` ㄱㄱ
