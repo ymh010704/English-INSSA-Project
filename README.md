@@ -18,3 +18,8 @@
 2. `docker compose up -d --build`가 안 된다
    > .env 파일이 없어서 생긴 문제일 수 있음
    > `cp .env.example .env` ㄱㄱ
+   >
+
+
+
+화이팅
