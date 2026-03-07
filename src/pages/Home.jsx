@@ -206,7 +206,7 @@ function Hero() {
             }}>▶ 미리보기</button>
           </div>
           <div style={{ display: "flex", gap: 28 }}>
-            {[["4.8", "앱 평점"], ["12만+", "누적 학습자"], ["3,000+", "검수된 표현"]].map(([num, label], i) => (
+            {[["0.0", "앱 평점"], ["4", "누적 학습자"], ["100+", "검수된 표현"]].map(([num, label], i) => (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 20 }}>
                 {i > 0 && <div style={{ width: 1, height: 36, background: "#ddd" }} />}
                 <div>
@@ -225,7 +225,7 @@ function Hero() {
 
 /* ── TRUST BAR ── */
 function TrustBar() {
-  const items = ["욕설·혐오 표현 100% 필터링", "원어민 감수 완료", "AI 실시간 피드백", "매일 새 표현 업데이트", "한국인 특화 설명"];
+  const items = ["욕설·혐오 표현 100% 필터링", "AI 감수 완료", "AI 실시간 피드백", "매일 새 표현 업데이트", "한국인 특화 설명"];
   return (
     <div style={{ background: G.black, padding: "22px 60px", display: "flex", alignItems: "center", justifyContent: "center", gap: 48, flexWrap: "wrap", fontFamily: "'Noto Sans KR', sans-serif" }}>
       {items.map(t => (
