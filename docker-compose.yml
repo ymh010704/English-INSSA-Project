@@ -19,7 +19,7 @@ services:
     image: node:20
     working_dir: /app
     volumes:
-      - .:/app            # 현재 폴더(src, public 포함)를 동기화
+      - ./frontend:/app            # 현재 폴더(src, public 포함)를 동기화
       - /app/node_modules # 호스트의 node_modules가 컨테이너를 덮어쓰지 않게 보호
     env_file: .env
     command: sh -c "npm install && npm run dev" # Vite 개발 서버 실행
