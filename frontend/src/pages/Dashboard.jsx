@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 const G = {
   black: "#0a0a0a", white: "#ffffff", cream: "#f5f2eb",
@@ -161,7 +162,7 @@ function SearchBar() {
 /* ── SIDEBAR ── */
 function Sidebar({ active, setActive }) {
   const navigate = useNavigate();
-  const [user, setUser] = useState({ name: "인싸", nickname: "경" });
+  const [user, setUser] = useState({ name: "인싸", nickname: "인" });
 
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
@@ -186,10 +187,42 @@ function Sidebar({ active, setActive }) {
 
   // 2. 로그아웃 함수 정의
   const handleLogout = () => {
-    localStorage.removeItem("user");
-    navigate("/");
-  };
+    Swal.fire({
+      title: '로그아웃 하시겠어요?',
+      text: "공부한 내용들은 안전하게 저장되어 있어요! 🔥",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: G.accent,
+      cancelButtonColor: G.gray,
+      confirmButtonText: '네, 나갈래요',
+      cancelButtonText: '아니요!',
+      background: G.white,
+      borderRadius: '20px'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // 1. 먼저 로컬 스토리지 비우기
+        localStorage.removeItem("user");
 
+        // 2. 로그아웃 성공 Toast 띄우기
+        const Toast = Swal.mixin({
+          toast: true,
+          position: 'top-end',
+          showConfirmButton: false,
+          timer: 1000, // 작별 인사는 조금 더 빠르게!
+          timerProgressBar: true,
+        });
+
+        Toast.fire({
+          icon: 'success',
+          title: '다음에 또 만나요! 👋',
+          background: '#ffffff',
+          iconColor: G.accent,
+        });
+
+        navigate("/");
+      }
+    });
+  };
   const menus = [
     { id: "home",         icon: "🏠", label: "홈",          path: "/dashboard" },
     { id: "bookmark",     icon: "⭐", label: "북마크",        path: "/bookmark" },
