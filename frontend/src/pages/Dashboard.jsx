@@ -214,7 +214,7 @@ function Sidebar({ active, setActive }) {
 
         Toast.fire({
           icon: 'success',
-          title: '다음에 또 만나요! 👋',
+          title: '다음에 또 만나요~! 👋',
           background: '#ffffff',
           iconColor: G.accent,
         });
