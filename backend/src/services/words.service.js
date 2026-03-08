@@ -1,11 +1,10 @@
-const repo = require("../repositories/words.repo.memory");
+import * as repo from "../repositories/words.repo.memory.js"; // .js 필수
 
 function getUserId(req) {
-  // 전시/개발용: 헤더로 유저 구분
   return req.header("X-User-Id") || "demo";
 }
 
-function create(req) {
+export function create(req) {
   const userId = getUserId(req);
   const { term } = req.body || {};
   if (!term || String(term).trim().length === 0) {
@@ -17,13 +16,13 @@ function create(req) {
   return repo.create(userId, req.body);
 }
 
-function list(req) {
+export function list(req) {
   const userId = getUserId(req);
   const { q, tag } = req.query || {};
   return repo.list(userId, { q, tag });
 }
 
-function get(req) {
+export function get(req) {
   const userId = getUserId(req);
   const item = repo.get(userId, req.params.id);
   if (!item) {
@@ -35,7 +34,7 @@ function get(req) {
   return item;
 }
 
-function update(req) {
+export function update(req) {
   const userId = getUserId(req);
   const item = repo.update(userId, req.params.id, req.body || {});
   if (!item) {
@@ -47,7 +46,7 @@ function update(req) {
   return item;
 }
 
-function remove(req) {
+export function remove(req) {
   const userId = getUserId(req);
   const ok = repo.remove(userId, req.params.id);
   if (!ok) {
@@ -58,5 +57,3 @@ function remove(req) {
   }
   return true;
 }
-
-module.exports = { create, list, get, update, remove };

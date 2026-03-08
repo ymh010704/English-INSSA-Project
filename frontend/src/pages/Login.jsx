@@ -1,5 +1,19 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2"; // alert가 너무 딱딱해보여서 추가한 라이브러리
+
+// Toast 기본 설정 정의
+const Toast = Swal.mixin({
+  toast: true,
+  position: 'top-end', // 오른쪽 상단에 표시
+  showConfirmButton: false, // 확인 버튼 숨김
+  timer: 2000, // 2초간 표시
+  timerProgressBar: true, // 하단에 진행바 표시
+  didOpen: (toast) => {
+    toast.addEventListener('mouseenter', Swal.stopTimer);
+    toast.addEventListener('mouseleave', Swal.resumeTimer);
+  }
+});
 
 const G = {
   black: "#0a0a0a", white: "#ffffff",
@@ -26,19 +40,79 @@ export default function Login() {
   const [error, setError] = useState("");
   const [sent, setSent] = useState(false);
 
-  function handleSubmit() {
+  async function handleSubmit() {
     setError("");
-    if (mode === "login") {
-      if (!email || !pw) { setError("이메일과 비밀번호를 입력해주세요."); return; }
-      navigate("/dashboard");
-    } else if (mode === "signup") {
-      if (!name || !email || !pw || !pw2) { setError("모든 항목을 입력해주세요."); return; }
-      if (pw !== pw2) { setError("비밀번호가 일치하지 않아요."); return; }
-      if (pw.length < 6) { setError("비밀번호는 6자 이상이어야 해요."); return; }
-      navigate("/dashboard");
-    } else {
-      if (!email) { setError("이메일을 입력해주세요."); return; }
-      setSent(true);
+    
+    try {
+      if (mode === "login") {
+        if (!email || !pw) return setError("이메일과 비밀번호를 입력해주세요.");
+        
+        // 로그인 API 호출
+        const response = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, pw }),
+        });
+        
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "로그인에 실패했습니다.");
+
+        // 성공 시 로컬 스토리지에 유저 정보 저장 (임시)
+        localStorage.setItem("user", JSON.stringify(data.user));
+        // alert(`${data.user.nickname}님, 환영합니다!`); // 이거 대신 alert로 진행
+        Toast.fire({
+          icon: 'success',
+          title: `<span style="font-family: 'Noto Sans KR'; font-weight: 600;">${data.user.nickname}님, 환영합니다!</span>`,
+          background: '#ffffff',
+          iconColor: '#ff4d00', // 서비스 테마인 G.accent 색상 적용
+        });
+
+        navigate("/dashboard");
+
+      } else if (mode === "signup") {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+          return setError("올바른 이메일 형식을 입력해주세요.\n (예:user@example.com)");
+        }
+        if (!name || !email || !pw || !pw2) return setError("모든 항목을 입력해주세요.");
+        if (pw !== pw2) return setError("비밀번호가 일치하지 않습니다.");
+        if (pw.length < 6) return setError("비밀번호는 6자 이상이어야 합니다.");
+
+        // 회원가입 API 호출
+        const response = await fetch("/api/auth/signup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, pw, name }),
+        });
+
+        // const data = await response.json();
+        // if (!response.ok) throw new Error(data.error || "회원가입에 실패했습니다.");
+        const data = await response.json();
+        if (!response.ok) {
+        // data.error가 객체일 수 있으므로 메시지만 추출합니다.
+          const errorMsg = typeof data.error === 'object' ? data.error.message : data.error;
+          throw new Error(errorMsg || "회원가입에 실패했습니다.");
+        }
+
+        // alert("회원가입에 성공했습니다. 로그인해주세요.");  // 이거 대신 sweetalert2 적용 <별로면 다시 이거 쓰기>
+        Swal.fire({
+          title: '🎉 환영합니다!',
+          text: '인싸가 될 준비가 되셨나요? 이제 로그인을 진행해 주세요.',
+          icon: 'success',
+          confirmButtonText: '확인',
+          confirmButtonColor: '#ff4d00', // 우리가 정한 G.accent 색상
+          background: '#f9f8f5', // G.light 색상
+          borderRadius: '20px',
+        });
+
+        switchMode("login"); // 가입 완료 후 로그인 화면으로 전환
+      } else {
+        if (!email) return setError("이메일을 입력해주세요.");
+        // 비밀번호 찾기 로직 (추후 구현)
+        setSent(true);
+      }
+    } catch (err) {
+      setError(err.message);
     }
   }
 

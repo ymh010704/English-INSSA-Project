@@ -13,3 +13,10 @@ CREATE TABLE users (
   updated_at datetime DEFAULT current_timestamp ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (user_id)
 );
+
+INSERT INTO users (email, password, nickname, is_verified) VALUES
+('yun@google.com', '1234', '윤민혁', 1),
+('doodoo@google.com', '1234', '김두현', 1),
+('lee@google.com', '1234', '이경현', 0),
+('kim@google.com', '1234', '김민우', 1),
+('che@google.com', '1234', '이채영', 0);

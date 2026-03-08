@@ -161,17 +161,47 @@ function SearchBar() {
 /* ── SIDEBAR ── */
 function Sidebar({ active, setActive }) {
   const navigate = useNavigate();
+  const [user, setUser] = useState({ name: "인싸", nickname: "경" });
+
+  useEffect(() => {
+    const savedUser = localStorage.getItem("user");
+    
+    // 1. 로그인 여부 체크: 정보가 없으면 로그인 페이지로 튕기기
+    if (!savedUser) {
+      navigate("/login");
+      return;
+    }
+
+    try {
+      const parsedUser = JSON.parse(savedUser);
+      setUser({
+        name: parsedUser.nickname || parsedUser.name || "인싸",
+        // 아바타에 표시할 첫 글자 추출
+        nickname: (parsedUser.nickname || parsedUser.name || "경").substring(0, 1)
+      });
+    } catch (e) {
+      console.error("유저 정보 파싱 에러:", e);
+    }
+  }, [navigate]);
+
+  // 2. 로그아웃 함수 정의
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    navigate("/");
+  };
+
   const menus = [
-    { id: "home",     icon: "🏠", label: "홈",          path: "/dashboard" },
-    { id: "bookmark", icon: "⭐", label: "북마크",       path: "/bookmark" },
-    { id: "today",    icon: "🃏", label: "오늘의 학습",  path: "/card-study" },
-    { id: "practice", icon: "✍️", label: "연습",         path: "/practice" },
-    { id: "conversation", icon: "💬", label: "회화 학습",    path: "/conversation" },
-    { id: "community",    icon: "🌐", label: "커뮤니티",      path: "/community" },
-    { id: "ai",       icon: "🤖", label: "AI 회화",      path: "/ai-chat" },
-    { id: "review",   icon: "🔁", label: "복습",         path: "/review" },
-    { id: "progress", icon: "📊", label: "진도 관리",    path: "/progress" },
+    { id: "home",         icon: "🏠", label: "홈",          path: "/dashboard" },
+    { id: "bookmark",     icon: "⭐", label: "북마크",        path: "/bookmark" },
+    { id: "today",        icon: "🃏", label: "오늘의 학습",   path: "/card-study" },
+    { id: "practice",     icon: "✍️", label: "연습",          path: "/practice" },
+    { id: "conversation", icon: "💬", label: "회화 학습",     path: "/conversation" },
+    { id: "community",    icon: "🌐", label: "커뮤니티",       path: "/community" },
+    { id: "ai",           icon: "🤖", label: "AI 회화",       path: "/ai-chat" },
+    { id: "review",       icon: "🔁", label: "복습",          path: "/review" },
+    { id: "progress",     icon: "📊", label: "진도 관리",     path: "/progress" },
   ];
+
   return (
     <aside style={{
       width: 220, background: G.black, minHeight: "100vh",
@@ -183,6 +213,7 @@ function Sidebar({ active, setActive }) {
       <div onClick={() => navigate("/")} style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 20, fontWeight: 900, color: G.white, padding: "0 12px", marginBottom: 36, cursor: "pointer" }}>
         영어<span style={{ color: G.accent }}>인싸</span>되기
       </div>
+      
       <nav style={{ display: "flex", flexDirection: "column", gap: 4, flex: 1 }}>
         {menus.map(m => (
           <button key={m.id} onClick={() => { setActive(m.id); if (m.path) navigate(m.path); }} style={{
@@ -201,7 +232,7 @@ function Sidebar({ active, setActive }) {
           </button>
         ))}
       </nav>
-      {/* 설정 버튼 */}
+
       <button onClick={() => navigate("/settings")} style={{
         display: "flex", alignItems: "center", gap: 12,
         padding: "12px 14px", borderRadius: 12, border: "none", cursor: "pointer",
@@ -215,13 +246,36 @@ function Sidebar({ active, setActive }) {
         <span style={{ fontSize: 18 }}>⚙️</span> 설정
       </button>
 
-      {/* User */}
-      <div style={{ borderTop: "1px solid rgba(255,255,255,0.07)", paddingTop: 20, display: "flex", alignItems: "center", gap: 10 }}>
-        <div style={{ width: 36, height: 36, borderRadius: "50%", background: G.accent, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700, color: G.white, flexShrink: 0 }}>경</div>
-        <div>
-          <div style={{ fontSize: 13, fontWeight: 700, color: G.white }}>이경현</div>
-          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)" }}>Intermediate</div>
+      {/* User & Logout Section */}
+      <div style={{ borderTop: "1px solid rgba(255,255,255,0.07)", paddingTop: 20 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+          <div style={{ 
+            width: 36, height: 36, borderRadius: "50%", background: G.accent, 
+            display: "flex", alignItems: "center", justifyContent: "center", 
+            fontSize: 14, fontWeight: 700, color: G.white, flexShrink: 0 
+          }}>
+            {user.nickname}
+          </div>
+          <div style={{ flex: 1, overflow: "hidden" }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: G.white, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+              {user.name}
+            </div>
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)" }}>Intermediate</div>
+          </div>
         </div>
+        
+        <button 
+          onClick={handleLogout}
+          style={{
+            width: "100%", padding: "10px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.1)",
+            background: "transparent", color: "rgba(255,255,255,0.5)", fontSize: 12, fontWeight: 500, cursor: "pointer",
+            transition: "all 0.2s", fontFamily: "'Noto Sans KR', sans-serif"
+          }}
+          onMouseEnter={e => { e.currentTarget.style.color = G.accent; e.currentTarget.style.borderColor = G.accent; e.currentTarget.style.background = "rgba(255,77,0,0.05)"; }}
+          onMouseLeave={e => { e.currentTarget.style.color = "rgba(255,255,255,0.5)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.background = "transparent"; }}
+        >
+          로그아웃
+        </button>
       </div>
     </aside>
   );
@@ -479,15 +533,30 @@ function RecentSlang({ navigate }) {
 /* ── MAIN CONTENT ── */
 function MainContent() {
   const navigate = useNavigate();
+  const [userName, setUserName] = useState("인싸"); // 기본값
+
+  useEffect(() => {
+    // 로컬 스토리지에서 유저 정보 가져오기
+    const savedUser = localStorage.getItem("user");
+    if (savedUser) {
+      try {
+        const user = JSON.parse(savedUser);
+        setUserName(user.nickname || user.name || "인싸"); // nickname 우선, 없으면 name
+      } catch (e) {
+        console.error("유저 정보 파싱 에러:", e);
+      }
+    }
+  }, []);
+
   return (
     <main style={{ flex: 1, padding: "36px 40px", overflowY: "auto", background: G.lightGray, fontFamily: "'Noto Sans KR', sans-serif", minHeight: "100vh" }}>
 
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
         <div>
-          <div style={{ fontSize: 13, color: G.gray, marginBottom: 4 }}>좋은 오전이에요 ☀️</div>
+          <div style={{ fontSize: 13, color: G.gray, marginBottom: 4 }}>좋은 하루에요 ☀️</div>
           <h1 style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 26, fontWeight: 900, letterSpacing: -0.8, color: G.black }}>
-            오늘도 한 표현씩, <span style={{ color: G.accent }}>경현님!</span>
+            오늘도 한 표현씩, <span style={{ color: G.accent }}>{userName}님!</span>
           </h1>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
