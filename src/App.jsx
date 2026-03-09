@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
+import LearningIntro from "./pages/LearningIntro";
 import CardStudy from "./pages/CardStudy";
 import Practice from "./pages/Practice";
 import AiChat from "./pages/AiChat";
@@ -19,6 +20,7 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/card-study" element={<CardStudy />} />
+        <Route path="/learning-intro" element={<LearningIntro />} />
         <Route path="/practice" element={<Practice />} />
         <Route path="/ai-chat" element={<AiChat />} />
         <Route path="/review" element={<Review />} />

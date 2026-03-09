@@ -23,7 +23,7 @@ const SLANG_DATA = [
   { word: "Stan", meaning: "열렬히 좋아하다, 팬이다", category: "SNS", emoji: "⭐" },
   { word: "Tea", meaning: "가십, 뒷얘기", category: "SNS / 일상", emoji: "☕" },
   { word: "Extra", meaning: "과하다, 오버스럽다", category: "성격 표현", emoji: "💥" },
-  { word: "Flex", meaning: "자랑하다, 과시하다", category: "SNS / 일상", emoji: "💪" },
+  { word: "Flex", meaning: "자랑하다, 과시하다", category: "SNS / 일상", emoji: "🔥" },
 ];
 
 /* ── 검색창 ── */
@@ -54,7 +54,7 @@ function SearchBar() {
     saveRecent(word);
     setQuery("");
     setFocused(false);
-    navigate("/card-study");
+    navigate("/learning-intro");
   }
 
   function removeRecent(word, e) {
@@ -164,7 +164,7 @@ function Sidebar({ active, setActive }) {
   const menus = [
     { id: "home",     icon: "🏠", label: "홈",          path: "/dashboard" },
     { id: "bookmark", icon: "⭐", label: "북마크",       path: "/bookmark" },
-    { id: "today",    icon: "🃏", label: "오늘의 학습",  path: "/card-study" },
+    { id: "today",    icon: "🃏", label: "오늘의 학습",  path: "/learning-intro" },
     { id: "practice", icon: "✍️", label: "연습",         path: "/practice" },
     { id: "conversation", icon: "💬", label: "회화 학습",    path: "/conversation" },
     { id: "community",    icon: "🌐", label: "커뮤니티",      path: "/community" },
@@ -255,7 +255,7 @@ function TodayCard({ navigate }) {
   return (
     <div style={{
       background: "linear-gradient(135deg, #0d1b2a 0%, #1a2744 100%)",
-      borderRadius: 24, padding: 32, flex: 1.2,
+      borderRadius: 24, padding: 32, flex: 1,
       display: "flex", flexDirection: "column", gap: 20,
       fontFamily: "'Noto Sans KR', sans-serif",
       position: "relative", overflow: "hidden",
@@ -295,7 +295,7 @@ function TodayCard({ navigate }) {
 
       <div style={{ display: "flex", gap: 10 }}>
         <button style={{ flex: 1, padding: "11px", borderRadius: 12, border: "1.5px solid rgba(255,255,255,0.12)", background: "transparent", color: "rgba(255,255,255,0.5)", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif" }}>🔁 다시볼게요</button>
-        <button onClick={() => navigate("/card-study")} style={{ flex: 1.6, padding: "11px", borderRadius: 12, border: "none", background: G.accent, color: G.white, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif" }}>학습 시작 →</button>
+        <button onClick={() => navigate("/learning-intro")} style={{ flex: 1.6, padding: "11px", borderRadius: 12, border: "none", background: G.accent, color: G.white, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif" }}>학습 시작 →</button>
       </div>
 
       <div style={{ display: "flex", gap: 5 }}>
@@ -507,10 +507,10 @@ function MainContent() {
 
       {/* Stat Cards */}
       <div style={{ display: "flex", gap: 16, marginBottom: 20 }}>
-        <StatCard icon="📚" label="오늘 학습한 표현" value="3" sub="+2 어제보다" color={G.accent} onClick={() => navigate("/card-study")} />
+        <StatCard icon="📚" label="오늘 학습한 표현" value="3" sub="+2 어제보다" color={G.accent} onClick={() => navigate("/learning-intro")} />
         <StatCard icon="✅" label="완료한 카드" value="48" sub="이번 달" color={G.blue} onClick={() => navigate("/progress")} />
         <StatCard icon="🎯" label="AI 대화 횟수" value="12" sub="이번 주" color={G.purple} onClick={() => navigate("/ai-chat")} />
-        <StatCard icon="💪" label="평균 정확도" value="87%" sub="↑ 5%" color={G.green} onClick={() => navigate("/progress")} />
+        <StatCard icon="🔥" label="연속 학습일" value="14일" sub="최고 기록" color={G.green} onClick={() => navigate("/progress")} />
       </div>
 
       {/* Today + AI */}

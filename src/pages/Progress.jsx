@@ -46,7 +46,7 @@ const BADGES = [
   { emoji: "🌙", name: "야간 학습",     desc: "밤 11시 이후 학습",    done: true  },
   { emoji: "🏆", name: "퍼펙트 스코어", desc: "연습 100% 달성",       done: true  },
   { emoji: "👑", name: "30일 연속",     desc: "30일 연속 학습",       done: false },
-  { emoji: "🎯", name: "올라운더",      desc: "모든 카테고리 50% 이상", done: false },
+  { emoji: "🔥", name: "올라운더",      desc: "모든 카테고리 50% 이상", done: false },
   { emoji: "💎", name: "100개 달성",    desc: "표현 100개 학습",      done: false },
   { emoji: "🤖", name: "AI 마스터",     desc: "AI 대화 50회",         done: false },
 ];
@@ -274,7 +274,7 @@ export default function Progress() {
           {[
             { icon: "📚", label: "총 학습 표현", value: "48개", color: G.accent },
             { icon: "✅", label: "완료한 카드", value: "36개", color: G.green },
-            { icon: "🎯", label: "평균 정확도", value: "87%", color: G.blue },
+            { icon: "🔥", label: "연속 학습일", value: "14일", color: G.blue },
             { icon: "⏱️", label: "총 학습 시간", value: "4.2h", color: G.purple },
           ].map(s => (
             <div key={s.label} style={{ background: G.white, borderRadius: 20, padding: "22px 24px", border: "1px solid rgba(0,0,0,0.05)" }}>
