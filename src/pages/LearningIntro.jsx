@@ -7,11 +7,11 @@ const G = {
 };
 
 const TODAY_WORDS = [
-  { word: "No cap", meaning: "진심으로, 거짓말 아님", emoji: "🔥" },
-  { word: "Rizz",   meaning: "이성을 끄는 매력",     emoji: "👑" },
-  { word: "Slay",   meaning: "완벽하게 해내다",       emoji: "💅" },
-  { word: "Lowkey", meaning: "은근히, 조용히",        emoji: "✨" },
-  { word: "Bussin", meaning: "진짜 맛있다, 최고다",   emoji: "🍔" },
+  { word: "No cap", meaning: "진심으로, 거짓말 아님" },
+  { word: "Rizz",   meaning: "이성을 끄는 매력" },
+  { word: "Slay",   meaning: "완벽하게 해내다" },
+  { word: "Lowkey", meaning: "은근히, 조용히" },
+  { word: "Bussin", meaning: "진짜 맛있다, 최고다" },
 ];
 
 export default function LearningIntro() {
@@ -77,7 +77,7 @@ export default function LearningIntro() {
               borderBottom: i < TODAY_WORDS.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none",
             }}>
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <span style={{ fontSize: 20 }}>{w.emoji}</span>
+                <span style={{ fontSize: 20 }}></span>
                 <span style={{
                   fontFamily: "'Unbounded', sans-serif",
                   fontSize: 14, fontWeight: 800, color: G.black,
