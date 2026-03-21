@@ -8,6 +8,15 @@ const G = {
   gray: "#6b7280", lightGray: "#f3f4f6",
 };
 
+// 공통 레이아웃 스타일 (중앙 정렬 컨테이너)
+const containerStyle = {
+  width: "100%",
+  maxWidth: 1200,
+  margin: "0 auto",
+  padding: "0 20px",
+  boxSizing: "border-box",
+};
+
 function useReveal() {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
@@ -42,8 +51,6 @@ function Nav({ scrolled }) {
   return (
     <nav style={{
       position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
-      display: "flex", alignItems: "center", justifyContent: "space-between",
-      padding: scrolled ? "14px 60px" : "20px 60px",
       background: "rgba(255,253,249,0.92)",
       backdropFilter: "blur(16px)",
       borderBottom: "1px solid rgba(0,0,0,0.08)",
@@ -51,22 +58,26 @@ function Nav({ scrolled }) {
       transition: "all 0.3s",
       fontFamily: "'Noto Sans KR', sans-serif",
     }}>
-      <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 17, fontWeight: 900, color: G.black }}>
-        영어<span style={{ color: G.accent }}>인싸</span>되기
+      <div style={{ ...containerStyle, display: "flex", alignItems: "center", justifyContent: "space-between", height: scrolled ? 64 : 80 }}>
+        <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 17, fontWeight: 900, color: G.black, cursor: "pointer" }} onClick={() => navigate("/")}>
+          영어<span style={{ color: G.accent }}>인싸</span>되기
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
+          <div style={{ display: "flex", gap: 32 }}>
+            {["학습", "커뮤니티", "랭킹"].map(t => (
+              <span key={t} style={{ color: "#9ca3af", fontSize: 13, fontWeight: 500, cursor: "pointer" }}>{t}</span>
+            ))}
+          </div>
+          <button onClick={() => navigate("/login")} style={{
+            background: "transparent", border: "1px solid rgba(0,0,0,0.15)", color: G.gray,
+            padding: "9px 22px", borderRadius: 100, fontSize: 13, cursor: "pointer",
+            fontFamily: "'Noto Sans KR', sans-serif", fontWeight: 600, transition: "all 0.2s",
+          }}
+            onMouseEnter={e => { e.currentTarget.style.background = G.black; e.currentTarget.style.color = G.white; e.currentTarget.style.borderColor = G.black; }}
+            onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = G.gray; e.currentTarget.style.borderColor = "rgba(0,0,0,0.15)"; }}
+          >로그인</button>
+        </div>
       </div>
-      <div style={{ display: "flex", gap: 32 }}>
-        {["학습", "커뮤니티", "랭킹"].map(t => (
-          <span key={t} style={{ color: "#9ca3af", fontSize: 13, fontWeight: 500, cursor: "pointer" }}>{t}</span>
-        ))}
-      </div>
-      <button onClick={() => navigate("/login")} style={{
-        background: "transparent", border: "1px solid rgba(0,0,0,0.15)", color: G.gray,
-        padding: "9px 22px", borderRadius: 100, fontSize: 13, cursor: "pointer",
-        fontFamily: "'Noto Sans KR', sans-serif", fontWeight: 600, transition: "all 0.2s",
-      }}
-        onMouseEnter={e => { e.currentTarget.style.background = G.black; e.currentTarget.style.color = G.white; e.currentTarget.style.borderColor = G.black; }}
-        onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = G.gray; e.currentTarget.style.borderColor = "rgba(0,0,0,0.15)"; }}
-      >로그인</button>
     </nav>
   );
 }
@@ -85,93 +96,93 @@ function Hero() {
   return (
     <section style={{
       minHeight: "100vh", background: G.bg, position: "relative",
-      overflow: "hidden", padding: "140px 60px 80px",
+      overflow: "hidden", padding: "140px 0 80px",
       fontFamily: "'Noto Sans KR', sans-serif",
       display: "flex", alignItems: "center",
     }}>
-      <div style={{ position: "absolute", top: -100, left: -100, width: 500, height: 500, background: "radial-gradient(circle, rgba(255,77,0,0.08) 0%, transparent 60%)", pointerEvents: "none" }} />
-      <div style={{ position: "absolute", bottom: -50, right: -50, width: 400, height: 400, background: "radial-gradient(circle, rgba(255,204,0,0.1) 0%, transparent 60%)", pointerEvents: "none" }} />
+      {/* 배경 데코레이션 - 화면 끝에 고정 */}
+      <div style={{ position: "absolute", top: -100, left: -100, width: 600, height: 600, background: "radial-gradient(circle, rgba(255,77,0,0.06) 0%, transparent 70%)", pointerEvents: "none" }} />
+      <div style={{ position: "absolute", bottom: -100, right: -100, width: 600, height: 600, background: "radial-gradient(circle, rgba(255,204,0,0.08) 0%, transparent 70%)", pointerEvents: "none" }} />
 
-      {/* 왼쪽 텍스트 */}
-      <div style={{ flex: 1, maxWidth: 640, position: "relative", zIndex: 1 }}>
-        <Reveal delay={0}>
-          <div style={{
-            display: "inline-flex", alignItems: "center", gap: 8,
-            background: "rgba(255,77,0,0.08)", border: "1px solid rgba(255,77,0,0.2)",
-            color: G.accent, padding: "6px 16px", borderRadius: 100,
-            fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", marginBottom: 32,
-          }}>
-            <span style={{ width: 6, height: 6, borderRadius: "50%", background: G.accent, display: "inline-block", animation: "blink 1.5s infinite" }} />
-            🔥 Gen Z 슬랭 학습
-          </div>
-        </Reveal>
+      <div style={{ ...containerStyle, display: "flex", alignItems: "center", justifyContent: "space-between", position: "relative", zIndex: 1 }}>
+        {/* 왼쪽 텍스트 */}
+        <div style={{ flex: 1, maxWidth: 600 }}>
+          <Reveal delay={0}>
+            <div style={{
+              display: "inline-flex", alignItems: "center", gap: 8,
+              background: "rgba(255,77,0,0.08)", border: "1px solid rgba(255,77,0,0.2)",
+              color: G.accent, padding: "6px 16px", borderRadius: 100,
+              fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", marginBottom: 32,
+            }}>
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: G.accent, display: "inline-block", animation: "blink 1.5s infinite" }} />
+              🔥 Gen Z 슬랭 학습
+            </div>
+          </Reveal>
 
-        <Reveal delay={0.1}>
-          <h1 style={{
-            fontFamily: "'Unbounded', sans-serif",
-            fontSize: "clamp(36px, 5vw, 68px)",
-            fontWeight: 900, lineHeight: 1.1, letterSpacing: -2,
-            marginBottom: 24, color: G.black,
-          }}>
-            교과서 영어는<br />
-            <span style={{ color: G.accent }}>그만.</span>
-          </h1>
-          <p style={{ fontSize: "clamp(18px, 2.5vw, 28px)", color: "rgba(0,0,0,0.55)", fontWeight: 600, marginBottom: 20, letterSpacing: -0.5, lineHeight: 1.4 }}>
-            진짜 원어민처럼 말하고 싶다면
-          </p>
-        </Reveal>
+          <Reveal delay={0.1}>
+            <h1 style={{
+              fontFamily: "'Unbounded', sans-serif",
+              fontSize: "clamp(40px, 5vw, 72px)", // 대화면 대응 상향 조정
+              fontWeight: 900, lineHeight: 1.1, letterSpacing: -2,
+              marginBottom: 24, color: G.black,
+            }}>
+              교과서 영어는<br />
+              <span style={{ color: G.accent }}>그만.</span>
+            </h1>
+            <p style={{ fontSize: "clamp(20px, 2.5vw, 32px)", color: "rgba(0,0,0,0.6)", fontWeight: 600, marginBottom: 20, letterSpacing: -0.5, lineHeight: 1.4 }}>
+              진짜 원어민처럼 말하고 싶다면
+            </p>
+          </Reveal>
 
-        <Reveal delay={0.2}>
-          <p style={{ fontSize: 16, color: "#9ca3af", lineHeight: 2, maxWidth: 480, marginBottom: 40, fontWeight: 300 }}>
-            슬랭 카드 학습 + AI 원어민 회화 연습으로<br />
-            <span style={{ color: G.black, fontWeight: 600 }}>No cap, Slay, Rizz</span> — 교과서엔 없는 진짜 표현을<br />
-            매일 5분씩 익히면 말문이 트여요.
-          </p>
-        </Reveal>
+          <Reveal delay={0.2}>
+            <p style={{ fontSize: 16, color: "#9ca3af", lineHeight: 2, maxWidth: 480, marginBottom: 40, fontWeight: 300 }}>
+              슬랭 카드 학습 + AI 원어민 회화 연습으로<br />
+              <span style={{ color: G.black, fontWeight: 600 }}>No cap, Slay, Rizz</span> — 교과서엔 없는 진짜 표현을<br />
+              매일 5분씩 익히면 말문이 트여요.
+            </p>
+          </Reveal>
 
-        <Reveal delay={0.3}>
-          <div style={{ display: "flex", gap: 12, marginBottom: 52 }}>
-            <button onClick={() => navigate("/login")} style={{
-              background: G.accent, color: G.white, border: "none",
-              padding: "16px 36px", borderRadius: 100, fontSize: 15, fontWeight: 700,
-              cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif",
-              boxShadow: "0 0 40px rgba(255,77,0,0.35)", transition: "transform 0.2s",
-            }}
-              onMouseEnter={e => e.currentTarget.style.transform = "translateY(-3px)"}
-              onMouseLeave={e => e.currentTarget.style.transform = "none"}
-            >무료로 시작하기 →</button>
-            <button onClick={() => navigate("/login")} style={{
-              background: "transparent", color: G.gray, border: "1px solid rgba(0,0,0,0.12)",
-              padding: "16px 28px", borderRadius: 100, fontSize: 15, fontWeight: 500,
-              cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif", transition: "all 0.2s",
-            }}
-              onMouseEnter={e => e.currentTarget.style.background = "rgba(0,0,0,0.04)"}
-              onMouseLeave={e => e.currentTarget.style.background = "transparent"}
-            >미리보기</button>
-          </div>
-        </Reveal>
+          <Reveal delay={0.3}>
+            <div style={{ display: "flex", gap: 12, marginBottom: 52 }}>
+              <button onClick={() => navigate("/login")} style={{
+                background: G.accent, color: G.white, border: "none",
+                padding: "16px 36px", borderRadius: 100, fontSize: 15, fontWeight: 700,
+                cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif",
+                boxShadow: "0 0 40px rgba(255,77,0,0.35)", transition: "transform 0.2s",
+              }}
+                onMouseEnter={e => e.currentTarget.style.transform = "translateY(-3px)"}
+                onMouseLeave={e => e.currentTarget.style.transform = "none"}
+              >무료로 시작하기 →</button>
+              <button onClick={() => navigate("/login")} style={{
+                background: "transparent", color: G.gray, border: "1px solid rgba(0,0,0,0.12)",
+                padding: "16px 28px", borderRadius: 100, fontSize: 15, fontWeight: 500,
+                cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif", transition: "all 0.2s",
+              }}
+                onMouseEnter={e => e.currentTarget.style.background = "rgba(0,0,0,0.04)"}
+                onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+              >미리보기</button>
+            </div>
+          </Reveal>
 
-        <Reveal delay={0.4}>
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-            {SLANG_CHIPS.map(c => (
-              <div key={c.word} style={{
-                background: c.hot ? "rgba(255,77,0,0.06)" : "rgba(0,0,0,0.04)",
-                border: `1px solid ${c.hot ? "rgba(255,77,0,0.2)" : "rgba(0,0,0,0.08)"}`,
-                color: c.hot ? G.accent : "#9ca3af",
-                padding: "8px 18px", borderRadius: 100,
-                fontSize: 12, fontFamily: "'Unbounded', sans-serif", fontWeight: 700,
-              }}>{c.word}</div>
-            ))}
-          </div>
-        </Reveal>
-      </div>
+          <Reveal delay={0.4}>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+              {SLANG_CHIPS.map(c => (
+                <div key={c.word} style={{
+                  background: c.hot ? "rgba(255,77,0,0.06)" : "rgba(0,0,0,0.04)",
+                  border: `1px solid ${c.hot ? "rgba(255,77,0,0.2)" : "rgba(0,0,0,0.08)"}`,
+                  color: c.hot ? G.accent : "#9ca3af",
+                  padding: "8px 18px", borderRadius: 100,
+                  fontSize: 12, fontFamily: "'Unbounded', sans-serif", fontWeight: 700,
+                }}>{c.word}</div>
+              ))}
+            </div>
+          </Reveal>
+        </div>
 
-      {/* 오른쪽 캐릭터 */}
-      <div style={{
-        flex: "0 0 auto", display: "flex", alignItems: "center", justifyContent: "center",
-        paddingLeft: 40, position: "relative",
-      }}>
-        <Mascot size={360} mode="home" />
+        {/* 오른쪽 캐릭터 */}
+        <div style={{ flex: "0 0 auto", paddingLeft: 60, display: "flex", justifyContent: "center" }}>
+          <Mascot size={400} mode="home" /> {/* 사이즈를 살짝 키움 */}
+        </div>
       </div>
 
       <style>{`@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }`}</style>
@@ -188,29 +199,31 @@ const FEATURES = [
 
 function Features() {
   return (
-    <section style={{ background: G.white, padding: "100px 60px", fontFamily: "'Noto Sans KR', sans-serif" }}>
-      <Reveal>
-        <div style={{ textAlign: "center", marginBottom: 60 }}>
-          <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 11, fontWeight: 700, color: G.accent, letterSpacing: 3, textTransform: "uppercase", marginBottom: 16 }}>영어인싸되기!</div>
-          <h2 style={{ fontFamily: "'Unbounded', sans-serif", fontSize: "clamp(24px, 3vw, 40px)", fontWeight: 900, color: G.black, letterSpacing: -1.5 }}>다른 앱과 뭐가 다를까요?</h2>
+    <section style={{ background: G.white, padding: "120px 0", fontFamily: "'Noto Sans KR', sans-serif" }}>
+      <div style={containerStyle}>
+        <Reveal>
+          <div style={{ textAlign: "center", marginBottom: 80 }}>
+            <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 11, fontWeight: 700, color: G.accent, letterSpacing: 3, textTransform: "uppercase", marginBottom: 16 }}>영어인싸되기!</div>
+            <h2 style={{ fontFamily: "'Unbounded', sans-serif", fontSize: "clamp(28px, 3vw, 44px)", fontWeight: 900, color: G.black, letterSpacing: -1.5 }}>다른 앱과 뭐가 다를까요?</h2>
+          </div>
+        </Reveal>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 24 }}>
+          {FEATURES.map((f, i) => (
+            <Reveal key={f.title} delay={i * 0.1}>
+              <div style={{
+                background: G.bg, borderRadius: 24, padding: "40px 32px", height: "100%", boxSizing: "border-box",
+                border: "1px solid rgba(0,0,0,0.05)", transition: "transform 0.2s, box-shadow 0.2s",
+              }}
+                onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-6px)"; e.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.06)"; }}
+                onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; }}
+              >
+                <div style={{ fontSize: 36, marginBottom: 20 }}>{f.icon}</div>
+                <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 15, fontWeight: 900, color: G.black, marginBottom: 12, letterSpacing: -0.5 }}>{f.title}</div>
+                <div style={{ fontSize: 14, color: "#9ca3af", lineHeight: 1.8 }}>{f.desc}</div>
+              </div>
+            </Reveal>
+          ))}
         </div>
-      </Reveal>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 20, maxWidth: 1100, margin: "0 auto" }}>
-        {FEATURES.map((f, i) => (
-          <Reveal key={f.title} delay={i * 0.1}>
-            <div style={{
-              background: G.bg, borderRadius: 24, padding: "32px 28px",
-              border: "1px solid rgba(0,0,0,0.05)", transition: "transform 0.2s, box-shadow 0.2s",
-            }}
-              onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 12px 40px rgba(0,0,0,0.08)"; }}
-              onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; }}
-            >
-              <div style={{ fontSize: 32, marginBottom: 16 }}>{f.icon}</div>
-              <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 14, fontWeight: 900, color: G.black, marginBottom: 10, letterSpacing: -0.5 }}>{f.title}</div>
-              <div style={{ fontSize: 13, color: "#9ca3af", lineHeight: 1.8 }}>{f.desc}</div>
-            </div>
-          </Reveal>
-        ))}
       </div>
     </section>
   );
@@ -225,50 +238,54 @@ const PREVIEW_SLANGS = [
 function SlangPreview() {
   const [flipped, setFlipped] = useState(null);
   return (
-    <section style={{ background: G.bg, padding: "100px 60px", fontFamily: "'Noto Sans KR', sans-serif" }}>
-      <Reveal>
-        <div style={{ textAlign: "center", marginBottom: 60 }}>
-          <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 11, fontWeight: 700, color: G.accent, letterSpacing: 3, textTransform: "uppercase", marginBottom: 16 }}>SLANG PREVIEW</div>
-          <h2 style={{ fontFamily: "'Unbounded', sans-serif", fontSize: "clamp(24px, 3vw, 40px)", fontWeight: 900, color: G.black, letterSpacing: -1.5 }}>오늘의 슬랭</h2>
-          <p style={{ color: "#9ca3af", fontSize: 14, marginTop: 12 }}>카드를 눌러보세요 👆</p>
+    <section style={{ background: G.bg, padding: "120px 0", fontFamily: "'Noto Sans KR', sans-serif" }}>
+      <div style={containerStyle}>
+        <Reveal>
+          <div style={{ textAlign: "center", marginBottom: 60 }}>
+            <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 11, fontWeight: 700, color: G.accent, letterSpacing: 3, textTransform: "uppercase", marginBottom: 16 }}>SLANG PREVIEW</div>
+            <h2 style={{ fontFamily: "'Unbounded', sans-serif", fontSize: "clamp(28px, 3vw, 44px)", fontWeight: 900, color: G.black, letterSpacing: -1.5 }}>오늘의 슬랭</h2>
+            <p style={{ color: "#9ca3af", fontSize: 14, marginTop: 12 }}>카드를 눌러보세요 👆</p>
+          </div>
+        </Reveal>
+        <div style={{ display: "flex", gap: 32, justifyContent: "center", flexWrap: "wrap" }}>
+          {PREVIEW_SLANGS.map((s, i) => (
+            <Reveal key={s.word} delay={i * 0.1} style={{ perspective: 1000 }}>
+              <div onClick={() => setFlipped(flipped === i ? null : i)} style={{
+                width: 300, height: 220, cursor: "pointer",
+                position: "relative", transformStyle: "preserve-3d",
+                transform: flipped === i ? "rotateY(180deg)" : "rotateY(0deg)",
+                transition: "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
+              }}>
+                {/* Front */}
+                <div style={{
+                  position: "absolute", inset: 0, backfaceVisibility: "hidden",
+                  background: G.white, borderRadius: 28, padding: "32px",
+                  border: "1px solid rgba(0,0,0,0.06)", boxShadow: "0 10px 30px rgba(0,0,0,0.04)",
+                  display: "flex", flexDirection: "column", justifyContent: "space-between",
+                }}>
+                  <div>
+                    <span style={{ fontSize: 10, fontWeight: 700, background: "rgba(255,77,0,0.08)", color: G.accent, padding: "4px 12px", borderRadius: 100 }}>{s.tag}</span>
+                    <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 32, fontWeight: 900, color: G.black, marginTop: 16 }}>{s.word} {s.emoji}</div>
+                  </div>
+                  <div style={{ fontSize: 11, color: "#d1d5db", textAlign: "right" }}>탭해서 뜻 보기 →</div>
+                </div>
+                {/* Back */}
+                <div style={{
+                  position: "absolute", inset: 0, backfaceVisibility: "hidden",
+                  transform: "rotateY(180deg)",
+                  background: G.black, borderRadius: 28, padding: "32px",
+                  display: "flex", flexDirection: "column", justifyContent: "space-between",
+                }}>
+                  <div>
+                    <div style={{ fontSize: 18, fontWeight: 700, color: G.white, marginBottom: 12 }}>{s.meaning}</div>
+                    <div style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", lineHeight: 1.7, fontStyle: "italic" }}>"{s.example}"</div>
+                  </div>
+                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", textAlign: "right" }}>탭해서 닫기 ←</div>
+                </div>
+              </div>
+            </Reveal>
+          ))}
         </div>
-      </Reveal>
-      <div style={{ display: "flex", gap: 24, justifyContent: "center", flexWrap: "wrap" }}>
-        {PREVIEW_SLANGS.map((s, i) => (
-          <Reveal key={s.word} delay={i * 0.1} style={{ perspective: 1000 }}>
-            <div onClick={() => setFlipped(flipped === i ? null : i)} style={{
-              width: 280, height: 200, cursor: "pointer",
-              position: "relative", transformStyle: "preserve-3d",
-              transform: flipped === i ? "rotateY(180deg)" : "rotateY(0deg)",
-              transition: "transform 0.5s ease",
-            }}>
-              <div style={{
-                position: "absolute", inset: 0, backfaceVisibility: "hidden",
-                background: G.white, borderRadius: 24, padding: "28px",
-                border: "1px solid rgba(0,0,0,0.06)", boxShadow: "0 4px 24px rgba(0,0,0,0.06)",
-                display: "flex", flexDirection: "column", justifyContent: "space-between",
-              }}>
-                <div>
-                  <span style={{ fontSize: 10, fontWeight: 700, background: "rgba(255,77,0,0.08)", color: G.accent, padding: "3px 10px", borderRadius: 100 }}>{s.tag}</span>
-                  <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 28, fontWeight: 900, color: G.black, marginTop: 14 }}>{s.word} {s.emoji}</div>
-                </div>
-                <div style={{ fontSize: 11, color: "#d1d5db", textAlign: "right" }}>탭해서 뜻 보기 →</div>
-              </div>
-              <div style={{
-                position: "absolute", inset: 0, backfaceVisibility: "hidden",
-                transform: "rotateY(180deg)",
-                background: G.black, borderRadius: 24, padding: "28px",
-                display: "flex", flexDirection: "column", justifyContent: "space-between",
-              }}>
-                <div>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: G.white, marginBottom: 8 }}>{s.meaning}</div>
-                  <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", lineHeight: 1.7, fontStyle: "italic" }}>"{s.example}"</div>
-                </div>
-                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.2)", textAlign: "right" }}>탭해서 닫기 ←</div>
-              </div>
-            </div>
-          </Reveal>
-        ))}
       </div>
     </section>
   );
@@ -282,29 +299,31 @@ const REVIEWS = [
 
 function ReviewSection() {
   return (
-    <section style={{ background: G.white, padding: "100px 60px", fontFamily: "'Noto Sans KR', sans-serif" }}>
-      <Reveal>
-        <div style={{ textAlign: "center", marginBottom: 60 }}>
-          <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 11, fontWeight: 700, color: G.accent, letterSpacing: 3, textTransform: "uppercase", marginBottom: 16 }}>REVIEWS</div>
-          <h2 style={{ fontFamily: "'Unbounded', sans-serif", fontSize: "clamp(24px, 3vw, 40px)", fontWeight: 900, color: G.black, letterSpacing: -1.5 }}>실제 후기</h2>
-        </div>
-      </Reveal>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20, maxWidth: 1000, margin: "0 auto" }}>
-        {REVIEWS.map((r, i) => (
-          <Reveal key={r.name} delay={i * 0.1}>
-            <div style={{ background: G.bg, borderRadius: 24, padding: "28px", border: "1px solid rgba(0,0,0,0.05)" }}>
-              <div style={{ fontSize: 14, color: G.accent, marginBottom: 14, letterSpacing: 2 }}>{"★".repeat(r.stars)}</div>
-              <p style={{ fontSize: 14, color: "#4b5563", lineHeight: 1.8, marginBottom: 20 }}>"{r.text}"</p>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <div style={{ width: 36, height: 36, borderRadius: "50%", background: G.lightGray, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>{r.avatar}</div>
-                <div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: G.black }}>{r.name}</div>
-                  <div style={{ fontSize: 11, color: "#9ca3af" }}>{r.school}</div>
+    <section style={{ background: G.white, padding: "120px 0", fontFamily: "'Noto Sans KR', sans-serif" }}>
+      <div style={containerStyle}>
+        <Reveal>
+          <div style={{ textAlign: "center", marginBottom: 80 }}>
+            <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 11, fontWeight: 700, color: G.accent, letterSpacing: 3, textTransform: "uppercase", marginBottom: 16 }}>REVIEWS</div>
+            <h2 style={{ fontFamily: "'Unbounded', sans-serif", fontSize: "clamp(28px, 3vw, 44px)", fontWeight: 900, color: G.black, letterSpacing: -1.5 }}>실제 후기</h2>
+          </div>
+        </Reveal>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 24 }}>
+          {REVIEWS.map((r, i) => (
+            <Reveal key={r.name} delay={i * 0.1}>
+              <div style={{ background: G.bg, borderRadius: 28, padding: "36px", border: "1px solid rgba(0,0,0,0.05)", height: "100%", boxSizing: "border-box" }}>
+                <div style={{ fontSize: 14, color: G.accent, marginBottom: 18, letterSpacing: 2 }}>{"★".repeat(r.stars)}</div>
+                <p style={{ fontSize: 15, color: "#4b5563", lineHeight: 1.8, marginBottom: 28 }}>"{r.text}"</p>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div style={{ width: 44, height: 44, borderRadius: "50%", background: G.lightGray, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>{r.avatar}</div>
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: G.black }}>{r.name}</div>
+                    <div style={{ fontSize: 12, color: "#9ca3af" }}>{r.school}</div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </Reveal>
-        ))}
+            </Reveal>
+          ))}
+        </div>
       </div>
     </section>
   );
@@ -313,37 +332,41 @@ function ReviewSection() {
 function CTASection() {
   const navigate = useNavigate();
   return (
-    <section style={{ background: G.black, padding: "100px 60px", textAlign: "center", fontFamily: "'Noto Sans KR', sans-serif", position: "relative", overflow: "hidden" }}>
-      <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: 600, height: 400, background: "radial-gradient(circle, rgba(255,77,0,0.12) 0%, transparent 60%)", pointerEvents: "none" }} />
-      <Reveal>
-        <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 11, fontWeight: 700, color: G.accent, letterSpacing: 3, textTransform: "uppercase", marginBottom: 24 }}>GET STARTED</div>
-        <h2 style={{ fontFamily: "'Unbounded', sans-serif", fontSize: "clamp(28px, 4vw, 52px)", fontWeight: 900, color: G.white, letterSpacing: -2, marginBottom: 20, lineHeight: 1.2 }}>
-          지금 바로 시작해요.<br /><span style={{ color: G.accent }}>무료로.</span>
-        </h2>
-        <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 15, marginBottom: 40, lineHeight: 1.8 }}>
-          회원가입 30초면 충분해요.<br />오늘부터 진짜 영어 인싸 되기 시작!
-        </p>
-        <button onClick={() => navigate("/login")} style={{
-          background: G.accent, color: G.white, border: "none",
-          padding: "18px 48px", borderRadius: 100, fontSize: 16, fontWeight: 700,
-          cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif",
-          boxShadow: "0 0 60px rgba(255,77,0,0.4)", transition: "transform 0.2s",
-        }}
-          onMouseEnter={e => e.currentTarget.style.transform = "translateY(-3px)"}
-          onMouseLeave={e => e.currentTarget.style.transform = "none"}
-        >무료로 시작하기 →</button>
-      </Reveal>
+    <section style={{ background: G.black, padding: "140px 0", textAlign: "center", fontFamily: "'Noto Sans KR', sans-serif", position: "relative", overflow: "hidden" }}>
+      <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: 800, height: 500, background: "radial-gradient(circle, rgba(255,77,0,0.15) 0%, transparent 65%)", pointerEvents: "none" }} />
+      <div style={containerStyle}>
+        <Reveal>
+          <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 11, fontWeight: 700, color: G.accent, letterSpacing: 3, textTransform: "uppercase", marginBottom: 24 }}>GET STARTED</div>
+          <h2 style={{ fontFamily: "'Unbounded', sans-serif", fontSize: "clamp(32px, 4vw, 60px)", fontWeight: 900, color: G.white, letterSpacing: -2, marginBottom: 24, lineHeight: 1.2 }}>
+            지금 바로 시작해요.<br /><span style={{ color: G.accent }}>무료로.</span>
+          </h2>
+          <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 16, marginBottom: 48, lineHeight: 1.8 }}>
+            회원가입 30초면 충분해요.<br />오늘부터 진짜 영어 인싸 되기 시작!
+          </p>
+          <button onClick={() => navigate("/login")} style={{
+            background: G.accent, color: G.white, border: "none",
+            padding: "20px 56px", borderRadius: 100, fontSize: 17, fontWeight: 700,
+            cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif",
+            boxShadow: "0 0 60px rgba(255,77,0,0.4)", transition: "all 0.3s",
+          }}
+            onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 0 80px rgba(255,77,0,0.6)"; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "0 0 60px rgba(255,77,0,0.4)"; }}
+          >무료로 시작하기 →</button>
+        </Reveal>
+      </div>
     </section>
   );
 }
 
 function Footer() {
   return (
-    <footer style={{ background: G.black, borderTop: "1px solid rgba(255,255,255,0.06)", padding: "40px 60px", display: "flex", alignItems: "center", justifyContent: "space-between", fontFamily: "'Noto Sans KR', sans-serif" }}>
-      <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 14, fontWeight: 900, color: "rgba(255,255,255,0.3)" }}>
-        영어<span style={{ color: G.accent }}>인싸</span>되기
+    <footer style={{ background: G.black, borderTop: "1px solid rgba(255,255,255,0.08)", padding: "60px 0" }}>
+      <div style={{ ...containerStyle, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 14, fontWeight: 900, color: "rgba(255,255,255,0.3)" }}>
+          영어<span style={{ color: G.accent }}>인싸</span>되기
+        </div>
+        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.2)", letterSpacing: 0.5 }}>© 2025 Engssa. 졸업작품 프로젝트.</div>
       </div>
-      <div style={{ fontSize: 12, color: "rgba(255,255,255,0.2)" }}>© 2025 Engssa. 졸업작품 프로젝트.</div>
     </footer>
   );
 }
@@ -357,7 +380,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div>
+    <div style={{ background: G.bg }}>
       <Nav scrolled={scrolled} />
       <Hero />
       <Features />
