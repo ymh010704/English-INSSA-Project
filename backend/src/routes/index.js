@@ -1,3 +1,4 @@
+import chatRoutes from "./chatRoutes.js";
 import express from "express";
 import wordsRoutes from "./words.routes.js";
 import bookmarksRoutes from "./bookmarks.routes.js";
@@ -14,5 +15,6 @@ router.use("/bookmarks", bookmarksRoutes);
 
 // 인증 관련 라우트 추가 (로그인, 회원가입 등)
 router.use("/auth", authRoutes); 
+router.use("/chat", chatRoutes);
 
 export default router;

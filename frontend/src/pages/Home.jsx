@@ -88,7 +88,6 @@ const SLANG_CHIPS = [
   { word: "Lowkey", hot: false },
   { word: "It's giving", hot: false },
   { word: "Rizz", hot: false },
-  { word: "Bussin", hot: false },
 ];
 
 function Hero() {

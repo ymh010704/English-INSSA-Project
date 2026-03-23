@@ -210,20 +210,35 @@ export default function AiChat() {
 
   async function callAI(history, scenarioId) {
     try {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
+      // 이제 외부 API가 아닌, 우리 프로젝트의 백엔드로 요청을 보냅니다.
+      // Nginx가 /api 경로를 백엔드로 연결해주고 있으므로 주소는 아래와 같습니다.
+      const res = await fetch("http://localhost/api/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json" 
+        },
         body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 1000,
-          system: SYSTEM_PROMPTS[scenarioId],
-          messages: history.length > 0 ? history : [{ role: "user", content: "Start the conversation with a friendly greeting based on the scenario." }],
+          // 백엔드 컨트롤러가 기대하는 형식에 맞춰 데이터를 보냅니다.
+          message: history.length > 0 ? history[history.length - 1].content : "Hello!",
+          history: history.slice(0, -1).map(h => ({
+            role: h.role === "assistant" ? "ai" : "user",
+            content: h.content
+          })),
+          scenario: scenarioId // 시나리오 정보도 함께 전달 가능
         }),
       });
+
       const data = await res.json();
-      return data.content?.[0]?.text || "Sorry, I couldn't respond right now!";
-    } catch {
-      return "Sorry, something went wrong! Try again.";
+      
+      // 백엔드에서 { reply: "..." } 형식으로 응답하므로 data.reply를 반환합니다.
+      if (data.reply) {
+        return data.reply;
+      } else {
+        throw new Error("No reply from server");
+      }
+    } catch (error) {
+      console.error("Frontend Fetch Error:", error);
+      return "지금 백엔드 서버랑 연결이 안 됐어.";
     }
   }
 
