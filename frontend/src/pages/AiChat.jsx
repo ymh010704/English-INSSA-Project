@@ -316,6 +316,12 @@ export default function AiChat() {
                     border: isAI ? "1px solid rgba(255,255,255,0.08)" : "none",
                     color: G.white, fontSize: 14, lineHeight: 1.6,
                     boxShadow: isAI ? "none" : "0 4px 16px rgba(255,77,0,0.3)",
+
+                    /* AI 답변 줄바꿈 스타일 */
+                    whiteSpace: "pre-wrap", 
+                    wordBreak: "break-word"
+
+
                   }}>
                     {cleanText}
                   </div>
