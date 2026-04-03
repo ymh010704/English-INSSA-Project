@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Layout from "./components/Layout";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import LearningIntro from "./pages/LearningIntro";
@@ -18,18 +19,18 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/learning-intro" element={<LearningIntro />} />
-        <Route path="/card-study" element={<CardStudy />} />
-        <Route path="/practice" element={<Practice />} />
-        <Route path="/ai-chat" element={<AiChat />} />
-        <Route path="/review" element={<Review />} />
-        <Route path="/progress" element={<Progress />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/bookmark" element={<Bookmark />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/conversation" element={<ConversationLearn />} />
-        <Route path="/community" element={<Community />} />
+        <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
+        <Route path="/learning-intro" element={<Layout><LearningIntro /></Layout>} />
+        <Route path="/card-study" element={<Layout><CardStudy /></Layout>} />
+        <Route path="/practice" element={<Layout><Practice /></Layout>} />
+        <Route path="/ai-chat" element={<Layout><AiChat /></Layout>} />
+        <Route path="/review" element={<Layout><Review /></Layout>} />
+        <Route path="/progress" element={<Layout><Progress /></Layout>} />
+        <Route path="/bookmark" element={<Layout><Bookmark /></Layout>} />
+        <Route path="/settings" element={<Layout><Settings /></Layout>} />
+        <Route path="/conversation" element={<Layout><ConversationLearn /></Layout>} />
+        <Route path="/community" element={<Layout><Community /></Layout>} />
       </Routes>
     </BrowserRouter>
   );

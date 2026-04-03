@@ -1,10 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import Mascot from "./mascot.jsx";
-
-const G = {
-  black: "#0a0a0a", white: "#ffffff", bg: "#fffdf9",
-  accent: "#ff4d00", gray: "#6b7280", lightGray: "#f3f4f6",
-};
+import Mascot from "../components/Mascot";
+import G from "../constants/colors";
 
 const TODAY_WORDS = [
   { word: "No cap", meaning: "진심으로, 거짓말 아님" },

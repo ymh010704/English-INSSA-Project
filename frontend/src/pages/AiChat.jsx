@@ -1,12 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
-const G = {
-  black: "#0a0a0a", white: "#ffffff",
-  accent: "#ff4d00", accent2: "#ffcc00", navy: "#0d1b2a",
-  gray: "#6b7280", light: "#f9f8f5", lightGray: "#f3f4f6",
-  green: "#10b981", purple: "#7c3aed",
-};
+import G from "../constants/colors";
 
 const SCENARIOS = [
   { id: "cafe",   emoji: "☕", label: "카페에서",     desc: "친구랑 카페 얘기",      color: "#92400e", bg: "#fef3c7" },

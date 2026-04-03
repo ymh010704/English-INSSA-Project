@@ -1,12 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-const G = {
-  black: "#0a0a0a", white: "#ffffff",
-  accent: "#ff4d00", accent2: "#ffcc00", navy: "#0d1b2a",
-  gray: "#6b7280", light: "#f9f8f5", lightGray: "#f3f4f6",
-  green: "#10b981",
-};
+import G from "../constants/colors";
 
 const CARDS = [
   {

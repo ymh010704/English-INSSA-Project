@@ -1,12 +1,6 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-
-const G = {
-  black: "#0a0a0a", white: "#ffffff",
-  accent: "#ff4d00", accent2: "#ffcc00", navy: "#0d1b2a",
-  gray: "#6b7280", light: "#f9f8f5", lightGray: "#f3f4f6",
-  green: "#10b981", red: "#ef4444", border: "#e5e0d8",
-};
+import G from "../constants/colors";
 
 /* ── 섹션 래퍼 ── */
 function Section({ title, children }) {

@@ -1,12 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import Mascot from "./mascot";
+import Mascot from "../components/Mascot";
 
-const G = {
-  black: "#0a0a0a", white: "#ffffff", bg: "#fffdf9",
-  accent: "#ff4d00", accent2: "#ffcc00", navy: "#0d1b2a",
-  gray: "#6b7280", lightGray: "#f3f4f6",
-};
+import G from "../constants/colors";
 
 // 공통 레이아웃 스타일 (중앙 정렬 컨테이너)
 const containerStyle = {
