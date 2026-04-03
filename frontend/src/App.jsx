@@ -11,6 +11,7 @@ import Bookmark from "./pages/Bookmark";
 import Settings from "./pages/Settings";
 import ConversationLearn from "./pages/ConversationLearn";
 import Community from "./pages/Community";
+import SlangList from "./pages/SlangList";
 
 export default function App() {
   return (
@@ -28,6 +29,7 @@ export default function App() {
         <Route path="/settings" element={<Settings />} />
         <Route path="/conversation" element={<ConversationLearn />} />
         <Route path="/community" element={<Community />} />
+        <Route path="/slangs" element={<SlangList />} />
       </Routes>
     </BrowserRouter>
   );

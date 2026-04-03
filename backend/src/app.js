@@ -5,6 +5,7 @@ import { fileURLToPath } from "url";
 import routes from "./routes/index.js";
 import { notFound } from "./middlewares/notfound.middleware.js";
 import { errorHandler } from "./middlewares/error.middleware.js";
+import studiesRoutes from './routes/studies.routes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -22,6 +23,8 @@ app.use(express.urlencoded({ extended: true }));
 // --- 2. API 및 헬스체크 라우트 ---
 app.get("/health", (req, res) => res.json({ ok: true }));
 app.use("/api", routes);
+
+app.use('/api/studies', studiesRoutes);
 
 // --- 3. 정적 파일 및 클라이언트 사이드 라우팅 처리 ---
 

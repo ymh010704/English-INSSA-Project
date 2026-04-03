@@ -1,0 +1,23 @@
+/* 퀴즈 페이지 버튼에 hover 효과를 넣고 싶은데 코드 너무 더러워질까봐 추가한 css 파일 */
+/* 기본 선택지 버튼 호버 */
+.quiz-option-btn {
+  transition: all 0.2s ease-in-out !important;
+}
+
+.quiz-option-btn:hover:not(:disabled) {
+  background-color: #f3f4f6 !important; /* 살짝 밝은 회색 */
+  transform: translateY(-3px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  border-color: #ff4d00 !important; /* 호버 시 테두리 강조 */
+}
+
+/* 하단 확인/다음 버튼 호버 */
+.quiz-action-btn {
+  transition: all 0.3s ease !important;
+}
+
+.quiz-action-btn:hover:not(:disabled) {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 77, 0, 0.4) !important;
+}
