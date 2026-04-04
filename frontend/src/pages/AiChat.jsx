@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import G from "../constants/colors";
 import PageHeader from "../components/PageHeader";
+import Button from "../components/Button";
 
 const SCENARIOS = [
   { id: "cafe",   emoji: "☕", label: "카페에서",     desc: "친구랑 카페 얘기",      color: "#92400e", bg: "#fef3c7" },
@@ -170,8 +171,8 @@ function SummaryScreen({ messages, scenario, onBack }) {
       )}
 
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
-        <button onClick={onBack} style={{ padding: "14px 28px", borderRadius: 100, border: "none", background: G.accent, color: G.white, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif", boxShadow: "0 8px 24px rgba(255,77,0,0.3)" }}>🔄 다시 대화하기</button>
-        <button onClick={() => navigate("/dashboard")} style={{ padding: "14px 28px", borderRadius: 100, border: "1.5px solid rgba(255,255,255,0.2)", background: "transparent", color: G.white, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif" }}>🏠 대시보드로</button>
+        <Button onClick={onBack}>🔄 다시 대화하기</Button>
+        <Button variant="secondary" onClick={() => navigate("/dashboard")} style={{ color: G.white, border: "1.5px solid rgba(255,255,255,0.2)" }}>🏠 대시보드로</Button>
       </div>
     </div>
   );
@@ -262,13 +263,13 @@ export default function AiChat() {
 
       {/* 헤더 */}
       <div style={{ padding: "16px 32px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.07)", flexShrink: 0 }}>
-        <button onClick={() => setScenario(null)} style={{ background: "transparent", border: "none", cursor: "pointer", fontSize: 14, color: "rgba(255,255,255,0.5)", fontFamily: "'Noto Sans KR', sans-serif" }}>← 상황 변경</button>
+        <Button variant="ghost" onClick={() => setScenario(null)} style={{ fontSize: 14, color: "rgba(255,255,255,0.5)" }}>← 상황 변경</Button>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <span style={{ fontSize: 18 }}>{scenario.emoji}</span>
           <span style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 14, fontWeight: 900, color: G.white }}>{scenario.label}</span>
           <div style={{ width: 8, height: 8, borderRadius: "50%", background: G.green, boxShadow: `0 0 0 3px ${G.green}33` }} />
         </div>
-        <button onClick={() => setDone(true)} style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 100, padding: "7px 16px", cursor: "pointer", fontSize: 12, color: "rgba(255,255,255,0.6)", fontFamily: "'Noto Sans KR', sans-serif", fontWeight: 600 }}>대화 종료</button>
+        <Button variant="secondary" onClick={() => setDone(true)} size="sm" style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.6)" }}>대화 종료</Button>
       </div>
 
       {/* 메인 영역 */}

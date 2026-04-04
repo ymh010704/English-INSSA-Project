@@ -13,6 +13,7 @@ import Bookmark from "./pages/Bookmark";
 import Settings from "./pages/Settings";
 import ConversationLearn from "./pages/ConversationLearn";
 import Community from "./pages/Community";
+import Admin from "./pages/Admin";
 
 export default function App() {
   return (
@@ -31,6 +32,7 @@ export default function App() {
         <Route path="/settings" element={<Layout><Settings /></Layout>} />
         <Route path="/conversation" element={<Layout><ConversationLearn /></Layout>} />
         <Route path="/community" element={<Layout><Community /></Layout>} />
+        <Route path="/admin" element={<Admin />} />
       </Routes>
     </BrowserRouter>
   );

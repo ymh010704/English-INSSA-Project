@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import G from "../constants/colors";
 import PageHeader from "../components/PageHeader";
+import Button from "../components/Button";
 
 const CARDS = [
   {
@@ -87,8 +88,8 @@ function CompletionScreen({ known, total, onRestart }) {
         ))}
       </div>
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
-        <button onClick={onRestart} style={{ padding: "14px 32px", borderRadius: 100, border: "none", background: G.accent, color: G.white, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif", boxShadow: "0 8px 24px rgba(255,77,0,0.3)" }}>🔁 다시 학습하기</button>
-        <button onClick={() => navigate("/dashboard")} style={{ padding: "14px 32px", borderRadius: 100, border: "1.5px solid rgba(255,255,255,0.2)", background: "transparent", color: G.white, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif" }}>🏠 대시보드로</button>
+        <Button onClick={onRestart} style={{ padding: "14px 32px" }}>🔁 다시 학습하기</Button>
+        <Button variant="secondary" onClick={() => navigate("/dashboard")} style={{ padding: "14px 32px", color: G.white, border: "1.5px solid rgba(255,255,255,0.2)" }}>🏠 대시보드로</Button>
       </div>
     </div>
   );
@@ -271,20 +272,8 @@ export default function CardStudy() {
 
       {/* 버튼 영역 */}
       <div style={{ padding: "0 32px 40px", display: "flex", gap: 14, flexShrink: 0 }}>
-        <button onClick={() => next(false)} style={{
-          flex: 1, padding: "18px", borderRadius: 20,
-          border: "2px solid #e5dfd5", background: G.white,
-          color: G.gray, fontSize: 15, fontWeight: 600, cursor: "pointer",
-          fontFamily: "'Noto Sans KR', sans-serif",
-          boxShadow: "0 4px 16px rgba(0,0,0,0.06)",
-        }}>🔁 이전 카드 보기</button>
-        <button onClick={() => next(true)} style={{
-          flex: 1.4, padding: "18px", borderRadius: 20,
-          border: "none", background: G.accent, color: G.white,
-          fontSize: 15, fontWeight: 700, cursor: "pointer",
-          fontFamily: "'Noto Sans KR', sans-serif",
-          boxShadow: "0 8px 28px rgba(255,77,0,0.35)",
-        }}>다음 카드 보기 ✅</button>
+        <Button variant="secondary" onClick={() => next(false)} style={{ flex: 1, borderRadius: 20, padding: "18px", fontSize: 15, border: "2px solid #e5dfd5" }}>🔁 이전 카드 보기</Button>
+        <Button onClick={() => next(true)} style={{ flex: 1.4, borderRadius: 20, padding: "18px", fontSize: 15 }}>다음 카드 보기 ✅</Button>
       </div>
     </div>
   );

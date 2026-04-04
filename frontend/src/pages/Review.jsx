@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import G from "../constants/colors";
 import PageHeader from "../components/PageHeader";
+import Button from "../components/Button";
 
 // 임시 복습 데이터 (백엔드 연결 전)
 const REVIEW_CARDS = [
@@ -96,9 +97,9 @@ function ResultScreen({ known, total, onRetry }) {
 
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
         {known < total && (
-          <button onClick={onRetry} style={{ padding: "14px 28px", borderRadius: 100, border: "none", background: G.accent, color: G.white, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif", boxShadow: "0 8px 24px rgba(255,77,0,0.3)" }}>🔁 틀린 것만 다시</button>
+          <Button onClick={onRetry}>🔁 틀린 것만 다시</Button>
         )}
-        <button onClick={() => navigate("/dashboard")} style={{ padding: "14px 28px", borderRadius: 100, border: "1.5px solid rgba(255,255,255,0.2)", background: "transparent", color: G.white, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif" }}>🏠 대시보드로</button>
+        <Button variant="secondary" onClick={() => navigate("/dashboard")} style={{ color: G.white, border: "1.5px solid rgba(255,255,255,0.2)" }}>🏠 대시보드로</Button>
       </div>
     </div>
   );
@@ -271,20 +272,8 @@ export default function Review() {
 
       {/* 버튼 */}
       <div style={{ padding: "0 32px 40px", display: "flex", gap: 14, flexShrink: 0 }}>
-        <button onClick={() => next(false)} style={{
-          flex: 1, padding: "18px", borderRadius: 20,
-          border: "2px solid #e5dfd5", background: G.white,
-          color: G.gray, fontSize: 15, fontWeight: 600, cursor: "pointer",
-          fontFamily: "'Noto Sans KR', sans-serif",
-          boxShadow: "0 4px 16px rgba(0,0,0,0.06)",
-        }}>🔁 아직 헷갈려요</button>
-        <button onClick={() => next(true)} style={{
-          flex: 1.4, padding: "18px", borderRadius: 20,
-          border: "none", background: G.accent, color: G.white,
-          fontSize: 15, fontWeight: 700, cursor: "pointer",
-          fontFamily: "'Noto Sans KR', sans-serif",
-          boxShadow: "0 8px 28px rgba(255,77,0,0.35)",
-        }}>이제 알겠어요 ✅</button>
+        <Button variant="secondary" onClick={() => next(false)} style={{ flex: 1, borderRadius: 20, padding: "18px", fontSize: 15, border: "2px solid #e5dfd5" }}>🔁 아직 헷갈려요</Button>
+        <Button onClick={() => next(true)} style={{ flex: 1.4, borderRadius: 20, padding: "18px", fontSize: 15 }}>이제 알겠어요 ✅</Button>
       </div>
     </div>
   );

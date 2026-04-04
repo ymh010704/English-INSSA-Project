@@ -62,9 +62,9 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ success: false, error: "비밀번호가 틀렸습니다." });
     }
 
-    res.json({ 
-      success: true, 
-      user: { email: user.email, nickname: user.nickname } 
+    res.json({
+      success: true,
+      user: { email: user.email, nickname: user.nickname, role: user.role }
     });
   } catch (err) {
     console.error("Login Error:", err);

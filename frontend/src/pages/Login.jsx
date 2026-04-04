@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2"; // alert가 너무 딱딱해보여서 추가한 라이브러리
+import Button from "../components/Button";
 
 // Toast 기본 설정 정의
 const Toast = Swal.mixin({
@@ -140,9 +141,7 @@ export default function Login() {
         <div onClick={() => navigate("/")} style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 20, fontWeight: 900, cursor: "pointer", color: G.black }}>
           영어<span style={{ color: G.accent }}>인싸</span>되기
         </div>
-        <button onClick={() => navigate("/")} style={{ background: "transparent", border: "none", fontSize: 13, color: G.gray, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif", fontWeight: 500 }}>
-          ← 홈으로
-        </button>
+        <Button variant="ghost" onClick={() => navigate("/")} style={{ fontSize: 13, fontWeight: 500 }}>← 홈으로</Button>
       </nav>
 
       {/* 메인 */}
@@ -214,9 +213,7 @@ export default function Login() {
                 <div style={{ fontSize: 13, color: G.gray, lineHeight: 1.6, marginBottom: 24 }}>
                   <b>{email}</b>로 비밀번호 재설정 링크를 보냈어요.
                 </div>
-                <button onClick={() => switchMode("login")} style={{ padding: "12px 28px", borderRadius: 100, border: "none", background: G.accent, color: G.white, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif", boxShadow: "0 6px 20px rgba(255,77,0,0.3)" }}>
-                  로그인으로 돌아가기
-                </button>
+                <Button onClick={() => switchMode("login")}>로그인으로 돌아가기</Button>
               </div>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
@@ -282,15 +279,9 @@ export default function Login() {
                 )}
 
                 {/* 제출 버튼 */}
-                <button onClick={handleSubmit} style={{
-                  width: "100%", padding: "15px", borderRadius: 14,
-                  border: "none", background: G.accent, color: G.white,
-                  fontSize: 15, fontWeight: 700, cursor: "pointer",
-                  fontFamily: "'Noto Sans KR', sans-serif",
-                  boxShadow: "0 8px 24px rgba(255,77,0,0.3)", marginTop: 4,
-                }}>
+                <Button onClick={handleSubmit} style={{ width: "100%", borderRadius: 14, padding: "15px", fontSize: 15, marginTop: 4 }}>
                   {mode === "login" ? "로그인" : mode === "signup" ? "가입하고 시작하기 🚀" : "재설정 링크 보내기 📨"}
-                </button>
+                </Button>
               </div>
             )}
           </div>
@@ -300,11 +291,11 @@ export default function Login() {
             <div style={{ textAlign: "center", marginTop: 20, fontSize: 14, color: G.gray }}>
               {mode === "login" ? (
                 <>계정이 없으신가요?{" "}
-                  <button onClick={() => switchMode("signup")} style={{ color: G.accent, fontWeight: 700, background: "transparent", border: "none", cursor: "pointer", fontSize: 14, fontFamily: "'Noto Sans KR', sans-serif" }}>무료 가입하기</button>
+                  <Button variant="ghost" onClick={() => switchMode("signup")} style={{ color: G.accent, fontWeight: 700, fontSize: 14 }}>무료 가입하기</Button>
                 </>
               ) : (
                 <>이미 계정이 있으신가요?{" "}
-                  <button onClick={() => switchMode("login")} style={{ color: G.accent, fontWeight: 700, background: "transparent", border: "none", cursor: "pointer", fontSize: 14, fontFamily: "'Noto Sans KR', sans-serif" }}>로그인</button>
+                  <Button variant="ghost" onClick={() => switchMode("login")} style={{ color: G.accent, fontWeight: 700, fontSize: 14 }}>로그인</Button>
                 </>
               )}
             </div>

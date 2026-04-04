@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import G from "../constants/colors";
 import PageHeader from "../components/PageHeader";
+import Button from "../components/Button";
 
 const BOOKMARKS = [
   { id: 1, word: "Slay", meaning: "완벽하게 해내다, 죽인다", example: "She absolutely slayed that presentation.", tag: "칭찬 / 긍정", emoji: "💅" },
@@ -33,14 +34,7 @@ export default function Bookmark() {
     <div style={{ flex: 1, fontFamily: "'Noto Sans KR', sans-serif", display: "flex", flexDirection: "column" }}>
       <PageHeader
         title="북마크" emoji="⭐"
-        right={
-          <button onClick={() => navigate("/card-study")} style={{
-            background: G.accent, color: G.white, border: "none",
-            padding: "9px 18px", borderRadius: 100, fontSize: 13, fontWeight: 700,
-            cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif",
-            boxShadow: "0 4px 16px rgba(255,77,0,0.3)",
-          }}>북마크로 학습 →</button>
-        }
+        right={<Button onClick={() => navigate("/card-study")} size="sm">북마크로 학습 →</Button>}
       />
       <div style={{ padding: "36px 40px" }}>
 

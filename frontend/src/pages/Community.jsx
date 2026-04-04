@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import G from "../constants/colors";
 import PageHeader from "../components/PageHeader";
+import Button from "../components/Button";
 
 /* ── 더미 데이터 ── */
 const INITIAL_POSTS = [
@@ -474,8 +475,8 @@ export default function Community() {
       <PageHeader
         title="커뮤니티" emoji="🌐"
         right={
-          tab === "feed" ? <button onClick={() => setShowSubmit(true)} style={{ padding: "9px 18px", borderRadius: 100, border: "none", background: G.accent, color: G.white, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif", boxShadow: "0 4px 14px rgba(255,77,0,0.3)" }}>+ 제보하기</button>
-          : tab === "board" ? <button onClick={() => setShowWrite(true)} style={{ padding: "9px 18px", borderRadius: 100, border: "none", background: G.accent, color: G.white, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif", boxShadow: "0 4px 14px rgba(255,77,0,0.3)" }}>✏️ 글쓰기</button>
+          tab === "feed" ? <Button onClick={() => setShowSubmit(true)} size="sm">+ 제보하기</Button>
+          : tab === "board" ? <Button onClick={() => setShowWrite(true)} size="sm">✏️ 글쓰기</Button>
           : null
         }
       />

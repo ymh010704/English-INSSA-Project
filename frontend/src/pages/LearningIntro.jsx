@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import Mascot from "../components/Mascot";
 import G from "../constants/colors";
 import PageHeader from "../components/PageHeader";
+import Button from "../components/Button";
 
 const TODAY_WORDS = [
   { word: "No cap", meaning: "진심으로, 거짓말 아님" },
@@ -100,20 +101,9 @@ export default function LearningIntro() {
         </div>
 
         {/* 시작 버튼 */}
-        <button onClick={() => navigate("/card-study")} style={{
-          width: "100%", background: G.accent, color: G.white,
-          border: "none", borderRadius: 16, padding: "18px",
-          fontSize: 16, fontWeight: 700, cursor: "pointer",
-          fontFamily: "'Noto Sans KR', sans-serif",
-          boxShadow: "0 8px 32px rgba(255,77,0,0.35)",
-          transition: "transform 0.2s",
-          letterSpacing: 0.5,
-        }}
-          onMouseEnter={e => e.currentTarget.style.transform = "translateY(-2px)"}
-          onMouseLeave={e => e.currentTarget.style.transform = "none"}
-        >
+        <Button onClick={() => navigate("/card-study")} style={{ width: "100%", borderRadius: 16, padding: "18px", fontSize: 16, letterSpacing: 0.5 }}>
           🚀 학습 시작하기
-        </button>
+        </Button>
 
         <p style={{ textAlign: "center", fontSize: 12, color: "#d1d5db", marginTop: 16 }}>
           오늘 학습하면 {streak + 1}일 연속 달성! 🔥

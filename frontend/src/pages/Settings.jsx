@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import G from "../constants/colors";
 import PageHeader from "../components/PageHeader";
+import Button from "../components/Button";
 
 /* ── 섹션 래퍼 ── */
 function Section({ title, children }) {
@@ -149,9 +150,7 @@ export default function Settings() {
               <span style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", fontWeight: 600 }}>Intermediate · 1,240 XP</span>
             </div>
           </div>
-          <button onClick={() => setModal("profile")} style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 12, padding: "8px 16px", cursor: "pointer", fontSize: 12, fontWeight: 600, color: G.white, fontFamily: "'Noto Sans KR', sans-serif", flexShrink: 0 }}>
-            수정
-          </button>
+          <Button variant="secondary" onClick={() => setModal("profile")} size="sm" style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)", color: G.white, borderRadius: 12, flexShrink: 0 }}>수정</Button>
         </div>
 
         {/* 학습 목표 */}
@@ -222,8 +221,8 @@ export default function Settings() {
               <div style={{ background: "#f0fdf4", border: "1px solid #86efac", borderRadius: 12, padding: "12px", textAlign: "center", fontSize: 14, fontWeight: 700, color: G.green }}>✅ 저장됐어요!</div>
             ) : (
               <div style={{ display: "flex", gap: 10 }}>
-                <button onClick={() => setModal(null)} style={{ flex: 1, padding: "13px", borderRadius: 12, border: `1.5px solid ${G.border}`, background: G.white, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif", color: G.gray }}>취소</button>
-                <button onClick={handleSaveProfile} style={{ flex: 1, padding: "13px", borderRadius: 12, border: "none", background: G.accent, color: G.white, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif", boxShadow: "0 6px 20px rgba(255,77,0,0.3)" }}>저장</button>
+                <Button variant="secondary" onClick={() => setModal(null)} style={{ flex: 1, borderRadius: 12, padding: "13px" }}>취소</Button>
+                <Button onClick={handleSaveProfile} style={{ flex: 1, borderRadius: 12, padding: "13px" }}>저장</Button>
               </div>
             )}
           </div>
@@ -253,8 +252,8 @@ export default function Settings() {
               <div style={{ background: "#f0fdf4", border: "1px solid #86efac", borderRadius: 12, padding: "12px", textAlign: "center", fontSize: 14, fontWeight: 700, color: G.green }}>✅ 변경됐어요!</div>
             ) : (
               <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
-                <button onClick={() => setModal(null)} style={{ flex: 1, padding: "13px", borderRadius: 12, border: `1.5px solid ${G.border}`, background: G.white, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif", color: G.gray }}>취소</button>
-                <button onClick={handleChangePw} style={{ flex: 1, padding: "13px", borderRadius: 12, border: "none", background: G.accent, color: G.white, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif", boxShadow: "0 6px 20px rgba(255,77,0,0.3)" }}>변경</button>
+                <Button variant="secondary" onClick={() => setModal(null)} style={{ flex: 1, borderRadius: 12, padding: "13px" }}>취소</Button>
+                <Button onClick={handleChangePw} style={{ flex: 1, borderRadius: 12, padding: "13px" }}>변경</Button>
               </div>
             )}
           </div>
@@ -269,8 +268,8 @@ export default function Settings() {
               ⚠️ 북마크, 최근 검색어 등 학습 기록이 모두 삭제돼요. 이 작업은 되돌릴 수 없어요.
             </div>
             <div style={{ display: "flex", gap: 10 }}>
-              <button onClick={() => setModal(null)} style={{ flex: 1, padding: "13px", borderRadius: 12, border: `1.5px solid ${G.border}`, background: G.white, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif", color: G.gray }}>취소</button>
-              <button onClick={handleResetData} style={{ flex: 1, padding: "13px", borderRadius: 12, border: "none", background: G.red, color: G.white, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif" }}>초기화</button>
+              <Button variant="secondary" onClick={() => setModal(null)} style={{ flex: 1, borderRadius: 12, padding: "13px" }}>취소</Button>
+              <Button variant="danger" onClick={handleResetData} style={{ flex: 1, borderRadius: 12, padding: "13px" }}>초기화</Button>
             </div>
           </div>
         </Modal>
@@ -284,8 +283,8 @@ export default function Settings() {
               ⚠️ 계정과 모든 학습 데이터가 영구 삭제돼요. 탈퇴 후에는 복구가 불가능해요.
             </div>
             <div style={{ display: "flex", gap: 10 }}>
-              <button onClick={() => setModal(null)} style={{ flex: 1, padding: "13px", borderRadius: 12, border: `1.5px solid ${G.border}`, background: G.white, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif", color: G.gray }}>취소</button>
-              <button onClick={handleDeleteAccount} style={{ flex: 1, padding: "13px", borderRadius: 12, border: "none", background: G.red, color: G.white, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif" }}>탈퇴하기</button>
+              <Button variant="secondary" onClick={() => setModal(null)} style={{ flex: 1, borderRadius: 12, padding: "13px" }}>취소</Button>
+              <Button variant="danger" onClick={handleDeleteAccount} style={{ flex: 1, borderRadius: 12, padding: "13px" }}>탈퇴하기</Button>
             </div>
           </div>
         </Modal>
