@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const G = {
@@ -75,25 +75,49 @@ export default function Settings() {
   const navigate = useNavigate();
   const fileRef = useRef(null);
 
+  // 유저 데이터 로드 (이름 등)
   // 프로필
-  const [name, setName] = useState("이경현");
-  const [email] = useState("kyoung@engssa.kr");
+  const [user, setUser] = useState({email:"", nickname:"", provider:"local"})
   const [avatar, setAvatar] = useState(null);
 
-  // 알림
-  const [notiDaily, setNotiDaily] = useState(true);
-  const [notiStreak, setNotiStreak] = useState(true);
-  const [notiReview, setNotiReview] = useState(false);
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
 
-  // 학습 목표
-  const [dailyGoal, setDailyGoal] = useState(5);
+    if(storedUser) {
+      try {
+        const parsed = JSON.parse(storedUser);
+        setUser(parsed);
+      } catch (e) {
+        console.error("유저 데이터 parse error", e);
+      }
+    } else {
+      // 로그인이 안 되어 있다면, 로그인으로 보내기
+      navigate("/login")
+    }
+  }, [navigate]);
+
+  // 알림 / 학습 목표 (이건 나중에 DB 연동 전까지 로컬스토리지 활용할 예정 -> 이후에 바꾸자)
+  const [dailyGoal, setDailyGoal] = useState(Number(localStorage.getItem("dailyGoal")) || 5);
+  const [notiDaily, setNotiDaily] = useState(true);
+
+  const [notiStreak, setNotiStreak] = useState(true);  
+  const [notiReview, setNotiReview] = useState(false);
 
   // 모달
   const [modal, setModal] = useState(null); // "profile" | "password" | "reset" | "delete"
+  const [name, setName] = useState("");
+  const [saved, setSaved] = useState(false);
+  
+  // 로그아웃 함수
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/login");
+  };
+  
   const [newPw, setNewPw] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
   const [pwError, setPwError] = useState("");
-  const [saved, setSaved] = useState(false);
 
   function handleAvatarChange(e) {
     const file = e.target.files[0];
@@ -104,8 +128,12 @@ export default function Settings() {
   }
 
   function handleSaveProfile() {
+    // 실제로는 API 호출이 들어가야 함 (PATCH /api/auth/profile)
+    const updatedUser = { ...user, nickname: name };
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+    setUser(updatedUser);
     setSaved(true);
-    setTimeout(() => { setSaved(false); setModal(null); }, 1500);
+    setTimeout(() => { setSaved(false); setModal(null); }, 1000);
   }
 
   function handleChangePw() {
@@ -146,14 +174,14 @@ export default function Settings() {
           <div style={{ position: "absolute", top: -40, right: -40, width: 160, height: 160, background: "radial-gradient(circle, rgba(255,77,0,0.2) 0%, transparent 70%)", pointerEvents: "none" }} />
           <div style={{ position: "relative" }}>
             <div style={{ width: 72, height: 72, borderRadius: "50%", background: avatar ? "transparent" : G.accent, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, fontFamily: "'Unbounded', sans-serif", fontWeight: 900, color: G.white, overflow: "hidden", border: "3px solid rgba(255,255,255,0.2)" }}>
-              {avatar ? <img src={avatar} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : name[0]}
+              {avatar ? <img src={avatar} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : user.nickname[0]}
             </div>
             <button onClick={() => fileRef.current.click()} style={{ position: "absolute", bottom: 0, right: 0, width: 24, height: 24, borderRadius: "50%", background: G.accent2, border: "2px solid #1e3a5f", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: 11 }}>✏️</button>
             <input ref={fileRef} type="file" accept="image/*" onChange={handleAvatarChange} style={{ display: "none" }} />
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 18, fontWeight: 900, color: G.white, marginBottom: 4 }}>{name}</div>
-            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>{email}</div>
+            <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 18, fontWeight: 900, color: G.white, marginBottom: 4 }}>{user.nickname}</div>
+            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>{user.email}</div>
             <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(255,255,255,0.1)", borderRadius: 100, padding: "4px 12px" }}>
               <span style={{ fontSize: 12 }}>⚡</span>
               <span style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", fontWeight: 600 }}>Intermediate · 1,240 XP</span>
@@ -192,9 +220,17 @@ export default function Settings() {
           <Row icon="🔁" label="복습 알림" sub="복습할 카드가 있을 때" right={<Toggle value={notiReview} onChange={setNotiReview} />} />
         </Section>
 
-        {/* 계정 설정 */}
+        {/* 계정 설정 (소셜 로그인 시 비밀번호 변경 숨김) */}
         <Section title="🔒 계정">
-          <Row icon="🔑" label="비밀번호 변경" sub="정기적으로 변경을 권장해요" right={<span style={{ fontSize: 16, color: G.gray }}>›</span>} onClick={() => setModal("password")} />
+          {user.provider === 'local' ? (
+            <Row icon="🔑" label="비밀번호 변경" sub="정기적으로 변경을 권장해요" right={<span style={{ fontSize: 16, color: G.gray }}>›</span>} onClick={() => setModal("password")} />
+          ) : (
+            <Row 
+              icon="📱" 
+              label="소셜 로그인 이용 중" 
+              sub={`${user.provider || "SNS"} 계정으로 연결되어 있습니다`} // undefined 방지
+            />
+          )}
         </Section>
 
         {/* 위험 구역 */}
@@ -216,7 +252,7 @@ export default function Settings() {
         <Modal title="👤 프로필 수정" onClose={() => setModal(null)}>
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             <div>
-              <label style={{ fontSize: 12, fontWeight: 700, color: G.black, display: "block", marginBottom: 6 }}>이름</label>
+              <label style={{ fontSize: 12, fontWeight: 700, color: G.black, display: "block", marginBottom: 6 }}>새 닉네임</label>
               <input value={name} onChange={e => setName(e.target.value)} style={{ width: "100%", padding: "12px 16px", borderRadius: 12, border: `1.5px solid ${G.border}`, fontSize: 14, outline: "none", fontFamily: "'Noto Sans KR', sans-serif", boxSizing: "border-box" }}
                 onFocus={e => e.target.style.borderColor = G.accent}
                 onBlur={e => e.target.style.borderColor = G.border}
