@@ -99,7 +99,7 @@ router.get("/google/callback",
       nickname: req.user.nickname 
     }));
     // 프론트엔드 로그인 페이지로 토큰과 유저 정보를 들고 리다이렉트
-    res.redirect(`http://localhost:3000/login?token=${token}&user=${user}`);
+    res.redirect(`http://localhost/login?token=${token}&user=${user}`);
   }
 );
 

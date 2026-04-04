@@ -9,13 +9,15 @@ import { pool } from '../repositories/db.js';
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "/api/auth/google/callback"
+    callbackURL: "http://localhost/api/auth/google/callback"
   },
   async (accessToken, refreshToken, profile, done) => {
     try {
       const email = profile.emails[0].value;
       const nickname = profile.displayName;
       const snsId = profile.id;
+
+      console.log(`📍 구글 데이터 확인 - 이메일: ${email}, 닉네임: ${nickname}, SNS_ID: ${snsId}`);
 
       // 1. 기존 유저인지 확인
       const [rows] = await pool.execute('SELECT * FROM users WHERE email = ?', [email]);
