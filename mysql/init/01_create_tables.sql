@@ -8,16 +8,18 @@ SET CHARACTER SET utf8mb4;
 CREATE TABLE users (
   user_id int NOT NULL AUTO_INCREMENT,
   email varchar(100) NOT NULL unique,
-  password varchar(100) NOT NULL,
+  password varchar(100), /* 원래 NOT NULL 이었는데 소셜 로그인은 NULL 허용해야한다고 함 */
   nickname varchar(50) DEFAULT NULL,
-  is_verified tinyint(1) DEFAULT '0', /* 일단 요게 어드민 여부 확인할거.. */
+  role tinyint(1) DEFAULT '0', /* 어드민 여부 */
   created_at datetime DEFAULT current_timestamp,
   updated_at datetime DEFAULT current_timestamp ON UPDATE CURRENT_TIMESTAMP,
+  sns_id VARCHAR(255), /* 소셜 로그인을 위해 추가 */
+  provider VARCHAR(20) default 'local',
   PRIMARY KEY (user_id)
 );
 
 /* 비밀번호 1234 */
-INSERT INTO users (email, password, nickname, is_verified) VALUES
+INSERT INTO users (email, password, nickname, role) VALUES
 ('yun@google.com', '$2b$10$7vNIm6VlZf3l.uE3Xy5u/.X/g0/nE4jH8kG.U6/wH7p6V6m3G5.Kq', '윤민혁', 1),
 ('doodoo@google.com', '$2b$10$7vNIm6VlZf3l.uE3Xy5u/.X/g0/nE4jH8kG.U6/wH7p6V6m3G5.Kq', '김두현', 1),
 ('lee@google.com', '$2b$10$7vNIm6VlZf3l.uE3Xy5u/.X/g0/nE4jH8kG.U6/wH7p6V6m3G5.Kq', '이경현', 0),

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2"; // alert가 너무 딱딱해보여서 추가한 라이브러리
 
@@ -40,6 +40,30 @@ export default function Login() {
   const [error, setError] = useState("");
   const [sent, setSent] = useState(false);
 
+  useEffect(() => {
+    // URL 파라미터에서 토큰이 있는지 확인
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+    const userData = params.get("user"); // 백엔드에서 유저 정보를 같이 보낼 경우
+
+    if (token) {
+      // 1. 토큰 저장
+      localStorage.setItem("token", token);
+      if (userData) {
+        localStorage.setItem("user", userData);
+      }
+      
+      // 2. 환영 메시지 띄우기
+      Toast.fire({
+        icon: 'success',
+        title: '소셜 로그인에 성공했습니다!',
+      });
+
+      // 3. 메인 대시보드로 이동
+      navigate("/dashboard");
+    }
+  }, [navigate]);
+
   async function handleSubmit() {
     setError("");
     
@@ -58,6 +82,7 @@ export default function Login() {
         if (!response.ok) throw new Error(data.error || "로그인에 실패했습니다.");
 
         // 성공 시 로컬 스토리지에 유저 정보 저장 (임시)
+        localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
         // alert(`${data.user.nickname}님, 환영합니다!`); // 이거 대신 alert로 진행
         Toast.fire({
@@ -170,8 +195,9 @@ export default function Login() {
             {mode !== "forgot" && (
               <>
                 <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 24 }}>
-                  {/* 구글 */}
-                  <button style={{
+                  {/* 구글로 로그인 */}
+                  <button onClick={()=>window.location.href = "/api/auth/google"} 
+                    style={{
                     width: "100%", padding: "13px 20px", borderRadius: 14,
                     border: "1.5px solid #e5e7eb", background: G.white,
                     display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
@@ -188,7 +214,8 @@ export default function Login() {
                   </button>
 
                   {/* 카카오 */}
-                  <button style={{
+                  <button onClick={() => window.location.href = "/api/auth/kakao"}
+                    style={{
                     width: "100%", padding: "13px 20px", borderRadius: 14,
                     border: "none", background: "#FEE500",
                     display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
