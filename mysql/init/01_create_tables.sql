@@ -25,7 +25,7 @@ INSERT INTO users (email, password, nickname, role, provider) VALUES
 ('lee@google.com', '$2b$10$ZBNdm53j.E7CN9EJ5GHUae5jpQmija9Wdv1A8b2RJNmBxu9L0D4J6', '이경현', 0, 'local'),
 ('kim@google.com', '$2b$10$ZBNdm53j.E7CN9EJ5GHUae5jpQmija9Wdv1A8b2RJNmBxu9L0D4J6', '김민우', 0, 'local'),
 ('che@google.com', '$2b$10$ZBNdm53j.E7CN9EJ5GHUae5jpQmija9Wdv1A8b2RJNmBxu9L0D4J6', '이채영', 0, 'local'),
-('admin@engssa.kr', '$2b$10$ZBNdm53j.E7CN9EJ5GHUae5jpQmija9Wdv1A8b2RJNmBxu9L0D4J6', '관리자', 1, 'local');
+('admin@google.com', '$2b$10$ZBNdm53j.E7CN9EJ5GHUae5jpQmija9Wdv1A8b2RJNmBxu9L0D4J6', '관리자', 1, 'local');
 
 
 /* 슬랭 테이블 생성 */
