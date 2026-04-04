@@ -15,7 +15,7 @@ export const getReply = async (message, history = []) => {
 1. English Explanation: (영어로 된 짧은 정의)
 2. 한글 설명: (여기에 한국어로 아주 자세하고 재미있게 슬랭의 뜻과 유래를 설명하세요. 최소 2문장 이상!)
 3. Example: (슬랭이 들어간 자연스러운 영어 문장)
-4. 예시 해석: (위 문장의 한국어 번역)
+4. 예시 해석: (위 문장의 한국어 번역)`,
         },
         ...history.map(h => ({
           role: h.role === "ai" ? "assistant" : "user",

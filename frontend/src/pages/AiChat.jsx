@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import G from "../constants/colors";
+import PageHeader from "../components/PageHeader";
 
 const SCENARIOS = [
   { id: "cafe",   emoji: "☕", label: "카페에서",     desc: "친구랑 카페 얘기",      color: "#92400e", bg: "#fef3c7" },
@@ -92,11 +93,7 @@ function ScenarioSelect({ onSelect }) {
   const navigate = useNavigate();
   return (
     <div style={{ minHeight: "100vh", background: G.navy, display: "flex", flexDirection: "column", fontFamily: "'Noto Sans KR', sans-serif" }}>
-      <div style={{ padding: "20px 40px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-        <button onClick={() => navigate("/dashboard")} style={{ background: "transparent", border: "none", cursor: "pointer", fontSize: 14, color: "rgba(255,255,255,0.5)", fontFamily: "'Noto Sans KR', sans-serif" }}>← 대시보드</button>
-        <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 15, fontWeight: 900, color: G.white }}>🤖 AI <span style={{ color: G.accent }}>회화</span></div>
-        <div style={{ width: 80 }} />
-      </div>
+      <PageHeader title="AI 회화" emoji="🤖" dark />
 
       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "48px 24px" }}>
         <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 14 }}>상황 선택</div>

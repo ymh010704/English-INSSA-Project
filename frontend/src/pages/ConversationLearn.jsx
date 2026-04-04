@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import G from "../constants/colors";
+import PageHeader from "../components/PageHeader";
 
 /* ── 데이터 ── */
 
@@ -399,16 +400,9 @@ export default function ConversationLearn() {
   const [tab, setTab] = useState("situation");
 
   return (
-    <div style={{ minHeight: "100vh", background: G.lightGray, fontFamily: "'Noto Sans KR', sans-serif" }}>
+    <div style={{ minHeight: "100vh", fontFamily: "'Noto Sans KR', sans-serif" }}>
 
-      {/* 헤더 */}
-      <div style={{ background: G.white, borderBottom: "1px solid rgba(0,0,0,0.06)", padding: "18px 40px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 10 }}>
-        <button onClick={() => navigate("/dashboard")} style={{ background: "transparent", border: "none", cursor: "pointer", fontSize: 14, color: G.gray, fontFamily: "'Noto Sans KR', sans-serif", fontWeight: 500 }}>← 뒤로가기</button>
-        <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 15, fontWeight: 900, color: G.black }}>
-          💬 <span style={{ color: G.accent }}>회화 학습</span>
-        </div>
-        <div style={{ width: 80 }} />
-      </div>
+      <PageHeader title="회화 학습" emoji="💬" />
 
       {/* 탭 */}
       <div style={{ background: G.white, borderBottom: "1px solid rgba(0,0,0,0.06)", padding: "0 40px", display: "flex", gap: 4, overflowX: "auto" }}>

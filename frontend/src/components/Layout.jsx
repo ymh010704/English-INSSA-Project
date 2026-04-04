@@ -10,7 +10,7 @@ export default function Layout({ children }) {
       `}</style>
       <div style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
         <Sidebar />
-        <div style={{ flex: 1, overflowY: "auto" }}>
+        <div style={{ flex: 1, overflowY: "auto", background: "#f0ede6" }}>
           {children}
         </div>
       </div>

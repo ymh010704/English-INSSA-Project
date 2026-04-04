@@ -29,7 +29,7 @@ app.use("/api", routes);
 app.use(express.static(distPath));
 
 // API(/api)로 시작하지 않는 모든 GET 요청은 리액트 index.html로 보냄
-app.get("*", (req, res) => {
+app.get("*", (req, res, next) => {
   // API 요청인데 여기까지 내려온 경우(404 API)는 HTML을 주지 않고 다음(notFound)으로 넘김
   if (req.path.startsWith('/api')) {
     return next();

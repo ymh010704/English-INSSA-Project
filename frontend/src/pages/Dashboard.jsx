@@ -421,7 +421,7 @@ function MainContent() {
   }, []);
 
   return (
-    <main style={{ flex: 1, padding: "36px 40px", overflowY: "auto", background: G.lightGray, fontFamily: "'Noto Sans KR', sans-serif", minHeight: "100vh" }}>
+    <main style={{ flex: 1, padding: "36px 40px", overflowY: "auto", fontFamily: "'Noto Sans KR', sans-serif", minHeight: "100vh" }}>
 
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>

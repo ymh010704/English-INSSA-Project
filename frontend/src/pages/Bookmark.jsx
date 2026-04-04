@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import G from "../constants/colors";
+import PageHeader from "../components/PageHeader";
 
 const BOOKMARKS = [
   { id: 1, word: "Slay", meaning: "완벽하게 해내다, 죽인다", example: "She absolutely slayed that presentation.", tag: "칭찬 / 긍정", emoji: "💅" },
@@ -29,22 +30,19 @@ export default function Bookmark() {
   });
 
   return (
-    <div style={{ flex: 1, padding: "36px 40px", background: G.bg, fontFamily: "'Noto Sans KR', sans-serif" }}>
-        {/* 헤더 */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 28 }}>
-          <div>
-            <h1 style={{ fontSize: 24, fontWeight: 900, color: G.black, margin: 0, fontFamily: "'Unbounded', sans-serif" }}>
-              ⭐ 북마크
-            </h1>
-            <p style={{ fontSize: 13, color: G.gray, margin: "4px 0 0" }}>저장한 표현 {BOOKMARKS.length}개</p>
-          </div>
+    <div style={{ flex: 1, fontFamily: "'Noto Sans KR', sans-serif", display: "flex", flexDirection: "column" }}>
+      <PageHeader
+        title="북마크" emoji="⭐"
+        right={
           <button onClick={() => navigate("/card-study")} style={{
             background: G.accent, color: G.white, border: "none",
-            padding: "12px 24px", borderRadius: 100, fontSize: 14, fontWeight: 700,
+            padding: "9px 18px", borderRadius: 100, fontSize: 13, fontWeight: 700,
             cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif",
             boxShadow: "0 4px 16px rgba(255,77,0,0.3)",
           }}>북마크로 학습 →</button>
-        </div>
+        }
+      />
+      <div style={{ padding: "36px 40px" }}>
 
         {/* 검색창 */}
         <div style={{ position: "relative", marginBottom: 20 }}>
@@ -138,5 +136,6 @@ export default function Bookmark() {
           </div>
         )}
       </div>
+    </div>
   );
 }

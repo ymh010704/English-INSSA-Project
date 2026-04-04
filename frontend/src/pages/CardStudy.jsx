@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import G from "../constants/colors";
+import PageHeader from "../components/PageHeader";
 
 const CARDS = [
   {
@@ -144,16 +145,10 @@ export default function CardStudy() {
   return (
     <div style={{ minHeight: "100vh", background: "#f0ede6", fontFamily: "'Noto Sans KR', sans-serif", display: "flex", flexDirection: "column" }}>
 
-      {/* 상단 헤더 */}
-      <div style={{ background: G.white, borderBottom: "1px solid rgba(0,0,0,0.06)", padding: "18px 40px", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
-        <button onClick={() => navigate("/dashboard")} style={{ display: "flex", alignItems: "center", gap: 6, background: "transparent", border: "none", cursor: "pointer", fontSize: 14, color: G.gray, fontFamily: "'Noto Sans KR', sans-serif", fontWeight: 500 }}>
-          ← 뒤로가기
-        </button>
-        <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 15, fontWeight: 900, color: G.black }}>
-          오늘의 <span style={{ color: G.accent }}>학습</span>
-        </div>
-        <div style={{ fontSize: 13, fontWeight: 700, color: G.gray }}>{index + 1} / {total}</div>
-      </div>
+      <PageHeader
+        title="오늘의 학습"
+        right={<span style={{ fontSize: 13, fontWeight: 700, color: G.gray }}>{index + 1} / {total}</span>}
+      />
 
       {/* 진행 바 */}
       <div style={{ height: 5, background: "#e5e0d8", flexShrink: 0 }}>
