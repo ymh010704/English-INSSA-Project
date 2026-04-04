@@ -6,6 +6,7 @@ import routes from "./routes/index.js";
 import { notFound } from "./middlewares/notfound.middleware.js";
 import { errorHandler } from "./middlewares/error.middleware.js";
 import studiesRoutes from './routes/studies.routes.js';
+import dashboardRouter from './routes/dashboard.routes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -25,6 +26,7 @@ app.get("/health", (req, res) => res.json({ ok: true }));
 app.use("/api", routes);
 
 app.use('/api/studies', studiesRoutes);
+app.use('/api/dashboard', dashboardRouter);
 
 // --- 3. 정적 파일 및 클라이언트 사이드 라우팅 처리 ---
 

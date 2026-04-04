@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import axios from "axios";
 
 const G = {
   black: "#0a0a0a", white: "#ffffff", cream: "#f5f2eb",
@@ -564,9 +565,11 @@ function RecentSlang({ navigate }) {
 }
 
 /* ── MAIN CONTENT ── */
-function MainContent() {
+function MainContent({ stats }) {
   const navigate = useNavigate();
   const [userName, setUserName] = useState("인싸"); // 기본값
+
+  const currentStats = stats || { todayCount: 0, masteredCount: 0, aiCount: 0, streak: 0, xp: 0, accuracy: 0 };
 
   useEffect(() => {
     // 로컬 스토리지에서 유저 정보 가져오기
@@ -594,10 +597,10 @@ function MainContent() {
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ background: G.white, borderRadius: 14, padding: "10px 18px", display: "flex", alignItems: "center", gap: 8, fontSize: 14, fontWeight: 700, border: "1px solid rgba(0,0,0,0.05)" }}>
-            🔥 <span style={{ color: G.accent }}>14일</span> 연속
+            🔥 <span style={{ color: G.accent }}>{currentStats.streak}일</span> 연속
           </div>
           <div style={{ background: G.white, borderRadius: 14, padding: "10px 18px", display: "flex", alignItems: "center", gap: 8, fontSize: 14, fontWeight: 700, border: "1px solid rgba(0,0,0,0.05)" }}>
-            ⚡ <span style={{ color: G.accent2 }}>1,240</span> XP
+            ⚡ <span style={{ color: G.accent2 }}>{currentStats.xp.toLocaleString()}</span> XP
           </div>
         </div>
       </div>
@@ -609,10 +612,11 @@ function MainContent() {
 
       {/* Stat Cards */}
       <div style={{ display: "flex", gap: 16, marginBottom: 20 }}>
-        <StatCard icon="📚" label="오늘 학습한 표현" value="3" sub="+2 어제보다" color={G.accent} onClick={() => navigate("/card-study")} />
-        <StatCard icon="✅" label="완료한 카드" value="48" sub="이번 달" color={G.blue} onClick={() => navigate("/progress")} />
-        <StatCard icon="🎯" label="AI 대화 횟수" value="12" sub="이번 주" color={G.purple} onClick={() => navigate("/ai-chat")} />
-        <StatCard icon="💪" label="평균 정확도" value="87%" sub="↑ 5%" color={G.green} onClick={() => navigate("/progress")} />
+        <StatCard icon="📚" label="오늘 학습한 표현" value={currentStats.todayCount} sub="+2 어제보다" // + n은 나중에 수정
+         color={G.accent} onClick={() => navigate("/card-study")} />
+        <StatCard icon="✅" label="완료한 카드" value={currentStats.masteredCount} sub="이번 달" color={G.blue} onClick={() => navigate("/progress")} />
+        <StatCard icon="🎯" label="AI 대화 횟수" value={currentStats.aiCount} sub="이번 주" color={G.purple} onClick={() => navigate("/ai-chat")} />
+        <StatCard icon="💪" label="평균 정확도" value={`${currentStats.accuracy}%`} sub="↑ 5%" color={G.green} onClick={() => navigate("/progress")} />
       </div>
 
       {/* Today + AI */}
@@ -677,6 +681,44 @@ function MainContent() {
 /* ── APP ── */
 export default function Dashboard() {
   const [active, setActive] = useState("home");
+
+  const [stats, setStats] = useState({
+    todayCount: 0,
+    masteredCount: 0,
+    aiCount: 0,
+    streak: 0,
+    xp: 0,
+    accuracy: 0
+  });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const token = localStorage.getItem('token');
+
+        const cleanToken = token ? token.trim().replace(/^["']|["']$/g, '') : null;
+        if (!cleanToken) return;
+
+        if (!token || token === "undefined") {
+          console.error("토큰이 없어서 요청을 보낼 수 없습니다.");
+          return;
+        }
+
+        const res = await axios.get('http://localhost/api/dashboard/stats', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        // 서버 응답이 와야만 업데이트 하도록
+        if (res.data) {
+          setStats(res.data);
+        }
+      } catch (err) {
+        console.error("Stats 로딩 실패", err);
+      }
+    };
+
+    fetchStats();
+  }, []);
+  
   return (
     <>
       <style>{`
@@ -686,6 +728,7 @@ export default function Dashboard() {
       `}</style>
       <div style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
         <Sidebar active={active} setActive={setActive} />
+
         <MainContent />
       </div>
     </>

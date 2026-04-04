@@ -95,8 +95,10 @@ router.get("/google/callback",
   (req, res) => {
     const token = generateToken(req.user);
     const user = encodeURIComponent(JSON.stringify({ 
+      id: req.user.user_id || req.user.id,
       email: req.user.email, 
-      nickname: req.user.nickname 
+      nickname: req.user.nickname,
+      provider: req.user.provider || 'google'
     }));
     // 프론트엔드 로그인 페이지로 토큰과 유저 정보를 들고 리다이렉트
     res.redirect(`http://localhost/login?token=${token}&user=${user}`);
@@ -118,8 +120,10 @@ router.get("/kakao/callback",
 
       const token = generateToken(req.user);
       const userData = encodeURIComponent(JSON.stringify({ 
+        id: req.user.user_id || req.user.id,
         email: req.user.email, 
-        nickname: req.user.nickname 
+        nickname: req.user.nickname,
+        provider: req.user.provider || 'kakao'
       }));
 
       console.log(`✅ 로그인 성공: ${req.user.nickname}`);
