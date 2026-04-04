@@ -53,4 +53,4 @@ INSERT INTO slangs (word, definition_en, definition_ko, example_en, example_ko) 
 ('Tea', 'Gossip or interesting news.', '가십이나 흥미로운 뒷담화, 소문을 말해요. "Spill the tea"라고 하면 "썰 좀 풀어봐"라는 뜻입니다.', 'Did you hear the tea about their breakup?', '걔네 헤어졌다는 썰 들었어?'),
 ('Bet', 'A term used to express agreement or confirmation.', '어, 그래!, 당연하지! 처럼 수락이나 동의를 할 때 쿨하게 쓰는 표현이에요.', 'A: Want to go grab some pizza? B: Bet!', 'A: 피자 먹으러 갈래? B: 콜!'),
 ('Main character energy', 'Someone who behaves like they are the protagonist of their own life.', '자기가 인생의 주인공인 것처럼 자신감 넘치게 행동하는 긍정적인 에너지를 말해요.', 'She walked into the room with major main character energy.', '그녀는 주인공 포스를 팍팍 풍기며 방으로 들어왔어.'),
-('Rent free', 'When you can’t stop thinking about something or someone.', '머릿속에서 떠나질 않을 때 써요. "내 머릿속에 월세도 안 내고 살고 있다"는 뜻이죠.', 'That song has been living in my head rent free all day.', '그 노래가 하루 종일 머릿속에서 계속 맴돌아.');
+(‘Rent free’, ‘When you can’t stop thinking about something or someone.’, ‘머릿속에서 떠나질 않을 때 써요. "내 머릿속에 월세도 안 내고 살고 있다"는 뜻이죠.’, ‘That song has been living in my head rent free all day.’, ‘그 노래가 하루 종일 머릿속에서 계속 맴돌아.’);

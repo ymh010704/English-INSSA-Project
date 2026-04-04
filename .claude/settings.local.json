@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(node gen-hash.mjs)"
+      "Bash(node gen-hash.mjs)",
+      "Bash(npm install:*)"
     ]
   }
 }
