@@ -13,4 +13,18 @@ The React Compiler is not enabled on this template because of its impact on dev 
 
 ## Expanding the ESLint configuration
 
+<<<<<<< Updated upstream
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+=======
+화이팅
+
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    name VARCHAR(100),
+    nickname VARCHAR(100),             
+    role VARCHAR(20) DEFAULT 'user',   
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+>>>>>>> Stashed changes
