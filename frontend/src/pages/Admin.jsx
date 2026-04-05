@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, BookOpen, Users, ShieldAlert, Sparkles,
   BarChart3, CheckCircle2, Search, Plus, Filter,
-  Settings, Flame, Clock3, Tag, Trash2, Pencil, Eye,
+  Flame, Clock3, Tag, Trash2, Pencil, Eye,
   LogOut, ChevronRight, MessageSquare, Bell, Star, Link,
-  AlertTriangle, TrendingUp, ZapOff, BookMarked, UserCheck, UserPlus,
+  AlertTriangle, ZapOff, BookMarked, UserCheck, UserPlus,
 } from "lucide-react";
 import {
   LineChart, Line, BarChart, Bar, XAxis, YAxis,
@@ -41,6 +41,32 @@ const TRENDING = [
   { name: "rizz",   score: 71 },
 ];
 
+const WRONG_SLANGS = [
+  { name: "Rent free",             score: 312 },
+  { name: "Main character energy", score: 278 },
+  { name: "Sus",                   score: 241 },
+  { name: "Stan",                  score: 198 },
+  { name: "Tea",                   score: 165 },
+];
+
+const RIGHT_SLANGS = [
+  { name: "Bet",      score: 654 },
+  { name: "Flex",     score: 589 },
+  { name: "No cap",   score: 541 },
+  { name: "Ghosting", score: 487 },
+  { name: "Slay",     score: 432 },
+];
+
+const AVG_QUIZ = [
+  { name: "월", avg: 3.8 },
+  { name: "화", avg: 4.2 },
+  { name: "수", avg: 5.1 },
+  { name: "목", avg: 4.6 },
+  { name: "금", avg: 5.5 },
+  { name: "토", avg: 3.2 },
+  { name: "일", avg: 4.7 },
+];
+
 const PIPELINE = [
   { label: "작성 완료",   value: 82 },
   { label: "검수 대기",   value: 46 },
@@ -60,10 +86,10 @@ const SLANGS = [
 ];
 
 const USERS = [
-  { id: 1, name: "김민지", email: "minji@example.com",   streak: 14, accuracy: 89, status: "활성", role: "Expert",  joined: "2025-12-01", reports: 2 },
-  { id: 2, name: "이도윤", email: "doyoon@example.com",  streak: 3,  accuracy: 72, status: "활성", role: "일반",    joined: "2026-01-10", reports: 0 },
-  { id: 3, name: "박서연", email: "seoyeon@example.com", streak: 0,  accuracy: 48, status: "휴면", role: "일반",    joined: "2026-02-14", reports: 1 },
-  { id: 4, name: "최준호", email: "junho@example.com",   streak: 26, accuracy: 91, status: "활성", role: "Expert",  joined: "2026-03-05", reports: 5 },
+  { id: 1, name: "김두현", email: "k@example.com",   streak: 14, accuracy: 89, status: "활성", joined: "2025-12-01", reports: 2 },
+  { id: 2, name: "김민우", email: "kmw@example.com",  streak: 3,  accuracy: 72, status: "활성", role: "일반",    joined: "2026-01-10", reports: 0 },
+  { id: 3, name: "윤민혁", email: "y@example.com", streak: 0,  accuracy: 48, status: "휴면", role: "일반",    joined: "2026-02-14", reports: 1 },
+  { id: 4, name: "이경현", email: "l@example.com",   streak: 26, accuracy: 91, status: "활성", joined: "2026-03-05", reports: 5 },
 ];
 
 const REPORTS = [
@@ -233,8 +259,8 @@ function DashboardPage() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
       <SectionTitle
-        title="슬랭 학습 관리자"
-        subtitle="콘텐츠, 유저, 검수, 통계를 한 화면에서 관리합니다."
+        title="오늘의 현황"
+        subtitle={new Date().toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric", weekday: "long" })}
         action={
           <div style={{ display: "flex", gap: 8 }}>
             <Button variant="secondary" size="sm"><Bell size={14} style={{ marginRight: 6 }} />알림</Button>
@@ -319,7 +345,7 @@ function DashboardPage() {
             {[
               { icon: Flame,  color: G.accent, title: "트렌딩 슬랭 업데이트", desc: "급상승 표현 4개가 자동 후보로 등록되었습니다." },
               { icon: Clock3, color: G.blue,   title: "검수 대기",             desc: "17건 중 5건이 48시간 이상 지연 중입니다." },
-              { icon: ZapOff, color: G.red,    title: "Zero Result",           desc: "오늘 미등록 검색어 5건이 수집되었습니다." },
+              { icon: ZapOff, color: G.red,    title: "미등록 검색어",           desc: "오늘 미등록 검색어 5건이 수집되었습니다." },
             ].map(item => {
               const Icon = item.icon;
               return (
@@ -368,6 +394,60 @@ function DashboardPage() {
           </div>
         </Card>
       </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
+        <Card>
+          <div style={{ padding: "20px 24px 0" }}>
+            <div style={{ fontSize: 14, fontWeight: 700 }}>❌ 자주 틀린 슬랭 TOP 5</div>
+          </div>
+          <div style={{ padding: "16px 8px 8px" }}>
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={WRONG_SLANGS} layout="vertical">
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0ede6" />
+                <XAxis type="number" tick={{ fontSize: 11 }} />
+                <YAxis type="category" dataKey="name" tick={{ fontSize: 11 }} width={120} />
+                <Tooltip />
+                <Bar dataKey="score" fill={G.red} radius={[0, 8, 8, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+
+        <Card>
+          <div style={{ padding: "20px 24px 0" }}>
+            <div style={{ fontSize: 14, fontWeight: 700 }}>✅ 자주 맞힌 슬랭 TOP 5</div>
+          </div>
+          <div style={{ padding: "16px 8px 8px" }}>
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={RIGHT_SLANGS} layout="vertical">
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0ede6" />
+                <XAxis type="number" tick={{ fontSize: 11 }} />
+                <YAxis type="category" dataKey="name" tick={{ fontSize: 11 }} width={80} />
+                <Tooltip />
+                <Bar dataKey="score" fill={G.green} radius={[0, 8, 8, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+
+        <Card>
+          <div style={{ padding: "20px 24px 0" }}>
+            <div style={{ fontSize: 14, fontWeight: 700 }}>📝 평균 문제 풀이 횟수</div>
+            <div style={{ fontSize: 12, color: G.gray, marginTop: 2 }}>최근 7일 · 1인 기준</div>
+          </div>
+          <div style={{ padding: "16px 8px 8px" }}>
+            <ResponsiveContainer width="100%" height={200}>
+              <LineChart data={AVG_QUIZ}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0ede6" />
+                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                <YAxis tick={{ fontSize: 12 }} domain={[0, 7]} unit="회" />
+                <Tooltip formatter={v => `${v}회`} />
+                <Line type="monotone" dataKey="avg" stroke={G.purple} strokeWidth={3} dot={{ r: 4, fill: G.purple }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+      </div>
     </div>
   );
 }
@@ -394,7 +474,7 @@ function ContentPage() {
     <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
       <SectionTitle
         title="콘텐츠 관리"
-        subtitle="슬랭 카드, 어원, 태그, 멀티미디어, 유효기간을 관리합니다."
+        subtitle="슬랭 카드, 어원, 태그, 멀티미디어를 관리합니다."
         action={<Button size="sm"><Plus size={14} style={{ marginRight: 6 }} />슬랭 추가</Button>}
       />
 
@@ -419,7 +499,7 @@ function ContentPage() {
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
               <thead>
                 <tr style={{ borderBottom: "1.5px solid #f0ede6" }}>
-                  {["슬랭", "뜻", "어원", "태그", "상태", "유효기간", "트렌드", ""].map(h => (
+                  {["슬랭", "뜻", "어원", "태그", "상태", "트렌드", ""].map(h => (
                     <th key={h} style={{ padding: "14px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: G.gray, letterSpacing: 0.5 }}>{h}</th>
                   ))}
                 </tr>
@@ -440,9 +520,6 @@ function ContentPage() {
                     </td>
                     <td style={{ padding: "14px 16px" }}>
                       <Badge color={statusColor[s.status] || G.gray}>{s.status}</Badge>
-                    </td>
-                    <td style={{ padding: "14px 16px" }}>
-                      <Badge color={validityColor[s.validity] || G.gray}>{s.validity}</Badge>
                     </td>
                     <td style={{ padding: "14px 16px" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -520,9 +597,7 @@ function UsersPage() {
     setUsers(prev => prev.filter(u => u.id !== id));
     setConfirm(null);
   }
-  function toggleExpert(id) {
-    setUsers(prev => prev.map(u => u.id === id ? { ...u, role: u.role === "Expert" ? "일반" : "Expert" } : u));
-  }
+
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
@@ -538,7 +613,7 @@ function UsersPage() {
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
           <thead>
             <tr style={{ borderBottom: "1.5px solid #f0ede6" }}>
-              {["#", "이름", "이메일", "연속 학습", "정답률", "권한", "신고누적", "상태", "가입일", ""].map(h => (
+              {["#", "이름", "이메일", "연속 학습", "정답률", "신고누적", "상태", "가입일", ""].map(h => (
                 <th key={h} style={{ padding: "14px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: G.gray, letterSpacing: 0.5 }}>{h}</th>
               ))}
             </tr>
@@ -563,11 +638,6 @@ function UsersPage() {
                   </div>
                 </td>
                 <td style={{ padding: "14px 16px" }}>
-                  <Badge color={u.role === "Expert" ? G.accent : G.gray}>
-                    {u.role === "Expert" ? "⭐ Expert" : "일반"}
-                  </Badge>
-                </td>
-                <td style={{ padding: "14px 16px" }}>
                   <span style={{ color: u.reports >= 3 ? G.red : G.gray, fontWeight: u.reports >= 3 ? 700 : 400 }}>{u.reports}회</span>
                 </td>
                 <td style={{ padding: "14px 16px" }}>
@@ -576,8 +646,6 @@ function UsersPage() {
                 <td style={{ padding: "14px 16px", color: G.gray }}>{u.joined}</td>
                 <td style={{ padding: "14px 16px" }}>
                   <div style={{ display: "flex", gap: 6 }}>
-                    <Button variant="secondary" size="sm" onClick={() => toggleExpert(u.id)}
-                      style={{ fontSize: 11 }}>{u.role === "Expert" ? "Expert 해제" : "Expert 부여"}</Button>
                     {confirm === u.id ? (
                       <>
                         <Button variant="danger" size="sm" onClick={() => deleteUser(u.id)}>확인</Button>
@@ -835,14 +903,14 @@ function AnalyticsPage() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-      <SectionTitle title="통계" subtitle="사용 추이, 인기 검색어, 이탈 구간, Zero Result를 추적합니다." />
+      <SectionTitle title="통계" subtitle="사용 추이, 인기 검색어, 이탈 구간, 미등록 검색어를 추적합니다." />
 
       <SubTabs
         tabs={[
           { key: "usage",   label: "사용 추이"    },
           { key: "search",  label: "인기 검색어"  },
           { key: "dropout", label: "이탈 구간"    },
-          { key: "zero",    label: "Zero Result"  },
+          { key: "zero",    label: "미등록 검색어"  },
         ]}
         active={tab} onChange={setTab}
       />
@@ -948,7 +1016,7 @@ function AnalyticsPage() {
         <Card>
           <div style={{ padding: "20px 24px 16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
-              <div style={{ fontSize: 14, fontWeight: 700 }}>Zero Result 로그</div>
+              <div style={{ fontSize: 14, fontWeight: 700 }}>미등록 검색어 로그</div>
               <div style={{ fontSize: 12, color: G.gray, marginTop: 2 }}>DB에 없어서 결과가 없었던 검색어 — 다음 등록 콘텐츠 후보</div>
             </div>
             <Button size="sm"><Plus size={14} style={{ marginRight: 6 }} />일괄 등록 요청</Button>
@@ -1087,18 +1155,12 @@ export default function Admin() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f0ede6", fontFamily: "'Noto Sans KR', sans-serif", display: "grid", gridTemplateColumns: "260px 1fr" }}>
+    <div style={{ minHeight: "100vh", background: "#f0ede6", fontFamily: "'Noto Sans KR', sans-serif" }}>
 
       {/* Sidebar */}
-      <aside style={{ background: G.white, borderRight: "1px solid rgba(0,0,0,0.06)", padding: 16, display: "flex", flexDirection: "column", position: "sticky", top: 0, height: "100vh" }}>
-        <div style={{ background: G.navy, borderRadius: 18, padding: "14px 18px", color: G.white, marginBottom: 24, flexShrink: 0 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <div style={{ width: 36, height: 36, borderRadius: 12, background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Unbounded', sans-serif", fontSize: 11, fontWeight: 900 }}>IN</div>
-            <div>
-              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", marginBottom: 2 }}>Admin Panel</div>
-              <div style={{ fontSize: 13, fontWeight: 700 }}>영어인싸되기</div>
-            </div>
-          </div>
+      <aside style={{ background: G.white, borderRight: "1px solid rgba(0,0,0,0.06)", padding: 16, display: "flex", flexDirection: "column", position: "fixed", top: 0, left: 0, width: 260, height: "100vh", zIndex: 100, boxSizing: "border-box" }}>
+        <div style={{ padding: "8px 4px 20px", borderBottom: `1px solid ${G.border}`, marginBottom: 16, flexShrink: 0, textAlign: "center" }}>
+          <div style={{ fontSize: 18, fontWeight: 900, color: G.black, letterSpacing: -0.5 }}>관리자 페이지</div>
         </div>
 
         <nav style={{ display: "flex", flexDirection: "column", gap: 4, flex: 1, overflowY: "auto" }}>
@@ -1122,11 +1184,6 @@ export default function Admin() {
           })}
         </nav>
 
-        <div style={{ background: G.lightGray, borderRadius: 14, padding: "14px 16px", margin: "16px 0 12px", flexShrink: 0 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: G.black, marginBottom: 6 }}>운영 팁</div>
-          <div style={{ fontSize: 12, color: G.gray, lineHeight: 1.6 }}>트렌드 점수와 신고 항목을 함께 관리하세요.</div>
-        </div>
-
         <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 14, border: `1px solid ${G.border}`, flexShrink: 0 }}>
           <div style={{ width: 32, height: 32, borderRadius: 100, background: G.accent, display: "flex", alignItems: "center", justifyContent: "center", color: G.white, fontSize: 12, fontWeight: 700 }}>
             {user.nickname?.[0] || "A"}
@@ -1142,15 +1199,7 @@ export default function Admin() {
       </aside>
 
       {/* Main */}
-      <main style={{ padding: "28px 32px", overflow: "auto" }}>
-        <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 28 }}>
-          <div style={{ position: "relative", flex: 1, maxWidth: 400 }}>
-            <Search size={14} color={G.gray} style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)" }} />
-            <input placeholder="관리자 기능 검색" style={{ width: "100%", padding: "10px 14px 10px 38px", borderRadius: 100, border: "none", background: G.white, fontSize: 13, outline: "none", fontFamily: "'Noto Sans KR', sans-serif", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", boxSizing: "border-box" }} />
-          </div>
-          <Button variant="secondary" size="sm"><Settings size={14} style={{ marginRight: 6 }} />설정</Button>
-        </div>
-
+      <main style={{ marginLeft: 260, padding: "28px 32px", minHeight: "100vh" }}>
         {pages[active]}
       </main>
     </div>
