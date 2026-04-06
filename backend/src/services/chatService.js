@@ -27,7 +27,7 @@ export const getReply = async (message, history = [], scenario = null) => {
   const firstMessage = history.length === 0 ? (OPENING_MESSAGES[scenario] || message) : message;
 
   const chat = ai.chats.create({
-    model: "gemini-2.5-flash",
+    model: "gemini-2.5-flash-lite",
     config: { systemInstruction: systemPrompt },
     history: history.map((h) => ({
       role: h.role === "ai" ? "model" : "user",
