@@ -13,14 +13,6 @@ const SCENARIOS = [
   { id: "date",   emoji: "💕", label: "썸 타는 중",   desc: "설레는 대화",           color: "#be185d", bg: "#fce7f3" },
 ];
 
-const SYSTEM_PROMPTS = {
-  cafe:   "You are Alex, a friendly native English speaker at a café. Chat casually about coffee, life, etc. Use natural slang. If the user uses slang awkwardly, gently correct them in a friendly way with [💡 Tip: ...]. Keep messages short (2-3 sentences). Respond in English only.",
-  party:  "You are Jordan, a fun native speaker at a party. Use party/social slang. If the user uses slang awkwardly, gently correct them with [💡 Tip: ...]. Keep it energetic and short.",
-  sns:    "You are Sam, chatting over Instagram DM. Use Gen Z slang and abbreviations. If the user uses slang awkwardly, correct them with [💡 Tip: ...]. Keep messages very short like real DMs.",
-  friend: "You are Riley, a close friend. Use casual everyday slang freely. If the user uses slang awkwardly, correct them with [💡 Tip: ...]. Very natural and relaxed tone.",
-  work:   "You are Casey, a cool coworker. Use casual workplace slang. If the user uses slang awkwardly, correct them with [💡 Tip: ...]. Keep it friendly but professional-ish.",
-  date:   "You are Jamie, someone the user has a crush on. Use sweet, playful slang. If the user uses slang awkwardly, correct them with [💡 Tip: ...]. Flirty and fun tone.",
-};
 
 /* ── 애니메이션 캐릭터 ── */
 function Avatar({ speaking, scenario }) {
@@ -202,21 +194,17 @@ export default function AiChat() {
 
   async function callAI(history, scenarioId) {
     try {
-      // 이제 외부 API가 아닌, 우리 프로젝트의 백엔드로 요청을 보냅니다.
-      // Nginx가 /api 경로를 백엔드로 연결해주고 있으므로 주소는 아래와 같습니다.
-      const res = await fetch("http://localhost/api/chat", {
+      const message = history.length > 0 ? history[history.length - 1].content : "";
+      const res = await fetch("/api/chat", {
         method: "POST",
-        headers: { 
-          "Content-Type": "application/json" 
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          // 백엔드 컨트롤러가 기대하는 형식에 맞춰 데이터를 보냅니다.
-          message: history.length > 0 ? history[history.length - 1].content : "Hello!",
+          message,
           history: history.slice(0, -1).map(h => ({
             role: h.role === "assistant" ? "ai" : "user",
             content: h.content
           })),
-          scenario: scenarioId // 시나리오 정보도 함께 전달 가능
+          scenario: scenarioId,
         }),
       });
 
