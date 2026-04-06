@@ -100,9 +100,36 @@ export default function CardStudy() {
   // 퀴즈 로드 후 변수 설정
   const total = quizzes.length;
   const currentQuiz = quizzes[index];
+  
+  // 사용자가 학습하면 그 데이터 컨트롤러로 넘겨줄 저장 함수
+  const saveProgress = async (slangId, isCorrect) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      await axios.post('/api/studies/log', 
+        { 
+          slangId: slangId, 
+          isCorrect: isCorrect, 
+          status: isCorrect ? 'mastered' : 'learning' 
+        }, 
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      console.log(`✅ ID ${slangId} 저장 완료 (정답여부: ${isCorrect})`);
+    } catch (err) {
+      console.error("❌ 학습 기록 저장 실패:", err.response?.data || err.message);
+    }
+  };
+
 
   // 2. 모든 로직 함수(Functions) 선언
   function handleNext(isCorrect, selection) {
+    if (currentQuiz.id || currentQuiz.slang_id) {
+      saveProgress(currentQuiz.id || currentQuiz.slang_id, isCorrect);
+    } else {
+      console.warn("⚠️ 현재 퀴즈에 ID가 없습니다. DB 저장이 불가능합니다.");
+    }
+
     if (isCorrect) setKnown(prev => prev + 1);
 
     // 기록 저장

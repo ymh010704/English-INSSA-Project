@@ -17,10 +17,21 @@ CREATE TABLE study_logs (
     user_id INT,
     slang_id INT,
     status ENUM('learning', 'mastered') DEFAULT 'learning', /* 학습 중 / 완료 */
+    is_correct boolean,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(user_id),
     FOREIGN KEY (slang_id) REFERENCES slangs(slang_id)
 );
+
+/*
+정확도 공식 = (오늘 맞은 횟수 / 오늘 전체 푼 횟수) * 100
+즉, SELECT 
+    (SUM(CASE WHEN is_correct = 1 THEN 1 ELSE 0 END) / COUNT(*)) * 100 as accuracy
+FROM study_logs
+
+*/
+
+
 
 /* AI와 대화를 주고받을 때마다 카운트 */
 CREATE TABLE ai_chat_logs (

@@ -726,10 +726,20 @@ export default function Dashboard() {
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { overflow-x: hidden; }
       `}</style>
+      
       <div style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
+        {/* 1. 사이드바는 그대로 둡니다 */}
         <Sidebar active={active} setActive={setActive} />
-
-        <MainContent />
+        
+        {/* 2. MainContent는 아래처럼 "단 한 번만" 호출해야 합니다. */}
+        {/* stats가 있으면 MainContent를 그리고, 없으면 로딩 화면을 보여줍니다. */}
+        {stats ? (
+          <MainContent stats={stats} />
+        ) : (
+          <div style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center", background: "#F3F4F6" }}>
+            <p>데이터를 불러오는 중입니다...</p>
+          </div>
+        )}
       </div>
     </>
   );
