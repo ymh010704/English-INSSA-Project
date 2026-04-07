@@ -1,26 +1,48 @@
-import { randomUUID } from "crypto";
+const { randomUUID } = require("crypto");
 
-const bookmarks = {};
+const store = new Map(); // id -> bookmark
 
-export function create(userId, data) {
+function create(userId, payload) {
   const id = randomUUID();
-  const item = { id, ...data, createdAt: new Date() };
-  if (!bookmarks[userId]) bookmarks[userId] = [];
-  bookmarks[userId].push(item);
-  return item;
+  const now = new Date().toISOString();
+  const bm = {
+    id,
+    userId,
+    url: payload.url,
+    title: payload.title || "",
+    description: payload.description || "",
+    tags: Array.isArray(payload.tags) ? payload.tags : [],
+    createdAt: now,
+  };
+  store.set(id, bm);
+  return bm;
 }
 
-export function list(userId, { q, tag } = {}) {
-  let result = bookmarks[userId] || [];
-  if (q) result = result.filter(b => b.title?.includes(q) || b.url.includes(q));
-  if (tag) result = result.filter(b => b.tags && b.tags.includes(tag));
-  return result;
+function list(userId, { q, tag }) {
+  let items = [...store.values()].filter((b) => b.userId === userId);
+
+  if (q) {
+    const qq = String(q).toLowerCase();
+    items = items.filter(
+      (b) =>
+        b.url.toLowerCase().includes(qq) ||
+        b.title.toLowerCase().includes(qq) ||
+        b.description.toLowerCase().includes(qq)
+    );
+  }
+  if (tag) {
+    items = items.filter((b) => b.tags.includes(tag));
+  }
+
+  items.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+  return items;
 }
 
-export function remove(userId, id) {
-  const list = bookmarks[userId] || [];
-  const index = list.findIndex(b => b.id === id);
-  if (index === -1) return false;
-  bookmarks[userId].splice(index, 1);
+function remove(userId, id) {
+  const item = store.get(id);
+  if (!item || item.userId !== userId) return false;
+  store.delete(id);
   return true;
 }
+
+module.exports = { create, list, remove };

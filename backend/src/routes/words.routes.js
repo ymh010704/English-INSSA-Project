@@ -1,5 +1,5 @@
-import express from "express";
-import * as controller from "../controllers/words.controller.js"; 
+const express = require("express");
+const controller = require("../controllers/words.controller");
 
 const router = express.Router();
 
@@ -9,4 +9,4 @@ router.get("/:id", controller.getWord);
 router.patch("/:id", controller.updateWord);
 router.delete("/:id", controller.deleteWord);
 
-export default router;
+module.exports = router;
