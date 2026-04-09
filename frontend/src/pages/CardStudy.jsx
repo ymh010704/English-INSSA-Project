@@ -67,13 +67,21 @@ export default function CardStudy() {
   // ── API 데이터 호출 로직 ──
   const fetchQuizzes = async () => {
     try {
-      setLoading(true);
-      // 백엔드 API 호출 (5개만 가져오도록 설정)
-      const response = await axios.get("/api/studies/quiz?count=5");
+      // 로컬 스토리지에서 토큰 가져오기 (F12로 확인 가능)
+      const token = localStorage.getItem('token');
+
+      // 헤더에 Authorization 토큰을 실어서 요청 보내기 (studies.routes.js에 추가해서 이것도 추가)
+      const response = await axios.get('/api/studies/quiz?count=5', {
+        headers: {
+          'Authorization': `Bearer ${token}` 
+        }
+      });
+
       if (response.data.success) {
         setQuizzes(response.data.data);
+        console.log("✅ 퀴즈 데이터 로드 성공:", response.data.data);
       }
-    } catch (error) {
+    } catch(error) {
       console.error("데이터 로딩 실패:", error);
       alert("서버에서 퀴즈를 가져오는 데 실패했습니다.");
     } finally {

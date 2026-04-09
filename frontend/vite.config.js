@@ -12,8 +12,9 @@ export default defineConfig({
     strictPort: true,
     port: 5173, // Vite 기본 포트 고정
     hmr: {
-      clientPort: 5173,
+      protocol: 'ws',
       host: 'localhost',
+      clientPort: 80,
     }
   },
 })

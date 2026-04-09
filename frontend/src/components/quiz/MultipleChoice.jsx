@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import SideButton from "./SideButton";
 import "./Quiz.css"
+import Swal from "sweetalert2"; // Toast 메시지 띄울라고 씀
 
 
 const G = {
@@ -35,9 +36,42 @@ export default function MultipleChoice({ data, onNext, savedSelection }) {
         { slangId: data.id }, 
         { headers: { Authorization: `Bearer ${token}` } }
       );
+
+      // 토스트 메시지를 위해 일단 상태 업뎃
+      const newBookmarkStatus = res.data.isBookmarked;
+      setIsBookmarked(newBookmarkStatus);
+
+      // 토스트 설정
+      const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+          toast.addEventListener('mouseenter', Swal.stopTimer);
+          toast.addEventListener('mouseleave', Swal.resumeTimer);
+        }
+      });
+
+      // 북마크 여부에 따른 토스트 메시지 띄우기
+      Toast.fire({
+        icon: 'success',
+        // 백엔드에서 온 최신 상태(newBookmarkStatus)를 기준으로 판단
+        title: newBookmarkStatus ? '북마크 저장 완료! ⭐' : '북마크 해제 완료! 👋',
+        background: '#ffffff',
+        iconColor: newBookmarkStatus ? '#ffcc00' : G.accent,
+      });
+
       setIsBookmarked(res.data.isBookmarked);
     } catch (err) {
       console.error("북마크 실패", err);
+      Swal.fire({
+        icon: 'error',
+        title: '오류 발생',
+        text: '로그인 세션이 만료되었거나 서버 에러입니다.',
+        confirmButtonColor: G.accent
+      });
     }
   };
 

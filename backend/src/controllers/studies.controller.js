@@ -9,7 +9,9 @@ const StudiesController = {
     
     try {
       const { count = 10 } = req.query;
-      const quizData = await StudiesService.generateQuiz(Number(count));
+      const userId = req.user.id || req.user.user_id;
+
+      const quizData = await StudiesService.generateQuiz(userId, Number(count));
       
       // 🚩 2번 로그: 서비스 로직 성공 확인
       console.log("✅ [Controller] 데이터 생성 성공! 문제 수:", quizData.length);

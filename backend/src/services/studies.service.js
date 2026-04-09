@@ -17,7 +17,7 @@ else type = 'DRAG_AND_DROP';               // 드래그 앤 드롭(<- 이건 단
 */
 
 const StudiesService = {
-  generateQuiz: async (count) => {
+  generateQuiz: async (userId, count) => {
     console.log("🏃 [Service] generateQuiz 시작...");
     
     // 1. DB에서 데이터 가져오기
@@ -30,6 +30,14 @@ const StudiesService = {
     }
 
     const quizList = await Promise.all(slangs.map(async (slang, idx) => {
+      // 🚩 현재 유저가 이 단어를 북마크했는지 체크하는 로직 추가
+      const [bookmark] = await pool.execute(
+        "SELECT 1 FROM bookmarks WHERE user_id = ? AND slang_id = ?",
+        [userId, slang.slang_id || slang.id]
+      );
+    
+    const isBookmarked = bookmark.length > 0;
+
       try {
         const type = Math.random() > 0.5 ? 'MULTIPLE' : 'OX';
         console.log(`📝 [Service] ${idx+1}번 문제 생성 중... (단어: ${slang.word}, 타입: ${type})`);
@@ -45,16 +53,27 @@ const StudiesService = {
             id: slang.slang_id || slang.id,
             type,
             word: slang.word, 
-            answers 
+            answers,
+            isBookmarked 
           };
-        } else {
+        } else { // 여기가 OX퀴즈 관련
           const isCorrect = Math.random() > 0.5;
           let displayMeaning = slang.definition_ko;
           if (!isCorrect) {
             const wrongMeanings = await StudiesRepository.getRandomMeanings(slang.word, 1);
             displayMeaning = wrongMeanings[0];
           }
-          return { id: slang.slang_id || slang.id, type, word: slang.word, category: slang.category || "Gen-Z 슬랭", emoji: slang.emoji || "💬", exampleEn: slang.example_en, meaning: displayMeaning, isCorrect };
+          return { 
+            id: slang.slang_id || slang.id, 
+            type, 
+            word: slang.word, 
+            category: slang.category || "Gen-Z 슬랭", 
+            emoji: slang.emoji || "💬", 
+            exampleEn: slang.example_en, 
+            meaning: displayMeaning, 
+            isCorrect,
+            isBookmarked 
+          };
         }
       } catch (err) {
         console.error(`❌ [Service] ${idx+1}번 문제 생성 중 개별 에러:`, err.message);

@@ -19,7 +19,7 @@ export default function SideButton({ onClick, icon, label, active }) {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        justifyContent: "center",
+        justifyContent: "cente+r",
         cursor: "pointer",
         transition: "all 0.2s ease",
         gap: "2px",
