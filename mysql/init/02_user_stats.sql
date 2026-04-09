@@ -17,7 +17,7 @@ CREATE TABLE study_logs (
     user_id INT,
     slang_id INT,
     status ENUM('learning', 'mastered') DEFAULT 'learning', /* 학습 중 / 완료 */
-    is_correct boolean,
+    is_correct TINYINT(1) DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(user_id),
     FOREIGN KEY (slang_id) REFERENCES slangs(slang_id)

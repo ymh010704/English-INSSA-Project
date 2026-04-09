@@ -3,6 +3,19 @@
 import StudiesRepository from '../repositories/studies.repository.js';
 import { pool } from '../repositories/db.js';
 
+/*
+// 나중에 4가지 타입이 될 경우 아래 형태로 바꿀 예정
+const rand = Math.random();
+let type;
+
+if (rand < 0.25) type = 'MULTIPLE';   // 현재는 이거랑
+else if (rand < 0.5) type = 'OX';     // 이거만 추가됨
+else if (rand < 0.75) type = 'SUBJECTIVE'; // 주관식
+else type = 'DRAG_AND_DROP';               // 드래그 앤 드롭(<- 이건 단어 끌어댕겨서 문장 만들기)
+
+
+*/
+
 const StudiesService = {
   generateQuiz: async (count) => {
     console.log("🏃 [Service] generateQuiz 시작...");
@@ -59,7 +72,7 @@ const StudiesService = {
     console.log(`🏃 [Service] saveStudyLog 시작... (유저: ${userId}, 슬랭: ${slangId}, 정답여부: ${isCorrect})`);
     
     try {
-      // 1. DB에 로그 저장 (isCorrect는 1 또는 0으로 변환)
+      // 1. DB에 로그 저장 (isCorrect는 1 또는 0으로 변환) // 문제 풀 때마다 insert 되는 형식임
       const query = `
         INSERT INTO study_logs (user_id, slang_id, is_correct, status, created_at)
         VALUES (?, ?, ?, ?, NOW())
@@ -72,7 +85,27 @@ const StudiesService = {
         status || 'learning'
       ]);
 
-      // 2. (선택사항) 학습 결과에 따라 유저의 XP나 스트릭을 업데이트하는 로직을 나중에 여기 추가할 수 있습니다.
+      // 2. XP 업데이트 (정답일 경우 +10) // 일단 임시로 +10으로 지정했음 (추후에 이야기 ㄱㄱ)
+      if (isCorrect) {
+        const xpQuery = `UPDATE user_stats SET total_xp = total_xp + 10 WHERE user_id = ?`;
+        await pool.execute(xpQuery, [userId]);
+        console.log(`✨ 유저 ${userId}: XP 10점 획득!`); // 이건 쿼리 잘 들어갔나 확인용이라 나중에 지울 것(로그 넘 ㅜ많이 남음)
+      }
+
+      // 3. 🚩 스트릭 업데이트 (오늘 첫 학습일 경우 +1)
+      // 오늘 해당 유저가 남긴 로그가 방금 넣은 1개뿐인지 확인
+      const checkStreakQuery = `
+        SELECT COUNT(*) as todayLogs FROM study_logs 
+        WHERE user_id = ? AND DATE(created_at) = CURDATE()
+      `;
+      const [rows] = await pool.execute(checkStreakQuery, [userId]);
+
+      if (rows[0].todayLogs === 1) {
+        const streakQuery = `UPDATE user_stats SET current_streak = current_streak + 1 WHERE user_id = ?`;
+        await pool.execute(streakQuery, [userId]);
+        console.log(`🔥 유저 ${userId}: 스트릭 1일 상승!`);
+      }
+      
       
       console.log("✅ [Service] DB 저장 성공!");
       return result;

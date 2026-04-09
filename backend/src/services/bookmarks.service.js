@@ -25,6 +25,7 @@ export function list(req) { // export 추가
 export function remove(req) { // export 추가
   const userId = getUserId(req);
   const ok = repo.remove(userId, req.params.id);
+  
   if (!ok) {
     const err = new Error("not_found");
     err.status = 404;
