@@ -1,12 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
-const G = {
-  black: "#0a0a0a", white: "#ffffff",
-  accent: "#ff4d00", accent2: "#ffcc00", navy: "#0d1b2a",
-  gray: "#6b7280", light: "#f9f8f5", lightGray: "#f3f4f6",
-  green: "#10b981", purple: "#7c3aed",
-};
+import G from "../constants/colors";
+import PageHeader from "../components/PageHeader";
+import Button from "../components/Button";
 
 const SCENARIOS = [
   { id: "cafe",   emoji: "☕", label: "카페에서",     desc: "친구랑 카페 얘기",      color: "#92400e", bg: "#fef3c7" },
@@ -17,14 +13,6 @@ const SCENARIOS = [
   { id: "date",   emoji: "💕", label: "썸 타는 중",   desc: "설레는 대화",           color: "#be185d", bg: "#fce7f3" },
 ];
 
-const SYSTEM_PROMPTS = {
-  cafe:   "You are Alex, a friendly native English speaker at a café. Chat casually about coffee, life, etc. Use natural slang. If the user uses slang awkwardly, gently correct them in a friendly way with [💡 Tip: ...]. Keep messages short (2-3 sentences). Respond in English only.",
-  party:  "You are Jordan, a fun native speaker at a party. Use party/social slang. If the user uses slang awkwardly, gently correct them with [💡 Tip: ...]. Keep it energetic and short.",
-  sns:    "You are Sam, chatting over Instagram DM. Use Gen Z slang and abbreviations. If the user uses slang awkwardly, correct them with [💡 Tip: ...]. Keep messages very short like real DMs.",
-  friend: "You are Riley, a close friend. Use casual everyday slang freely. If the user uses slang awkwardly, correct them with [💡 Tip: ...]. Very natural and relaxed tone.",
-  work:   "You are Casey, a cool coworker. Use casual workplace slang. If the user uses slang awkwardly, correct them with [💡 Tip: ...]. Keep it friendly but professional-ish.",
-  date:   "You are Jamie, someone the user has a crush on. Use sweet, playful slang. If the user uses slang awkwardly, correct them with [💡 Tip: ...]. Flirty and fun tone.",
-};
 
 /* ── 애니메이션 캐릭터 ── */
 function Avatar({ speaking, scenario }) {
@@ -98,11 +86,7 @@ function ScenarioSelect({ onSelect }) {
   const navigate = useNavigate();
   return (
     <div style={{ minHeight: "100vh", background: G.navy, display: "flex", flexDirection: "column", fontFamily: "'Noto Sans KR', sans-serif" }}>
-      <div style={{ padding: "20px 40px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-        <button onClick={() => navigate("/dashboard")} style={{ background: "transparent", border: "none", cursor: "pointer", fontSize: 14, color: "rgba(255,255,255,0.5)", fontFamily: "'Noto Sans KR', sans-serif" }}>← 대시보드</button>
-        <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 15, fontWeight: 900, color: G.white }}>🤖 AI <span style={{ color: G.accent }}>회화</span></div>
-        <div style={{ width: 80 }} />
-      </div>
+      <PageHeader title="AI 회화" emoji="🤖" dark />
 
       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "48px 24px" }}>
         <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 14 }}>상황 선택</div>
@@ -179,8 +163,8 @@ function SummaryScreen({ messages, scenario, onBack }) {
       )}
 
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
-        <button onClick={onBack} style={{ padding: "14px 28px", borderRadius: 100, border: "none", background: G.accent, color: G.white, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif", boxShadow: "0 8px 24px rgba(255,77,0,0.3)" }}>🔄 다시 대화하기</button>
-        <button onClick={() => navigate("/dashboard")} style={{ padding: "14px 28px", borderRadius: 100, border: "1.5px solid rgba(255,255,255,0.2)", background: "transparent", color: G.white, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif" }}>🏠 대시보드로</button>
+        <Button onClick={onBack}>🔄 다시 대화하기</Button>
+        <Button variant="secondary" onClick={() => navigate("/dashboard")} style={{ color: G.white, border: "1.5px solid rgba(255,255,255,0.2)" }}>🏠 대시보드로</Button>
       </div>
     </div>
   );
@@ -210,20 +194,31 @@ export default function AiChat() {
 
   async function callAI(history, scenarioId) {
     try {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
+      const message = history.length > 0 ? history[history.length - 1].content : "";
+      const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 1000,
-          system: SYSTEM_PROMPTS[scenarioId],
-          messages: history.length > 0 ? history : [{ role: "user", content: "Start the conversation with a friendly greeting based on the scenario." }],
+          message,
+          history: history.slice(0, -1).map(h => ({
+            role: h.role === "assistant" ? "ai" : "user",
+            content: h.content
+          })),
+          scenario: scenarioId,
         }),
       });
+
       const data = await res.json();
-      return data.content?.[0]?.text || "Sorry, I couldn't respond right now!";
-    } catch {
-      return "Sorry, something went wrong! Try again.";
+      
+      // 백엔드에서 { reply: "..." } 형식으로 응답하므로 data.reply를 반환합니다.
+      if (data.reply) {
+        return data.reply;
+      } else {
+        throw new Error("No reply from server");
+      }
+    } catch (error) {
+      console.error("Frontend Fetch Error:", error);
+      return "지금 백엔드 서버랑 연결이 안 됐어.";
     }
   }
 
@@ -256,13 +251,13 @@ export default function AiChat() {
 
       {/* 헤더 */}
       <div style={{ padding: "16px 32px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.07)", flexShrink: 0 }}>
-        <button onClick={() => setScenario(null)} style={{ background: "transparent", border: "none", cursor: "pointer", fontSize: 14, color: "rgba(255,255,255,0.5)", fontFamily: "'Noto Sans KR', sans-serif" }}>← 상황 변경</button>
+        <Button variant="ghost" onClick={() => setScenario(null)} style={{ fontSize: 14, color: "rgba(255,255,255,0.5)" }}>← 상황 변경</Button>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <span style={{ fontSize: 18 }}>{scenario.emoji}</span>
           <span style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 14, fontWeight: 900, color: G.white }}>{scenario.label}</span>
           <div style={{ width: 8, height: 8, borderRadius: "50%", background: G.green, boxShadow: `0 0 0 3px ${G.green}33` }} />
         </div>
-        <button onClick={() => setDone(true)} style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 100, padding: "7px 16px", cursor: "pointer", fontSize: 12, color: "rgba(255,255,255,0.6)", fontFamily: "'Noto Sans KR', sans-serif", fontWeight: 600 }}>대화 종료</button>
+        <Button variant="secondary" onClick={() => setDone(true)} size="sm" style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.6)" }}>대화 종료</Button>
       </div>
 
       {/* 메인 영역 */}
@@ -301,6 +296,12 @@ export default function AiChat() {
                     border: isAI ? "1px solid rgba(255,255,255,0.08)" : "none",
                     color: G.white, fontSize: 14, lineHeight: 1.6,
                     boxShadow: isAI ? "none" : "0 4px 16px rgba(255,77,0,0.3)",
+
+                    /* AI 답변 줄바꿈 스타일 */
+                    whiteSpace: "pre-wrap", 
+                    wordBreak: "break-word"
+
+
                   }}>
                     {cleanText}
                   </div>

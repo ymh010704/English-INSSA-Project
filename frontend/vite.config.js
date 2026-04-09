@@ -15,6 +15,12 @@ export default defineConfig({
       protocol: 'ws',
       host: 'localhost',
       clientPort: 80,
+    },
+    Proxy: {
+      "/api" : {
+        target: "http:backend:3000", // docker 환경
+        changeOrigin: true,
+      }
     }
   },
 })

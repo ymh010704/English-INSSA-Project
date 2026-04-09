@@ -40,9 +40,18 @@ router.post("/signup", async (req, res) => {
     const hashedPassword = await bcrypt.hash(pw, 10);
     
     // 3. DB 저장
-    await pool.execute(
+    const [userResult] = await pool.execute(
       'INSERT INTO users (email, password, nickname) VALUES (?, ?, ?)',
       [email, hashedPassword, name]
+    );
+
+    // 새로 가입한 유저의 ID 가져오기
+    const newUserId = userResult.insertId;
+
+    // 신규 유저 ID 가져와서 user_stats 테이블 초기 데이터 생성
+    await pool.execute(
+      'INSERT INTO user_stats (user_id, total_xp, current_streak) VALUES (?, 0, 0)',
+      [newUserId]
     );
     
     res.status(201).json({ success: true, message: "회원가입 성공!" });

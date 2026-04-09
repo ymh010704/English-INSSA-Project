@@ -2,13 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import axios from "axios";
-
-const G = {
-  black: "#0a0a0a", white: "#ffffff", cream: "#f5f2eb",
-  accent: "#ff4d00", accent2: "#ffcc00", navy: "#0d1b2a",
-  gray: "#6b7280", light: "#f9f8f5", lightGray: "#f3f4f6",
-  green: "#10b981", blue: "#3b82f6", purple: "#8b5cf6",
-};
+import G from "../constants/colors";  // 컬러 컴포넌트? 연결
 
 const SLANG_DATA = [
   { word: "No cap", meaning: "진심으로, 거짓말 아님", category: "SNS / 일상", emoji: "🔥" },
@@ -585,7 +579,7 @@ function MainContent({ stats }) {
   }, []);
 
   return (
-    <main style={{ flex: 1, padding: "36px 40px", overflowY: "auto", background: G.lightGray, fontFamily: "'Noto Sans KR', sans-serif", minHeight: "100vh" }}>
+    <main style={{ flex: 1, padding: "36px 40px", overflowY: "auto", fontFamily: "'Noto Sans KR', sans-serif", minHeight: "100vh" }}>
 
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>

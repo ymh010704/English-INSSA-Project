@@ -1,12 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-const G = {
-  black: "#0a0a0a", white: "#ffffff",
-  accent: "#ff4d00", accent2: "#ffcc00", navy: "#0d1b2a",
-  gray: "#6b7280", light: "#f9f8f5", lightGray: "#f3f4f6",
-  green: "#10b981", red: "#ef4444",
-};
+import G from "../constants/colors";
+import PageHeader from "../components/PageHeader";
+import Button from "../components/Button";
 
 const QUESTIONS = [
   // 유형 1: 빈칸 채우기
@@ -89,8 +85,8 @@ function ResultScreen({ score, total, onRetry }) {
       </div>
 
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
-        <button onClick={onRetry} style={{ padding: "14px 32px", borderRadius: 100, border: "none", background: G.accent, color: G.white, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif", boxShadow: "0 8px 24px rgba(255,77,0,0.3)" }}>🔁 다시 풀기</button>
-        <button onClick={() => navigate("/dashboard")} style={{ padding: "14px 32px", borderRadius: 100, border: "1.5px solid rgba(255,255,255,0.2)", background: "transparent", color: G.white, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif" }}>🏠 대시보드로</button>
+        <Button onClick={onRetry} style={{ padding: "14px 32px" }}>🔁 다시 풀기</Button>
+        <Button variant="secondary" onClick={() => navigate("/dashboard")} style={{ padding: "14px 32px", color: G.white, border: "1.5px solid rgba(255,255,255,0.2)" }}>🏠 대시보드로</Button>
       </div>
     </div>
   );
@@ -144,16 +140,11 @@ export default function Practice() {
   return (
     <div style={{ minHeight: "100vh", background: "#f0ede6", fontFamily: "'Noto Sans KR', sans-serif", display: "flex", flexDirection: "column" }}>
 
-      {/* 헤더 */}
-      <div style={{ background: G.white, borderBottom: "1px solid rgba(0,0,0,0.06)", padding: "18px 40px", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
-        <button onClick={() => navigate("/dashboard")} style={{ background: "transparent", border: "none", cursor: "pointer", fontSize: 14, color: G.gray, fontFamily: "'Noto Sans KR', sans-serif", fontWeight: 500 }}>
-          ← 대시보드
-        </button>
-        <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 15, fontWeight: 900, color: G.black }}>
-          ✍️ <span style={{ color: G.accent }}>연습</span>
-        </div>
-        <div style={{ fontSize: 13, fontWeight: 700, color: G.gray }}>{index + 1} / {total}</div>
-      </div>
+      <PageHeader
+        title="연습" emoji="✍️"
+        right={<span style={{ fontSize: 13, fontWeight: 700, color: G.gray }}>{index + 1} / {total}</span>}
+        noSeparator
+      />
 
       {/* 진행 바 */}
       <div style={{ height: 5, background: "#e5e0d8", flexShrink: 0 }}>
@@ -268,23 +259,9 @@ export default function Practice() {
           {/* 버튼 */}
           <div style={{ display: "flex", gap: 12 }}>
             {!checked ? (
-              <button onClick={check} disabled={!canCheck} style={{
-                flex: 1, padding: "18px", borderRadius: 20, border: "none",
-                background: canCheck ? G.accent : "#e5e0d8",
-                color: canCheck ? G.white : G.gray,
-                fontSize: 15, fontWeight: 700, cursor: canCheck ? "pointer" : "default",
-                fontFamily: "'Noto Sans KR', sans-serif",
-                boxShadow: canCheck ? "0 8px 24px rgba(255,77,0,0.3)" : "none",
-                transition: "all 0.2s",
-              }}>정답 확인</button>
+              <Button onClick={check} disabled={!canCheck} style={{ flex: 1, borderRadius: 20, padding: "18px", fontSize: 15, ...(!canCheck && { background: "#e5e0d8", color: G.gray, boxShadow: "none", opacity: 1 }) }}>정답 확인</Button>
             ) : (
-              <button onClick={next} style={{
-                flex: 1, padding: "18px", borderRadius: 20, border: "none",
-                background: G.black, color: G.white,
-                fontSize: 15, fontWeight: 700, cursor: "pointer",
-                fontFamily: "'Noto Sans KR', sans-serif",
-                boxShadow: "0 8px 24px rgba(0,0,0,0.2)",
-              }}>{index + 1 >= total ? "결과 보기 🏆" : "다음 문제 →"}</button>
+              <Button onClick={next} style={{ flex: 1, borderRadius: 20, padding: "18px", fontSize: 15, background: G.black, boxShadow: "0 8px 24px rgba(0,0,0,0.2)" }}>{index + 1 >= total ? "결과 보기 🏆" : "다음 문제 →"}</Button>
             )}
           </div>
 

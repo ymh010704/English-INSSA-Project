@@ -5,13 +5,9 @@ import axios from "axios";
 // 퀴즈에 사용할 컴포넌트들 임포트
 import MultipleChoice from "../components/quiz/MultipleChoice";
 import OXQuiz from "../components/quiz/OXQuiz";
-
-const G = {
-  black: "#0a0a0a", white: "#ffffff",
-  accent: "#ff4d00", accent2: "#ffcc00", navy: "#0d1b2a",
-  gray: "#6b7280", light: "#f9f8f5", lightGray: "#f3f4f6",
-  green: "#10b981",
-};
+import G from "../constants/colors";  // 컬러 컴포넌트? 연결
+import PageHeader from "../components/PageHeader";
+import Button from "../components/Button";
 
 /* ── 공부 완료 화면  ── */
 function CompletionScreen({ known, total, onRestart }) {
@@ -79,7 +75,7 @@ export default function CardStudy() {
 
       if (response.data.success) {
         setQuizzes(response.data.data);
-        console.log("✅ 퀴즈 데이터 로드 성공:", response.data.data);
+        // console.log("✅ 퀴즈 데이터 로드 성공:", response.data.data);
       }
     } catch(error) {
       console.error("데이터 로딩 실패:", error);
@@ -179,15 +175,10 @@ export default function CardStudy() {
     <div style={{ minHeight: "100vh", background: "#f0ede6", fontFamily: "'Noto Sans KR', sans-serif", display: "flex", flexDirection: "column" }}>
 
       {/* 상단 헤더 */}
-      <div style={{ background: G.white, borderBottom: "1px solid rgba(0,0,0,0.06)", padding: "18px 40px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <button onClick={() => navigate("/dashboard")} style={{ background: "transparent", border: "none", cursor: "pointer", fontSize: 14, color: G.gray }}>
-          ← 그만하기
-        </button>
-        <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 15, fontWeight: 900, color: G.black }}>
-          인싸 <span style={{ color: G.accent }}>학습 퀴즈</span>
-        </div>
-        <div style={{ fontSize: 13, fontWeight: 700, color: G.gray }}>{index + 1} / {total}</div>
-      </div>
+      <PageHeader
+        title="오늘의 학습"
+        right={<span style={{ fontSize: 13, fontWeight: 700, color: G.gray }}>{index + 1} / {total}</span>}
+      />
 
       {/* 진행 바 */}
       <div style={{ height: 5, background: "#e5e0d8" }}>

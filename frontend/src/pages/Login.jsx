@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2"; // alert가 너무 딱딱해보여서 추가한 라이브러리
 
+import G from "../constants/colors";  // 컬러 컴포넌트? 연결
+
 // Toast 기본 설정 정의
 const Toast = Swal.mixin({
   toast: true,
@@ -15,12 +17,6 @@ const Toast = Swal.mixin({
   }
 });
 
-const G = {
-  black: "#0a0a0a", white: "#ffffff",
-  accent: "#ff4d00", accent2: "#ffcc00", navy: "#0d1b2a",
-  gray: "#6b7280", light: "#f9f8f5", lightGray: "#f3f4f6",
-  green: "#10b981", red: "#ef4444",
-};
 
 const inputStyle = {
   width: "100%", padding: "13px 16px", borderRadius: 12,

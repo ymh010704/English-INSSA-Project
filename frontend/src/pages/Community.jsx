@@ -1,12 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-const G = {
-  black: "#0a0a0a", white: "#ffffff",
-  accent: "#ff4d00", accent2: "#ffcc00", navy: "#0d1b2a",
-  gray: "#6b7280", light: "#f9f8f5", lightGray: "#f3f4f6",
-  green: "#10b981", blue: "#3b82f6", purple: "#8b5cf6",
-};
+import G from "../constants/colors";
+import PageHeader from "../components/PageHeader";
+import Button from "../components/Button";
 
 /* ── 더미 데이터 ── */
 const INITIAL_POSTS = [
@@ -474,20 +470,16 @@ export default function Community() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: G.lightGray, fontFamily: "'Noto Sans KR', sans-serif" }}>
+    <div style={{ minHeight: "100vh", fontFamily: "'Noto Sans KR', sans-serif" }}>
 
-      {/* 헤더 */}
-      <div style={{ background: G.white, borderBottom: "1px solid rgba(0,0,0,0.06)", padding: "18px 40px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 10 }}>
-        <button onClick={() => navigate("/dashboard")} style={{ background: "transparent", border: "none", cursor: "pointer", fontSize: 14, color: G.gray, fontFamily: "'Noto Sans KR', sans-serif", fontWeight: 500 }}>← 뒤로가기</button>
-        <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 15, fontWeight: 900, color: G.black }}>🌐 <span style={{ color: G.accent }}>커뮤니티</span></div>
-        {tab === "feed" && (
-          <button onClick={() => setShowSubmit(true)} style={{ padding: "9px 18px", borderRadius: 100, border: "none", background: G.accent, color: G.white, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif", boxShadow: "0 4px 14px rgba(255,77,0,0.3)" }}>+ 제보하기</button>
-        )}
-        {tab === "board" && (
-          <button onClick={() => setShowWrite(true)} style={{ padding: "9px 18px", borderRadius: 100, border: "none", background: G.accent, color: G.white, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif", boxShadow: "0 4px 14px rgba(255,77,0,0.3)" }}>✏️ 글쓰기</button>
-        )}
-        {tab === "hot" && <div style={{ width: 80 }} />}
-      </div>
+      <PageHeader
+        title="커뮤니티" emoji="🌐"
+        right={
+          tab === "feed" ? <Button onClick={() => setShowSubmit(true)} size="sm">+ 제보하기</Button>
+          : tab === "board" ? <Button onClick={() => setShowWrite(true)} size="sm">✏️ 글쓰기</Button>
+          : null
+        }
+      />
 
       {/* 탭 */}
       <div style={{ background: G.white, borderBottom: "1px solid rgba(0,0,0,0.06)", padding: "0 40px", display: "flex", gap: 4 }}>

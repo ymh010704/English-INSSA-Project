@@ -1,12 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-const G = {
-  black: "#0a0a0a", white: "#ffffff",
-  accent: "#ff4d00", accent2: "#ffcc00", navy: "#0d1b2a",
-  gray: "#6b7280", light: "#f9f8f5", lightGray: "#f3f4f6",
-  green: "#10b981", red: "#ef4444", border: "#e5e0d8",
-};
+import G from "../constants/colors";  // 컬러 컴포넌트? 연결
+import PageHeader from "../components/PageHeader";
 
 /* ── 섹션 래퍼 ── */
 function Section({ title, children }) {
@@ -158,14 +154,10 @@ export default function Settings() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: G.lightGray, fontFamily: "'Noto Sans KR', sans-serif" }}>
+    <div style={{ minHeight: "100vh", fontFamily: "'Noto Sans KR', sans-serif" }}>
 
       {/* 헤더 */}
-      <div style={{ background: G.white, borderBottom: "1px solid rgba(0,0,0,0.06)", padding: "18px 40px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 10 }}>
-        <button onClick={() => navigate("/dashboard")} style={{ background: "transparent", border: "none", cursor: "pointer", fontSize: 14, color: G.gray, fontFamily: "'Noto Sans KR', sans-serif", fontWeight: 500 }}>← 뒤로가기</button>
-        <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 15, fontWeight: 900, color: G.black }}>⚙️ <span style={{ color: G.accent }}>설정</span></div>
-        <div style={{ width: 80 }} />
-      </div>
+      <PageHeader title="설정" emoji="⚙️" />
 
       <div style={{ maxWidth: 600, margin: "0 auto", padding: "32px 24px" }}>
 
