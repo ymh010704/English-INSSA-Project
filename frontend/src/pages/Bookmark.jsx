@@ -1,19 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 import G from "../constants/colors";
 import PageHeader from "../components/PageHeader";
 import Button from "../components/Button";
-
-// const BOOKMARKS = [
-//   { id: 1, word: "Slay", meaning: "완벽하게 해내다, 죽인다", example: "She absolutely slayed that presentation.", tag: "칭찬 / 긍정", emoji: "💅" },
-//   { id: 2, word: "Ghosted", meaning: "연락을 갑자기 끊다", example: "He ghosted me after our first date.", tag: "연애 / SNS", emoji: "👻" },
-//   { id: 3, word: "Lowkey", meaning: "은근히, 조용히", example: "I'm lowkey obsessed with this song.", tag: "일상 / 강조", emoji: "✨" },
-//   { id: 4, word: "Bussin", meaning: "진짜 맛있다, 최고다", example: "This pizza is bussin fr fr.", tag: "음식 / 긍정", emoji: "🍔" },
-//   { id: 5, word: "No cap", meaning: "진심으로, 거짓말 아님", example: "That was the best day ever, no cap.", tag: "SNS / 일상", emoji: "🔥" },
-//   { id: 6, word: "Rizz", meaning: "이성을 끄는 매력", example: "Bro has unlimited rizz.", tag: "연애", emoji: "👑" },
-// ];
+import BookmarkItem from "../components/BookmarkCard";
 
 const CATEGORIES = ["전체", "칭찬 / 긍정", "연애 / SNS", "일상 / 강조", "음식 / 긍정", "SNS / 일상", "연애"];
 
@@ -35,8 +28,15 @@ export default function Bookmark() {
     const fetchBookmarks = async () => {
       try {
         setLoading(true);
-        const response = await axios.get("/api/bookmarks");
-        setBookmarks(response.data);
+        const token = localStorage.getItem('token'); // 토큰 가져오기 << 나중에 수정하면 될듯>?
+
+        const response = await axios.get("/api/bookmarks/list", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (response.data.success) {
+          setBookmarks(response.data.data);
+        }
       } catch (error) {
         console.log("데이터 불러오기 실패 : ", error);
       } finally {
@@ -47,11 +47,73 @@ export default function Bookmark() {
     fetchBookmarks();
   }, []);
 
+  // 카드 뒤집기 토글 함수 (앞면만 됐었어서 함수로 넣어버림)
+  const handleFlip = (id) => {
+    setFlipped(prev => (prev === id ? null : id)); // 🚩 같은 거 누르면 다시 앞으로!
+  };
+
+  // 북마크 해제 함수
+  const handleUnbookmark = async (slangId) => {
+    // 먼저 물어보기(혹시나 잘못 눌렀을 때 방지)
+    const result = await Swal.fire({
+      title: '정말로 북마크를 해제하시겠습니까?',
+      text: "해제하면 나의 북마크 목록에서 사라집니다.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: G.accent,
+      cancelButtonColor: '#d33',
+      confirmButtonText: '해제할래요',
+      cancelButtonText: '안 할래요',
+    });
+
+    // 사용자가 해제한다 하면 아래 실행
+    if (result.isConfirmed) {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await axios.post('/api/bookmarks/toggle', 
+          { slangId }, 
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        // 백엔드에서 해제 성공(false) 응답이 왔을 때 UI 업데이트 // 즉시 업뎃해서 자연스럽게 사라지게함
+        if (res.data.success && res.data.isBookmarked === false) {
+          setBookmarks(prev => prev.filter(b => b.slang_id !== slangId));
+
+          // 성공 토스트 알림
+          const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 1500,
+            timerProgressBar: true,
+          });
+          
+          Toast.fire({
+            icon: 'success',
+            title: '북마크 해제 완료! 👋',
+            background: '#ffffff',
+            iconColor: G.accent,
+          });
+          console.log("북마크 해제 완료");
+        }
+      } catch (err) {
+        console.error("해제 실패:", err);
+        Swal.fire({
+          icon: 'error',
+          title: '오류 발생',
+          text: '북마크를 해제하는 중 문제가 발생했습니다.',
+        });
+      }
+    }
+  };
+
 
   const filtered = bookmarks.filter(b => {
-    const matchSearch = b.word.toLowerCase().includes(search.toLowerCase()) ||
-      b.meaning.includes(search);
-    const matchCategory = activeCategory === "전체" || b.tag === activeCategory;
+    const matchSearch = 
+      (b.word?.toLowerCase().includes(search.toLowerCase())) ||
+      (b.definition_ko?.includes(search));
+    const matchCategory = activeCategory === "전체" || b.category === activeCategory;
+    
     return matchSearch && matchCategory;
   });
 
@@ -109,52 +171,27 @@ export default function Bookmark() {
         </div>
 
         {/* 결과 리스트 (기존 로직 유지) */}
-        {viewMode === "grid" ? (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 16 }}>
-            {filtered.map((b) => (
-              <div key={b.id} onClick={() => setFlipped(flipped === b.id ? null : b.id)} style={{ height: 180, cursor: "pointer", perspective: 1000 }}>
-                <div style={{ position: "relative", width: "100%", height: "100%", transformStyle: "preserve-3d", transform: flipped === b.id ? "rotateY(180deg)" : "rotateY(0deg)", transition: "transform 0.5s ease" }}>
-                  <div style={{ position: "absolute", inset: 0, backfaceVisibility: "hidden", background: G.white, borderRadius: 20, padding: 24, border: "1px solid rgba(0,0,0,0.06)", boxShadow: "0 4px 16px rgba(0,0,0,0.06)", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                      <span style={{ fontSize: 10, fontWeight: 700, background: "rgba(255,77,0,0.08)", color: G.accent, padding: "3px 10px", borderRadius: 100 }}>{b.tag}</span>
-                      <span>⭐</span>
-                    </div>
-                    <div>
-                      <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 26, fontWeight: 900, color: G.black }}>{b.word}</div>
-                      <div style={{ fontSize: 11, color: "#d1d5db", marginTop: 8 }}>탭해서 뜻 보기 👆</div>
-                    </div>
-                  </div>
-                  <div style={{ position: "absolute", inset: 0, backfaceVisibility: "hidden", transform: "rotateY(180deg)", background: G.navy, borderRadius: 20, padding: 24, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                    <div style={{ fontSize: 15, fontWeight: 700, color: G.white }}>{b.meaning}</div>
-                    <div style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", fontStyle: "italic", lineHeight: 1.7 }}>"{b.example}"</div>
-                    <div style={{ fontSize: 11, color: "rgba(255,255,255,0.2)", textAlign: "right" }}>탭해서 닫기 ←</div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {filtered.map(b => (
-              <div key={b.id} style={{ background: G.white, borderRadius: 16, padding: "18px 24px", border: "1px solid rgba(0,0,0,0.06)", boxShadow: "0 2px 8px rgba(0,0,0,0.04)", display: "flex", alignItems: "center", gap: 20 }}>
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
-                    <span style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 16, fontWeight: 900, color: G.black }}>{b.word}</span>
-                    <span style={{ fontSize: 10, fontWeight: 700, background: "rgba(255,77,0,0.08)", color: G.accent, padding: "2px 10px", borderRadius: 100 }}>{b.tag}</span>
-                  </div>
-                  <div style={{ fontSize: 13, color: G.gray }}>{b.meaning}</div>
-                </div>
-                <div style={{ fontSize: 12, color: "#d1d5db", maxWidth: 240, fontStyle: "italic", textAlign: "right" }}>"{b.example}"</div>
-                <span>⭐</span>
-              </div>
-            ))}
-          </div>
-        )}
+        <div style={viewMode === "grid" 
+          ? { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 16 }
+          : { display: "flex", flexDirection: "column", gap: 10 }
+        }>
+          {filtered.map((b) => (
+            <BookmarkItem 
+              key={b.bookmark_id} 
+              b={b} 
+              viewMode={viewMode} 
+              flipped={flipped} 
+              onFlip={handleFlip}
+              onUnbookmark={handleUnbookmark} 
+            />
+          ))}
+        </div>
 
+        {/* 데이터가 없을 때 처리 */}
         {filtered.length === 0 && (
           <div style={{ textAlign: "center", padding: "80px 0", color: G.gray }}>
             <div style={{ fontSize: 48, marginBottom: 16 }}>🔍</div>
-            <div style={{ fontSize: 16, fontWeight: 600 }}>검색 결과가 없어요</div>
+            <div style={{ fontSize: 16, fontWeight: 600 }}>아직 저장된 단어가 없어요!</div>
           </div>
         )}
       </div>

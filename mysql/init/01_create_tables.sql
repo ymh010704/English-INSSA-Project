@@ -35,6 +35,7 @@ CREATE TABLE slangs (
     definition_ko TEXT,
     example_en TEXT,
     example_ko TEXT,
+    category VARCHAR(50) DEFAULT 'Etc',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (slang_id)
 );
