@@ -19,9 +19,11 @@ def upload_to_gcs(local_path: str, destination_blob: str) -> str:
     blob = bucket.blob(destination_blob)
 
     blob.upload_from_filename(local_path)
-    blob.make_public()
 
-    url = blob.public_url
+    # 균일한 버킷 액세스(Uniform Bucket-Level Access) 환경에서는
+    # make_public() 대신 IAM으로 allUsers 읽기 권한을 버킷 단위로 부여해야 함
+    # URL은 공개 형식으로 직접 생성
+    url = f"https://storage.googleapis.com/{BUCKET_NAME}/{destination_blob}"
     print(f"[GCS] 업로드 완료: {url}")
     return url
 

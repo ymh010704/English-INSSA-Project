@@ -13,6 +13,11 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
       - ./mysql/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   # 프론트엔드 서비스 추가
   frontend:
@@ -73,11 +78,12 @@ services:
       GCP_LOCATION: ${GCP_LOCATION:-us-central1}
       GCS_BUCKET_NAME: ${GCS_BUCKET_NAME}
       BATCH_SIZE: ${SHORTS_BATCH_SIZE:-3}
-      GOOGLE_APPLICATION_CREDENTIALS: /secrets/gcp-key.json
+      GOOGLE_APPLICATION_CREDENTIALS: /app/gcp-key.json
     volumes:
-      - ${GCP_KEY_PATH:-./secrets/gcp-key.json}:/secrets/gcp-key.json:ro
+      - ./gcp-key.json:/app/gcp-key.json:ro
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     profiles:
       - shorts  # 기본 up 시 자동 시작 안 됨, --profile shorts 로만 실행
 
