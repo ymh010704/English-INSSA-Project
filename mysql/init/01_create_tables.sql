@@ -36,6 +36,7 @@ CREATE TABLE slangs (
     example_en TEXT,
     example_ko TEXT,
     category VARCHAR(50) DEFAULT 'Etc',
+    emoji varchar(50) DEFAULT '👍',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (slang_id)
 );

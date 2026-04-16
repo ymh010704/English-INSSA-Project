@@ -22,6 +22,7 @@ export default function Sidebar() {
 
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
+    // 로그인 여부 체크: 정보가 없으면 로그인 페이지로 튕기기
     if (!savedUser) {
       navigate("/login");
       return;
@@ -38,7 +39,7 @@ export default function Sidebar() {
   }, [navigate]);
 
   const active = menus.find(m => location.pathname === m.path)?.id ?? "";
-
+  // 로그아웃 함수
   const handleLogout = () => {
     Swal.fire({
       title: "로그아웃 하시겠어요?",
@@ -105,6 +106,7 @@ export default function Sidebar() {
         <span style={{ fontSize: 18 }}>⚙️</span> 설정
       </button>
 
+      {/* User & Logout Section */}
       <div style={{ borderTop: "1px solid rgba(255,255,255,0.07)", paddingTop: 20 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
           <div style={{

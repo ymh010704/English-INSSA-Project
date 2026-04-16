@@ -1,8 +1,11 @@
 import express from "express";
-import * as controller from "../controllers/slangs.controller.js";
+import * as SlangController from "../controllers/slangs.controller.js";
+import { authenticateJWT } from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
 
-router.get("/", controller.listSlangs);
+router.get("/", SlangController.listSlangs);
+router.get('/search', SlangController.searchSlangs);
+router.get('/today', authenticateJWT, SlangController.getTodaySlangs);
 
 export default router;
