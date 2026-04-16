@@ -13,6 +13,7 @@ import Settings from "./pages/Settings";
 import ConversationLearn from "./pages/ConversationLearn";
 import Community from "./pages/Community";
 import SlangList from './pages/SlangList';
+import Admin from "./pages/Admin";
 
 export default function App() {
   return (
@@ -32,6 +33,7 @@ export default function App() {
         <Route path="/conversation" element={<ConversationLearn />} />
         <Route path="/community" element={<Community />} />
         <Route path="/slangs" element={<SlangList />} />
+        <Route path="/admin" element={<Admin />} />
       </Routes>
     </BrowserRouter>
   );
