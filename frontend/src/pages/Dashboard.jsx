@@ -221,7 +221,7 @@ function Sidebar({ active, setActive }) {
   const menus = [
     { id: "home",         icon: "🏠", label: "홈",          path: "/dashboard" },
     { id: "bookmark",     icon: "⭐", label: "북마크",        path: "/bookmark" },
-    { id: "today",        icon: "🃏", label: "오늘의 학습",   path: "/card-study" },
+    { id: "today",        icon: "🃏", label: "오늘의 학습",   path: "/learning-intro" },
     { id: "practice",     icon: "✍️", label: "연습",          path: "/practice" },
     { id: "conversation", icon: "💬", label: "회화 학습",     path: "/conversation" },
     { id: "community",    icon: "🌐", label: "커뮤니티",       path: "/community" },
@@ -377,7 +377,7 @@ function TodayCard({ navigate }) {
 
       <div style={{ display: "flex", gap: 10 }}>
         <button style={{ flex: 1, padding: "11px", borderRadius: 12, border: "1.5px solid rgba(255,255,255,0.12)", background: "transparent", color: "rgba(255,255,255,0.5)", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif" }}>🔁 다시볼게요</button>
-        <button onClick={() => navigate("/card-study")} style={{ flex: 1.6, padding: "11px", borderRadius: 12, border: "none", background: G.accent, color: G.white, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif" }}>학습 시작 →</button>
+        <button onClick={() => navigate("/learning-intro")} style={{ flex: 1.6, padding: "11px", borderRadius: 12, border: "none", background: G.accent, color: G.white, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif" }}>학습 시작 →</button>
       </div>
 
       <div style={{ display: "flex", gap: 5 }}>
@@ -607,7 +607,7 @@ function MainContent({ stats }) {
       {/* Stat Cards */}
       <div style={{ display: "flex", gap: 16, marginBottom: 20 }}>
         <StatCard icon="📚" label="오늘 학습한 표현" value={currentStats.todayCount} sub="+2 어제보다" // + n은 나중에 수정
-         color={G.accent} onClick={() => navigate("/card-study")} />
+         color={G.accent} onClick={() => navigate("/learning-intro")} />
         <StatCard icon="✅" label="완료한 카드" value={currentStats.masteredCount} sub="이번 달" color={G.blue} onClick={() => navigate("/progress")} />
         <StatCard icon="🎯" label="AI 대화 횟수" value={currentStats.aiCount} sub="이번 주" color={G.purple} onClick={() => navigate("/ai-chat")} />
         <StatCard icon="💪" label="평균 정확도" value={`${currentStats.accuracy}%`} sub="↑ 5%" color={G.green} onClick={() => navigate("/progress")} />
