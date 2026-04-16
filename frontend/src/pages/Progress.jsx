@@ -1,12 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-const G = {
-  black: "#0a0a0a", white: "#ffffff",
-  accent: "#ff4d00", accent2: "#ffcc00", navy: "#0d1b2a",
-  gray: "#6b7280", light: "#f9f8f5", lightGray: "#f3f4f6",
-  green: "#10b981", blue: "#3b82f6", purple: "#8b5cf6",
-};
+import G from "../constants/colors";
+import PageHeader from "../components/PageHeader";
 
 // 티어 정의
 const TIERS = [
@@ -46,7 +41,7 @@ const BADGES = [
   { emoji: "🌙", name: "야간 학습",     desc: "밤 11시 이후 학습",    done: true  },
   { emoji: "🏆", name: "퍼펙트 스코어", desc: "연습 100% 달성",       done: true  },
   { emoji: "👑", name: "30일 연속",     desc: "30일 연속 학습",       done: false },
-  { emoji: "🎯", name: "올라운더",      desc: "모든 카테고리 50% 이상", done: false },
+  { emoji: "🔥", name: "올라운더",      desc: "모든 카테고리 50% 이상", done: false },
   { emoji: "💎", name: "100개 달성",    desc: "표현 100개 학습",      done: false },
   { emoji: "🤖", name: "AI 마스터",     desc: "AI 대화 50회",         done: false },
 ];
@@ -253,18 +248,9 @@ export default function Progress() {
   const navigate = useNavigate();
 
   return (
-    <div style={{ minHeight: "100vh", background: G.lightGray, fontFamily: "'Noto Sans KR', sans-serif" }}>
+    <div style={{ minHeight: "100vh", fontFamily: "'Noto Sans KR', sans-serif" }}>
 
-      {/* 헤더 */}
-      <div style={{ background: G.white, borderBottom: "1px solid rgba(0,0,0,0.06)", padding: "18px 40px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 10 }}>
-        <button onClick={() => navigate("/dashboard")} style={{ background: "transparent", border: "none", cursor: "pointer", fontSize: 14, color: G.gray, fontFamily: "'Noto Sans KR', sans-serif", fontWeight: 500 }}>
-          ← 뒤로가기
-        </button>
-        <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 15, fontWeight: 900, color: G.black }}>
-          📊 <span style={{ color: G.accent }}>진도 관리</span>
-        </div>
-        <div style={{ width: 80 }} />
-      </div>
+      <PageHeader title="진도 관리" emoji="📊" />
 
       {/* 메인 그리드 */}
       <div style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 24px", display: "flex", flexDirection: "column", gap: 20 }}>
@@ -274,7 +260,7 @@ export default function Progress() {
           {[
             { icon: "📚", label: "총 학습 표현", value: "48개", color: G.accent },
             { icon: "✅", label: "완료한 카드", value: "36개", color: G.green },
-            { icon: "🎯", label: "평균 정확도", value: "87%", color: G.blue },
+            { icon: "🔥", label: "연속 학습일", value: "14일", color: G.blue },
             { icon: "⏱️", label: "총 학습 시간", value: "4.2h", color: G.purple },
           ].map(s => (
             <div key={s.label} style={{ background: G.white, borderRadius: 20, padding: "22px 24px", border: "1px solid rgba(0,0,0,0.05)" }}>

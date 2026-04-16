@@ -1,14 +1,14 @@
-const service = require("../services/bookmarks.service");
-const { ok } = require("../utils/response");
+import * as service from "../services/bookmarks.service.js"; // 확장자 .js 추가
+import { ok } from "../utils/response.js"; // 확장자 .js 추가
 
-function createBookmark(req, res, next) {
+export function createBookmark(req, res, next) {
   try { return ok(res, service.create(req)); } catch (e) { next(e); }
 }
-function listBookmarks(req, res, next) {
+
+export function listBookmarks(req, res, next) {
   try { return ok(res, service.list(req)); } catch (e) { next(e); }
 }
-function deleteBookmark(req, res, next) {
+
+export function deleteBookmark(req, res, next) {
   try { return ok(res, service.remove(req)); } catch (e) { next(e); }
 }
-
-module.exports = { createBookmark, listBookmarks, deleteBookmark };

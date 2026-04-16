@@ -29,7 +29,6 @@ router.get('/users', async (req, res) => {
  } catch (error) {
         console.error('🚨 [Admin API] 회원 목록 조회 중 에러 발생:', error);
         
-        // 클라이언트(브라우저)에는 보안을 위해 깔끔한 JSON만 보냄
         res.status(500).json({
             success: false,
             message: '서버 내부 오류로 회원 목록을 가져오지 못했습니다.',
@@ -82,9 +81,18 @@ router.delete('/users/:id', async (req, res) => {
         connection.release();
     }
 });
+
+router.get('/slangs', async (req, res) => {
+  try {
+    const [rows] = await pool.execute('SELECT * FROM slangs ORDER BY created_at DESC');
+    res.json(rows);
+  } catch (error) {
+    console.error('슬랭 목록 조회 에러:', error);
+    res.status(500).json({ success: false, message: 'DB 조회 실패' });
+  }
+});
 // 새로운 슬랭 등록 
 router.post('/slangs', async (req, res) => {
-    // 프론트에서 보낼때 이 이름으로
     const { word, definition_ko, definition_en, example_en, example_ko } = req.body;
     
     try {

@@ -1,10 +1,8 @@
 import { useNavigate } from "react-router-dom";
-import Mascot from "./mascot.jsx";
-
-const G = {
-  black: "#0a0a0a", white: "#ffffff", bg: "#fffdf9",
-  accent: "#ff4d00", gray: "#6b7280", lightGray: "#f3f4f6",
-};
+import Mascot from "../components/Mascot";
+import G from "../constants/colors";
+import PageHeader from "../components/PageHeader";
+import Button from "../components/Button";
 
 const TODAY_WORDS = [
   { word: "No cap", meaning: "진심으로, 거짓말 아님" },
@@ -19,19 +17,10 @@ export default function LearningIntro() {
   const streak = 7;
 
   return (
-    <div style={{
-      minHeight: "100vh", background: G.bg,
-      display: "flex", alignItems: "center", justifyContent: "center",
-      fontFamily: "'Noto Sans KR', sans-serif", padding: "40px 20px",
-    }}>
+    <div style={{ minHeight: "100vh", fontFamily: "'Noto Sans KR', sans-serif", display: "flex", flexDirection: "column" }}>
+      <PageHeader title="오늘의 학습" emoji="🃏" />
+      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 20px" }}>
       <div style={{ width: "100%", maxWidth: 560 }}>
-
-        {/* 뒤로가기 */}
-        <button onClick={() => navigate("/dashboard")} style={{
-          background: "none", border: "none", color: G.gray,
-          fontSize: 14, cursor: "pointer", marginBottom: 32,
-          display: "flex", alignItems: "center", gap: 6, padding: 0,
-        }}>← 대시보드로</button>
 
         {/* 캐릭터 + 스트릭 */}
         <div style={{ textAlign: "center", marginBottom: 32 }}>
@@ -112,24 +101,14 @@ export default function LearningIntro() {
         </div>
 
         {/* 시작 버튼 */}
-        <button onClick={() => navigate("/card-study")} style={{
-          width: "100%", background: G.accent, color: G.white,
-          border: "none", borderRadius: 16, padding: "18px",
-          fontSize: 16, fontWeight: 700, cursor: "pointer",
-          fontFamily: "'Noto Sans KR', sans-serif",
-          boxShadow: "0 8px 32px rgba(255,77,0,0.35)",
-          transition: "transform 0.2s",
-          letterSpacing: 0.5,
-        }}
-          onMouseEnter={e => e.currentTarget.style.transform = "translateY(-2px)"}
-          onMouseLeave={e => e.currentTarget.style.transform = "none"}
-        >
+        <Button onClick={() => navigate("/card-study")} style={{ width: "100%", borderRadius: 16, padding: "18px", fontSize: 16, letterSpacing: 0.5 }}>
           🚀 학습 시작하기
-        </button>
+        </Button>
 
         <p style={{ textAlign: "center", fontSize: 12, color: "#d1d5db", marginTop: 16 }}>
           오늘 학습하면 {streak + 1}일 연속 달성! 🔥
         </p>
+      </div>
       </div>
     </div>
   );

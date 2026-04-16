@@ -1,12 +1,8 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-
-const G = {
-  black: "#0a0a0a", white: "#ffffff",
-  accent: "#ff4d00", accent2: "#ffcc00", navy: "#0d1b2a",
-  gray: "#6b7280", light: "#f9f8f5", lightGray: "#f3f4f6",
-  green: "#10b981", red: "#ef4444", border: "#e5e0d8",
-};
+import G from "../constants/colors";
+import PageHeader from "../components/PageHeader";
+import Button from "../components/Button";
 
 /* ── 섹션 래퍼 ── */
 function Section({ title, children }) {
@@ -75,49 +71,25 @@ export default function Settings() {
   const navigate = useNavigate();
   const fileRef = useRef(null);
 
-  // 유저 데이터 로드 (이름 등)
   // 프로필
-  const [user, setUser] = useState({email:"", nickname:"", provider:"local"})
+  const [name, setName] = useState("이경현");
+  const [email] = useState("kyoung@engssa.kr");
   const [avatar, setAvatar] = useState(null);
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-
-    if(storedUser) {
-      try {
-        const parsed = JSON.parse(storedUser);
-        setUser(parsed);
-      } catch (e) {
-        console.error("유저 데이터 parse error", e);
-      }
-    } else {
-      // 로그인이 안 되어 있다면, 로그인으로 보내기
-      navigate("/login")
-    }
-  }, [navigate]);
-
-  // 알림 / 학습 목표 (이건 나중에 DB 연동 전까지 로컬스토리지 활용할 예정 -> 이후에 바꾸자)
-  const [dailyGoal, setDailyGoal] = useState(Number(localStorage.getItem("dailyGoal")) || 5);
+  // 알림
   const [notiDaily, setNotiDaily] = useState(true);
-
-  const [notiStreak, setNotiStreak] = useState(true);  
+  const [notiStreak, setNotiStreak] = useState(true);
   const [notiReview, setNotiReview] = useState(false);
+
+  // 학습 목표
+  const [dailyGoal, setDailyGoal] = useState(5);
 
   // 모달
   const [modal, setModal] = useState(null); // "profile" | "password" | "reset" | "delete"
-  const [name, setName] = useState("");
-  const [saved, setSaved] = useState(false);
-  
-  // 로그아웃 함수
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    navigate("/login");
-  };
-  
   const [newPw, setNewPw] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
   const [pwError, setPwError] = useState("");
+  const [saved, setSaved] = useState(false);
 
   function handleAvatarChange(e) {
     const file = e.target.files[0];
@@ -128,12 +100,8 @@ export default function Settings() {
   }
 
   function handleSaveProfile() {
-    // 실제로는 API 호출이 들어가야 함 (PATCH /api/auth/profile)
-    const updatedUser = { ...user, nickname: name };
-    localStorage.setItem("user", JSON.stringify(updatedUser));
-    setUser(updatedUser);
     setSaved(true);
-    setTimeout(() => { setSaved(false); setModal(null); }, 1000);
+    setTimeout(() => { setSaved(false); setModal(null); }, 1500);
   }
 
   function handleChangePw() {
@@ -158,14 +126,9 @@ export default function Settings() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: G.lightGray, fontFamily: "'Noto Sans KR', sans-serif" }}>
+    <div style={{ minHeight: "100vh", fontFamily: "'Noto Sans KR', sans-serif" }}>
 
-      {/* 헤더 */}
-      <div style={{ background: G.white, borderBottom: "1px solid rgba(0,0,0,0.06)", padding: "18px 40px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 10 }}>
-        <button onClick={() => navigate("/dashboard")} style={{ background: "transparent", border: "none", cursor: "pointer", fontSize: 14, color: G.gray, fontFamily: "'Noto Sans KR', sans-serif", fontWeight: 500 }}>← 뒤로가기</button>
-        <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 15, fontWeight: 900, color: G.black }}>⚙️ <span style={{ color: G.accent }}>설정</span></div>
-        <div style={{ width: 80 }} />
-      </div>
+      <PageHeader title="설정" emoji="⚙️" />
 
       <div style={{ maxWidth: 600, margin: "0 auto", padding: "32px 24px" }}>
 
@@ -174,22 +137,20 @@ export default function Settings() {
           <div style={{ position: "absolute", top: -40, right: -40, width: 160, height: 160, background: "radial-gradient(circle, rgba(255,77,0,0.2) 0%, transparent 70%)", pointerEvents: "none" }} />
           <div style={{ position: "relative" }}>
             <div style={{ width: 72, height: 72, borderRadius: "50%", background: avatar ? "transparent" : G.accent, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, fontFamily: "'Unbounded', sans-serif", fontWeight: 900, color: G.white, overflow: "hidden", border: "3px solid rgba(255,255,255,0.2)" }}>
-              {avatar ? <img src={avatar} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : user.nickname[0]}
+              {avatar ? <img src={avatar} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : name[0]}
             </div>
             <button onClick={() => fileRef.current.click()} style={{ position: "absolute", bottom: 0, right: 0, width: 24, height: 24, borderRadius: "50%", background: G.accent2, border: "2px solid #1e3a5f", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: 11 }}>✏️</button>
             <input ref={fileRef} type="file" accept="image/*" onChange={handleAvatarChange} style={{ display: "none" }} />
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 18, fontWeight: 900, color: G.white, marginBottom: 4 }}>{user.nickname}</div>
-            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>{user.email}</div>
+            <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 18, fontWeight: 900, color: G.white, marginBottom: 4 }}>{name}</div>
+            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>{email}</div>
             <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(255,255,255,0.1)", borderRadius: 100, padding: "4px 12px" }}>
               <span style={{ fontSize: 12 }}>⚡</span>
               <span style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", fontWeight: 600 }}>Intermediate · 1,240 XP</span>
             </div>
           </div>
-          <button onClick={() => setModal("profile")} style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 12, padding: "8px 16px", cursor: "pointer", fontSize: 12, fontWeight: 600, color: G.white, fontFamily: "'Noto Sans KR', sans-serif", flexShrink: 0 }}>
-            수정
-          </button>
+          <Button variant="secondary" onClick={() => setModal("profile")} size="sm" style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)", color: G.white, borderRadius: 12, flexShrink: 0 }}>수정</Button>
         </div>
 
         {/* 학습 목표 */}
@@ -220,17 +181,9 @@ export default function Settings() {
           <Row icon="🔁" label="복습 알림" sub="복습할 카드가 있을 때" right={<Toggle value={notiReview} onChange={setNotiReview} />} />
         </Section>
 
-        {/* 계정 설정 (소셜 로그인 시 비밀번호 변경 숨김) */}
+        {/* 계정 설정 */}
         <Section title="🔒 계정">
-          {user.provider === 'local' ? (
-            <Row icon="🔑" label="비밀번호 변경" sub="정기적으로 변경을 권장해요" right={<span style={{ fontSize: 16, color: G.gray }}>›</span>} onClick={() => setModal("password")} />
-          ) : (
-            <Row 
-              icon="📱" 
-              label="소셜 로그인 이용 중" 
-              sub={`${user.provider || "SNS"} 계정으로 연결되어 있습니다`} // undefined 방지
-            />
-          )}
+          <Row icon="🔑" label="비밀번호 변경" sub="정기적으로 변경을 권장해요" right={<span style={{ fontSize: 16, color: G.gray }}>›</span>} onClick={() => setModal("password")} />
         </Section>
 
         {/* 위험 구역 */}
@@ -252,7 +205,7 @@ export default function Settings() {
         <Modal title="👤 프로필 수정" onClose={() => setModal(null)}>
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             <div>
-              <label style={{ fontSize: 12, fontWeight: 700, color: G.black, display: "block", marginBottom: 6 }}>새 닉네임</label>
+              <label style={{ fontSize: 12, fontWeight: 700, color: G.black, display: "block", marginBottom: 6 }}>이름</label>
               <input value={name} onChange={e => setName(e.target.value)} style={{ width: "100%", padding: "12px 16px", borderRadius: 12, border: `1.5px solid ${G.border}`, fontSize: 14, outline: "none", fontFamily: "'Noto Sans KR', sans-serif", boxSizing: "border-box" }}
                 onFocus={e => e.target.style.borderColor = G.accent}
                 onBlur={e => e.target.style.borderColor = G.border}
@@ -268,8 +221,8 @@ export default function Settings() {
               <div style={{ background: "#f0fdf4", border: "1px solid #86efac", borderRadius: 12, padding: "12px", textAlign: "center", fontSize: 14, fontWeight: 700, color: G.green }}>✅ 저장됐어요!</div>
             ) : (
               <div style={{ display: "flex", gap: 10 }}>
-                <button onClick={() => setModal(null)} style={{ flex: 1, padding: "13px", borderRadius: 12, border: `1.5px solid ${G.border}`, background: G.white, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif", color: G.gray }}>취소</button>
-                <button onClick={handleSaveProfile} style={{ flex: 1, padding: "13px", borderRadius: 12, border: "none", background: G.accent, color: G.white, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif", boxShadow: "0 6px 20px rgba(255,77,0,0.3)" }}>저장</button>
+                <Button variant="secondary" onClick={() => setModal(null)} style={{ flex: 1, borderRadius: 12, padding: "13px" }}>취소</Button>
+                <Button onClick={handleSaveProfile} style={{ flex: 1, borderRadius: 12, padding: "13px" }}>저장</Button>
               </div>
             )}
           </div>
@@ -299,8 +252,8 @@ export default function Settings() {
               <div style={{ background: "#f0fdf4", border: "1px solid #86efac", borderRadius: 12, padding: "12px", textAlign: "center", fontSize: 14, fontWeight: 700, color: G.green }}>✅ 변경됐어요!</div>
             ) : (
               <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
-                <button onClick={() => setModal(null)} style={{ flex: 1, padding: "13px", borderRadius: 12, border: `1.5px solid ${G.border}`, background: G.white, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif", color: G.gray }}>취소</button>
-                <button onClick={handleChangePw} style={{ flex: 1, padding: "13px", borderRadius: 12, border: "none", background: G.accent, color: G.white, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif", boxShadow: "0 6px 20px rgba(255,77,0,0.3)" }}>변경</button>
+                <Button variant="secondary" onClick={() => setModal(null)} style={{ flex: 1, borderRadius: 12, padding: "13px" }}>취소</Button>
+                <Button onClick={handleChangePw} style={{ flex: 1, borderRadius: 12, padding: "13px" }}>변경</Button>
               </div>
             )}
           </div>
@@ -315,8 +268,8 @@ export default function Settings() {
               ⚠️ 북마크, 최근 검색어 등 학습 기록이 모두 삭제돼요. 이 작업은 되돌릴 수 없어요.
             </div>
             <div style={{ display: "flex", gap: 10 }}>
-              <button onClick={() => setModal(null)} style={{ flex: 1, padding: "13px", borderRadius: 12, border: `1.5px solid ${G.border}`, background: G.white, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif", color: G.gray }}>취소</button>
-              <button onClick={handleResetData} style={{ flex: 1, padding: "13px", borderRadius: 12, border: "none", background: G.red, color: G.white, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif" }}>초기화</button>
+              <Button variant="secondary" onClick={() => setModal(null)} style={{ flex: 1, borderRadius: 12, padding: "13px" }}>취소</Button>
+              <Button variant="danger" onClick={handleResetData} style={{ flex: 1, borderRadius: 12, padding: "13px" }}>초기화</Button>
             </div>
           </div>
         </Modal>
@@ -330,8 +283,8 @@ export default function Settings() {
               ⚠️ 계정과 모든 학습 데이터가 영구 삭제돼요. 탈퇴 후에는 복구가 불가능해요.
             </div>
             <div style={{ display: "flex", gap: 10 }}>
-              <button onClick={() => setModal(null)} style={{ flex: 1, padding: "13px", borderRadius: 12, border: `1.5px solid ${G.border}`, background: G.white, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif", color: G.gray }}>취소</button>
-              <button onClick={handleDeleteAccount} style={{ flex: 1, padding: "13px", borderRadius: 12, border: "none", background: G.red, color: G.white, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif" }}>탈퇴하기</button>
+              <Button variant="secondary" onClick={() => setModal(null)} style={{ flex: 1, borderRadius: 12, padding: "13px" }}>취소</Button>
+              <Button variant="danger" onClick={handleDeleteAccount} style={{ flex: 1, borderRadius: 12, padding: "13px" }}>탈퇴하기</Button>
             </div>
           </div>
         </Modal>

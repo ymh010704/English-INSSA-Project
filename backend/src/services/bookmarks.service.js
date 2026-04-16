@@ -1,10 +1,10 @@
-const repo = require("../repositories/bookmarks.repo.memory");
+import * as repo from "../repositories/bookmarks.repo.memory.js";
 
 function getUserId(req) {
   return req.header("X-User-Id") || "demo";
 }
 
-function create(req) {
+export function create(req) { // export 추가
   const userId = getUserId(req);
   const { url } = req.body || {};
   if (!url || String(url).trim().length === 0) {
@@ -16,13 +16,13 @@ function create(req) {
   return repo.create(userId, req.body);
 }
 
-function list(req) {
+export function list(req) { // export 추가
   const userId = getUserId(req);
   const { q, tag } = req.query || {};
   return repo.list(userId, { q, tag });
 }
 
-function remove(req) {
+export function remove(req) { // export 추가
   const userId = getUserId(req);
   const ok = repo.remove(userId, req.params.id);
   if (!ok) {
@@ -33,5 +33,3 @@ function remove(req) {
   }
   return true;
 }
-
-module.exports = { create, list, remove };
