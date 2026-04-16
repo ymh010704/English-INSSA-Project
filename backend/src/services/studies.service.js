@@ -106,9 +106,19 @@ const StudiesService = {
 
       // 2. XP 업데이트 (정답일 경우 +10) // 일단 임시로 +10으로 지정했음 (추후에 이야기 ㄱㄱ)
       if (isCorrect) {
-        const xpQuery = `UPDATE user_stats SET total_xp = total_xp + 10 WHERE user_id = ?`;
-        await pool.execute(xpQuery, [userId]);
-        console.log(`✨ 유저 ${userId}: XP 10점 획득!`); // 이건 쿼리 잘 들어갔나 확인용이라 나중에 지울 것(로그 넘 ㅜ많이 남음)
+        // ON DUPLICATE KEY UPDATE를 쓰면 데이터가 없을 땐 INSERT, 있을 땐 UPDATE를 한 번에 처리해줌 (기존에 이거 안 해서 xp랑 스트릭이 반영 안됐음.. // 테이블이 없는데 업데이트만 해서ㅎ)
+        const xpQuery = `
+          INSERT INTO user_stats (user_id, total_xp, current_streak)
+          VALUES (?, 10, 0)
+          ON DUPLICATE KEY UPDATE total_xp = total_xp + 10
+        `;
+
+        try {
+          await pool.execute(xpQuery, [userId]);
+          console.log(`✨ 유저 ${userId}: XP 10점 획득!`); // 이건 쿼리 잘 들어갔나 확인용이라 나중에 지울 것(로그 넘 ㅜ많이 남음)
+        } catch (err) {
+          console.error("❌ XP 업데이트 중 에러:", err.message);
+        } 
       }
 
       // 3. 🚩 스트릭 업데이트 (오늘 첫 학습일 경우 +1)
@@ -120,7 +130,12 @@ const StudiesService = {
       const [rows] = await pool.execute(checkStreakQuery, [userId]);
 
       if (rows[0].todayLogs === 1) {
-        const streakQuery = `UPDATE user_stats SET current_streak = current_streak + 1 WHERE user_id = ?`;
+        const streakQuery = `
+          INSERT INTO user_stats (user_id, current_streak, total_xp)
+          VALUES (?, 1, 0)
+          ON DUPLICATE KEY UPDATE current_streak = current_streak + 1
+        `;
+
         await pool.execute(streakQuery, [userId]);
         console.log(`🔥 유저 ${userId}: 스트릭 1일 상승!`);
       }
