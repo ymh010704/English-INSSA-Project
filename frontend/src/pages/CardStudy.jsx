@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom"; 
 import axios from "axios";
 import G from "../constants/colors";
 import PageHeader from "../components/PageHeader";
@@ -9,45 +9,42 @@ import Button from "../components/Button";
 import MultipleChoice from "../components/quiz/MultipleChoice";
 import OXQuiz from "../components/quiz/OXQuiz";
 
-/* ── 학습 완료 화면 ── */
 function CompletionScreen({ known, total, onRestart }) {
   const navigate = useNavigate();
   const pct = total > 0 ? Math.round((known / total) * 100) : 0;
+
   return (
     <div style={{
-      minHeight: "100vh", background: G.navy,
+      minHeight: "100vh", background: "#1a1c20", 
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
       fontFamily: "'Noto Sans KR', sans-serif", padding: 40, textAlign: "center",
-      position: "relative", overflow: "hidden",
     }}>
-      <div style={{ position: "absolute", top: "20%", left: "50%", transform: "translateX(-50%)", width: 600, height: 600, background: "radial-gradient(circle, rgba(255,77,0,0.12) 0%, transparent 70%)", pointerEvents: "none" }} />
       <div style={{ fontSize: 80, marginBottom: 24 }}>🏆</div>
-      <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 14 }}>오늘의 퀴즈 완료!</div>
-      <h1 style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 40, fontWeight: 900, color: G.white, lineHeight: 1.15, letterSpacing: -1, marginBottom: 10 }}>
-        완전 <span style={{ color: G.accent }}>인싸</span> 됐어요!
+      <h1 style={{ fontSize: 40, fontWeight: 900, color: "#fff", marginBottom: 10 }}>
+        완전 <span style={{ color: "#FF4D00" }}>인싸</span> 됐어요!
       </h1>
-      <p style={{ fontSize: 16, color: "rgba(255,255,255,0.45)", marginBottom: 48, fontWeight: 300 }}>오늘 {total}문제 학습 완료 🎉</p>
-      <div style={{ display: "flex", gap: 16, marginBottom: 48, flexWrap: "wrap", justifyContent: "center" }}>
-        {[
-          { label: "완료한 문제", value: `${total}개`, color: G.accent },
-          { label: "맞혔어요", value: `${known}개`, color: G.green },
-          { label: "정확도", value: `${pct}%`, color: G.accent2 },
-        ].map(s => (
-          <div key={s.label} style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: "24px 32px", minWidth: 130 }}>
-            <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 32, fontWeight: 900, color: s.color, lineHeight: 1, marginBottom: 8 }}>{s.value}</div>
-            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)" }}>{s.label}</div>
-          </div>
-        ))}
+      <p style={{ fontSize: 16, color: "rgba(255,255,255,0.45)", marginBottom: 48 }}>
+        오늘 {total}문제 학습 완료 🎉
+      </p>
+      <div style={{ display: "flex", gap: 16, marginBottom: 48 }}>
+        <div style={{ background: "rgba(255,255,255,0.06)", borderRadius: 20, padding: "24px 32px" }}>
+          <div style={{ fontSize: 32, fontWeight: 900, color: "#FF4D00" }}>{pct}%</div>
+          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)" }}>정확도</div>
+        </div>
       </div>
-      <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
+      <div style={{ display: "flex", gap: 12 }}>
         <Button onClick={onRestart}>🔁 다시 학습하기</Button>
-        <Button variant="secondary" onClick={() => navigate("/dashboard")} style={{ color: G.white, border: "1.5px solid rgba(255,255,255,0.2)" }}>🏠 대시보드로</Button>
+        <Button 
+          onClick={() => navigate("/dashboard")} 
+          style={{ background: "transparent", border: "1px solid #fff", color: "#fff" }}
+        >
+          🏠 대시보드로
+        </Button>
       </div>
     </div>
   );
 }
 
-/* ── 메인 퀴즈 학습 ── */
 export default function CardStudy() {
   const navigate = useNavigate();
   const [quizzes, setQuizzes] = useState([]);
@@ -57,13 +54,21 @@ export default function CardStudy() {
   const [done, setDone] = useState(false);
   const [leaving, setLeaving] = useState(null);
 
+  // 1. 퀴즈 가져오기 함수
   const fetchQuizzes = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      // 백엔드 API 호출 (민우가 만든 퀴즈 API)
-      const response = await axios.get("/api/studies/quiz?count=5");
-      if (response.data.success) {
-        setQuizzes(response.data.data);
+      const token = localStorage.getItem('token');
+      const res = await axios.get('/api/studies/quiz?count=5', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      console.log("🎁 백엔드 데이터 확인:", res.data);
+
+      if (Array.isArray(res.data)) {
+        setQuizzes(res.data);
+      } else if (res.data && res.data.data) {
+        setQuizzes(res.data.data);
       }
     } catch (error) {
       console.error("데이터 로딩 실패:", error);
@@ -72,9 +77,56 @@ export default function CardStudy() {
     }
   };
 
+  // 2. 컴포넌트 마운트 시 실행
   useEffect(() => {
     fetchQuizzes();
-  }, []);
+  }, []); 
+
+  // 3. 학습 기록 저장 함수
+  const saveProgress = async (slangId, isCorrect) => {
+  try {
+    const token = localStorage.getItem('token');
+    console.log("💾 저장 시도중인 ID:", slangId); 
+
+    await axios.post('/api/studies/log', {
+      slangId: slangId, 
+      isCorrect: isCorrect,
+      status: isCorrect ? 'mastered' : 'learning'
+    }, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+  } catch (err) {
+    console.error("❌ 기록 저장 실패:", err.message);
+  }
+};
+
+  // 4. 다음 문제로 넘어가기
+  function handleNext(isCorrect) {
+    const currentQuiz = quizzes[index];
+    const slangId = currentQuiz.id || currentQuiz.slang_id;
+    
+    if (slangId) {
+      saveProgress(slangId, isCorrect);
+    }
+
+    if (isCorrect) setKnown(prev => prev + 1);
+    setLeaving(isCorrect ? "right" : "left");
+
+    setTimeout(() => {
+      setLeaving(null);
+      // quizzes.length(total)를 바로 사용
+      if (index + 1 >= quizzes.length) {
+        setDone(true);
+      } else {
+        setIndex(i => i + 1);
+      }
+    }, 500);
+  }
+
+  function restart() {
+    setIndex(0); setKnown(0); setDone(false); setLeaving(null);
+    fetchQuizzes();
+  }
 
   if (loading) {
     return (
@@ -90,24 +142,8 @@ export default function CardStudy() {
   const total = quizzes.length;
   const currentQuiz = quizzes[index];
 
-  function handleNext(isCorrect) {
-    if (isCorrect) setKnown(prev => prev + 1);
-    setLeaving(isCorrect ? "right" : "left");
-
-    setTimeout(() => {
-      setLeaving(null);
-      if (index + 1 >= total) setDone(true);
-      else setIndex(i => i + 1);
-    }, 500);
-  }
-
-  function restart() {
-    setIndex(0); setKnown(0); setDone(false); setLeaving(null);
-    fetchQuizzes();
-  }
-
   if (done) return <CompletionScreen known={known} total={total} onRestart={restart} />;
-  if (!currentQuiz) return null;
+  if (!currentQuiz) return <div style={{textAlign:'center', padding:50}}>문제가 없습니다.</div>;
 
   return (
     <div style={{ minHeight: "100vh", background: "#f0ede6", fontFamily: "'Noto Sans KR', sans-serif", display: "flex", flexDirection: "column" }}>
@@ -123,7 +159,7 @@ export default function CardStudy() {
       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "32px 24px" }}>
         <div style={{ marginBottom: 20 }}>
           <div style={{ background: "rgba(255,77,0,0.1)", border: "1px solid rgba(255,77,0,0.2)", color: G.accent, fontSize: 11, fontWeight: 700, padding: "7px 18px", borderRadius: 100 }}>
-            {currentQuiz.emoji} {currentQuiz.category}
+            {currentQuiz.emoji || "💬"} {currentQuiz.category || "Gen-Z 슬랭"}
           </div>
         </div>
 

@@ -1,9 +1,7 @@
 import { GoogleGenAI as Gemini } from "@google/genai";
 
-// .env 파일에 GEMINI_API_KEY가 필요
 const ai = new Gemini({ apiKey: process.env.GEMINI_API_KEY });
 
-// 상황별 대화 시작 문구
 const OPENING_MESSAGES = {
   cafe:   "Hey! Start our café conversation naturally. Greet me and say something about being at a café.",
   party:  "Hey! Start our party conversation naturally. Greet me like we just ran into each other at a party.",
@@ -13,7 +11,6 @@ const OPENING_MESSAGES = {
   date:   "Start a flirty, fun conversation like we have a crush on each other. Keep it playful.",
 };
 
-// 상황별 AI 맞춤 
 const SYSTEM_PROMPTS = {
   cafe:   "You are Alex, a friendly native English speaker at a café. Chat casually about coffee, life, etc. Use natural slang. If the user uses slang awkwardly, gently correct them in a friendly way with [💡 Tip: ...]. Keep messages short (2-3 sentences). Respond in English only.",
   party:  "You are Jordan, a fun native speaker at a party. Use party/social slang. If the user uses slang awkwardly, gently correct them with [💡 Tip: ...]. Keep it energetic and short.",

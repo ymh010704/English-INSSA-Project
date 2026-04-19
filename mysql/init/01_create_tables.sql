@@ -34,6 +34,8 @@ CREATE TABLE slangs (
     definition_ko TEXT,
     example_en TEXT,
     example_ko TEXT,
+    category VARCHAR(50) DEFAULT 'Etc',
+    emoji varchar(50) DEFAULT '👍',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (slang_id)
 );
@@ -52,3 +54,51 @@ INSERT INTO slangs (word, definition_en, definition_ko, example_en, example_ko) 
 ('Bet', 'A term used to express agreement or confirmation.', '어, 그래!, 당연하지! 처럼 쿨한 동의.', 'A: Want to go grab some pizza? B: Bet!', 'A: 피자 먹으러 갈래? B: 콜!'),
 ('Main character energy', 'Someone who behaves like they are the protagonist.', '인생의 주인공인 것처럼 자신감 넘치는 에너지.', 'She walked into the room with major main character energy.', '그녀는 주인공 포스를 풍기며 방으로 들어왔어.'),
 ('Rent free', 'When you can’t stop thinking about something.', '머릿속에서 떠나질 않을 때 써요.', 'That song has been living in my head rent free all day.', '그 노래가 하루 종일 머릿속에서 계속 맴돌아.');
+
+/* 3. 학습 로그 테이블 */
+CREATE TABLE study_logs (
+    log_id INT NOT NULL AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    slang_id INT NOT NULL,
+    is_correct TINYINT(1) DEFAULT 0,
+    status ENUM('learning', 'mastered') DEFAULT 'learning',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (log_id),
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+/* 4. AI 채팅 로그 테이블 */
+CREATE TABLE ai_chat_logs (
+    chat_id INT NOT NULL AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    message TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (chat_id),
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+/* 5. 유저 통계 테이블 (연속 학습일, XP 등) */
+CREATE TABLE user_stats (
+    stat_id INT NOT NULL AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    current_streak INT DEFAULT 0,
+    total_xp INT DEFAULT 0,
+    last_study_date DATE,
+    PRIMARY KEY (stat_id),
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+/* 6. 북마크 테이블 추가 (퀴즈 로직에서 필요) */
+CREATE TABLE IF NOT EXISTS bookmarks (
+    bookmark_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    slang_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY (user_id, slang_id),
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (slang_id) REFERENCES slangs(slang_id) ON DELETE CASCADE
+);
+
+/* 초기 유저들을 위한 기본 통계 데이터 삽입 */
+INSERT INTO user_stats (user_id, current_streak, total_xp)
+SELECT user_id, 0, 0 FROM users;

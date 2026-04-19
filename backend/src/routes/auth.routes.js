@@ -28,10 +28,20 @@ router.post("/signup", async (req, res) => {
       return res.status(400).json({ success: false, error: "이미 가입된 이메일입니다." });
     }
     const hashedPassword = await bcrypt.hash(pw, 10);
-    await pool.execute(
+    
+    const [userResult] = await pool.execute(
       'INSERT INTO users (email, password, nickname) VALUES (?, ?, ?)',
       [email, hashedPassword, name]
     );
+
+    const newUserId = userResult.insertId;
+
+    // 학습 기능을 위해 초기 스탯 데이터 생성
+    await pool.execute(
+      'INSERT INTO user_stats (user_id, total_xp, current_streak) VALUES (?, 0, 0)',
+      [newUserId]
+    );
+    
     res.status(201).json({ success: true, message: "회원가입 성공!" });
   } catch (err) {
     console.error("Signup Error:", err);
@@ -39,8 +49,7 @@ router.post("/signup", async (req, res) => {
   }
 });
 
-/** 
- * [로그인]
+/** * [로그인]
  */
 router.post("/login", async (req, res) => {
   const { email, pw } = req.body;
@@ -73,7 +82,12 @@ router.get("/google/callback",
   passport.authenticate("google", { session: false, failureRedirect: "/login" }),
   (req, res) => {
     const token = generateToken(req.user);
-    const user = encodeURIComponent(JSON.stringify({ email: req.user.email, nickname: req.user.nickname }));
+    const user = encodeURIComponent(JSON.stringify({ 
+      id: req.user.user_id || req.user.id,
+      email: req.user.email, 
+      nickname: req.user.nickname,
+      provider: req.user.provider || 'google'
+    }));
     res.redirect(`http://localhost/login?token=${token}&user=${user}`);
   }
 );
@@ -85,7 +99,14 @@ router.get("/kakao/callback",
   (req, res) => {
     try {
       const token = generateToken(req.user);
-      const userData = encodeURIComponent(JSON.stringify({ email: req.user.email, nickname: req.user.nickname }));
+      const userData = encodeURIComponent(JSON.stringify({ 
+        id: req.user.user_id || req.user.id,
+        email: req.user.email, 
+        nickname: req.user.nickname,
+        provider: req.user.provider || 'kakao'
+      }));
+
+      console.log(`✅ 로그인 성공: ${req.user.nickname}`);
       res.redirect(`http://localhost/login?token=${token}&user=${userData}`);
     } catch (err) {
       res.redirect("http://localhost/login?error=server_error");

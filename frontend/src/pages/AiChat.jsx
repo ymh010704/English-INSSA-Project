@@ -5,15 +5,15 @@ import PageHeader from "../components/PageHeader";
 import Button from "../components/Button";
 
 const SCENARIOS = [
-  { id: "cafe",   emoji: "☕", label: "카페에서",     desc: "친구랑 카페 얘기",      color: "#92400e", bg: "#fef3c7" },
-  { id: "party",  emoji: "🎉", label: "파티에서",     desc: "파티 분위기 대화",      color: "#6d28d9", bg: "#ede9fe" },
-  { id: "sns",    emoji: "📱", label: "SNS DM",       desc: "인스타 DM 스타일",      color: "#0369a1", bg: "#e0f2fe" },
-  { id: "friend", emoji: "👯", label: "친구 사이",    desc: "편한 일상 대화",        color: "#065f46", bg: "#d1fae5" },
-  { id: "work",   emoji: "💼", label: "직장 동료",    desc: "캐주얼한 직장 대화",    color: "#9f1239", bg: "#ffe4e6" },
-  { id: "date",   emoji: "💕", label: "썸 타는 중",   desc: "설레는 대화",           color: "#be185d", bg: "#fce7f3" },
+  { id: "cafe",    emoji: "☕", label: "카페에서",     desc: "친구랑 카페 얘기",      color: "#92400e", bg: "#fef3c7" },
+  { id: "party",   emoji: "🎉", label: "파티에서",     desc: "파티 분위기 대화",      color: "#6d28d9", bg: "#ede9fe" },
+  { id: "sns",     emoji: "📱", label: "SNS DM",       desc: "인스타 DM 스타일",      color: "#0369a1", bg: "#e0f2fe" },
+  { id: "friend",  emoji: "👯", label: "친구 사이",     desc: "편한 일상 대화",        color: "#065f46", bg: "#d1fae5" },
+  { id: "work",    emoji: "💼", label: "직장 동료",     desc: "캐주얼한 직장 대화",    color: "#9f1239", bg: "#ffe4e6" },
+  { id: "date",    emoji: "💕", label: "썸 타는 중",    desc: "설레는 대화",           color: "#be185d", bg: "#fce7f3" },
 ];
 
-/* ── 애니메이션 캐릭터 컴포넌트 ── */
+/* ── 애니메이션 캐릭터 ── */
 function Avatar({ speaking, scenario }) {
   const colors = {
     cafe: "#f59e0b", party: "#8b5cf6", sns: "#3b82f6",
@@ -52,7 +52,6 @@ function Avatar({ speaking, scenario }) {
       <style>{`
         @keyframes breathing { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
         @keyframes talking { 0%{transform:translateY(0) rotate(-1deg)} 100%{transform:translateY(-4px) rotate(1deg)} }
-        @keyframes waveArm { 0%{transform:rotate(-15deg)} 100%{transform:rotate(15deg)} }
         @keyframes pulse { 0%,100%{transform:scale(1);opacity:0.6} 50%{transform:scale(1.1);opacity:1} }
         @keyframes dotBounce { 0%{transform:translateY(0)} 100%{transform:translateY(-6px)} }
       `}</style>
@@ -122,16 +121,6 @@ function SummaryScreen({ messages, scenario, onBack }) {
           </div>
         ))}
       </div>
-      {unique.length > 0 && (
-        <div style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: "22px 28px", marginBottom: 36, width: "100%", maxWidth: 460, textAlign: "left" }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.4)", letterSpacing: 2, textTransform: "uppercase", marginBottom: 14 }}>오늘 사용한 표현 🗒️</div>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            {unique.map(w => (
-              <span key={w} style={{ background: "rgba(255,77,0,0.15)", border: "1px solid rgba(255,77,0,0.3)", color: G.accent, fontSize: 13, fontWeight: 700, padding: "5px 14px", borderRadius: 100 }}>{w}</span>
-            ))}
-          </div>
-        </div>
-      )}
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
         <Button onClick={onBack}>🔄 다시 대화하기</Button>
         <Button variant="secondary" onClick={() => navigate("/dashboard")} style={{ color: G.white, border: "1.5px solid rgba(255,255,255,0.2)" }}>🏠 대시보드로</Button>
@@ -156,7 +145,6 @@ export default function AiChat() {
   async function startChat(s) {
     setScenario(s);
     setLoading(true);
-    // 첫 메시지는 백엔드에서 상황에 맞게 가져옵니다.
     const firstMsg = await callAI([], s.id);
     setMessages([{ role: "assistant", content: firstMsg }]);
     setLoading(false);
@@ -164,10 +152,7 @@ export default function AiChat() {
 
   async function callAI(history, scenarioId) {
     try {
-      // 마지막 메시지 추출
       const message = history.length > 0 ? history[history.length - 1].content : "";
-      
-      // 백엔드 API 연동 
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -182,11 +167,8 @@ export default function AiChat() {
       });
 
       const data = await res.json();
-      if (data.reply) {
-        return data.reply;
-      } else {
-        throw new Error("No reply from server");
-      }
+      if (data.reply) return data.reply;
+      throw new Error("No reply from server");
     } catch (error) {
       console.error("Frontend Fetch Error:", error);
       return "지금 백엔드 서버랑 연결이 안 됐어. API 키 설정을 확인해봐!";
@@ -252,14 +234,15 @@ export default function AiChat() {
                     background: isAI ? "rgba(255,255,255,0.08)" : G.accent,
                     color: G.white, fontSize: 14, lineHeight: 1.6,
                     whiteSpace: "pre-wrap", 
-                    wordBreak: "break-word"
+                    wordBreak: "break-word",
+                    boxShadow: isAI ? "none" : "0 4px 16px rgba(255,77,0,0.3)",
                   }}>
                     {cleanText}
                   </div>
                   {tip && (
                     <div style={{ maxWidth: "75%", display: "flex", gap: 8, background: "rgba(255,204,0,0.1)", border: "1px solid rgba(255,204,0,0.25)", borderRadius: 12, padding: "10px 14px" }}>
                       <span style={{ fontSize: 14, flexShrink: 0 }}>💡</span>
-                      <div style={{ fontSize: 13, color: G.accent2, lineHeight: 1.6 }}>Tip: {tip}</div>
+                      <div style={{ fontSize: 13, color: "#f59e0b", lineHeight: 1.6 }}>Tip: {tip}</div>
                     </div>
                   )}
                 </div>

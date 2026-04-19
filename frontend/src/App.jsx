@@ -1,6 +1,10 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
+
+// 페이지 컴포넌트 임포트
 import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Admin from "./pages/Admin";
 import Dashboard from "./pages/Dashboard";
 import LearningIntro from "./pages/LearningIntro";
 import CardStudy from "./pages/CardStudy";
@@ -8,24 +12,21 @@ import Practice from "./pages/Practice";
 import AiChat from "./pages/AiChat";
 import Review from "./pages/Review";
 import Progress from "./pages/Progress";
-import Login from "./pages/Login";
 import Bookmark from "./pages/Bookmark";
 import Settings from "./pages/Settings";
 import ConversationLearn from "./pages/ConversationLearn";
 import Community from "./pages/Community";
-import SlangList from './pages/SlangList';
-import Admin from "./pages/Admin";
+import SlangList from "./pages/SlangList";
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* 1. 레이아웃이 필요 없는 독립 페이지 (홈, 로그인, 관리자) */}
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
+        
+        {/* 관리자 페이지 */}
         <Route path="/admin" element={<Admin />} />
-
-        {/* 2. 레이아웃(사이드바 등)이 필요한 학습 관련 페이지들 */}
         <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
         <Route path="/learning-intro" element={<Layout><LearningIntro /></Layout>} />
         <Route path="/card-study" element={<Layout><CardStudy /></Layout>} />

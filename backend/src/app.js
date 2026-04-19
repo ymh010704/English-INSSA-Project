@@ -5,6 +5,8 @@ import { fileURLToPath } from "url";
 import routes from "./routes/index.js";
 import { notFound } from "./middlewares/notfound.middleware.js";
 import { errorHandler } from "./middlewares/error.middleware.js";
+import studiesRoutes from './routes/studies.routes.js';
+import dashboardRouter from './routes/dashboard.routes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,10 +19,14 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/api", routes);
+app.use("/api/studies", studiesRoutes);
+app.use("/api/dashboard", dashboardRouter);
 
+// 빌드된 파일들이 있는 폴더 연결
 app.use(express.static(distPath));
 
 app.get("*", (req, res, next) => {
+
   if (req.path.startsWith('/api')) {
     return next();
   }
@@ -31,7 +37,6 @@ app.get("*", (req, res, next) => {
   });
 });
 
-// 에러 핸들링 
 app.use(notFound);
 app.use(errorHandler);
 

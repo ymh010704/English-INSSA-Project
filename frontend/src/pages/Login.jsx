@@ -4,7 +4,7 @@ import Swal from "sweetalert2";
 import Button from "../components/Button";
 import G from "../constants/colors";
 
-// 기본 설정 정의 
+// Toast 설정 유지
 const Toast = Swal.mixin({
   toast: true,
   position: 'top-end',
@@ -35,7 +35,7 @@ export default function Login() {
   const [error, setError] = useState("");
   const [sent, setSent] = useState(false);
 
-  // 소셜 로그인 토큰 처리 로직 
+  // 소셜 로그인 토큰 처리 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const token = params.get("token");
@@ -60,7 +60,7 @@ export default function Login() {
       if (mode === "login") {
         if (!email || !pw) return setError("이메일과 비밀번호를 입력해주세요.");
         
-        // 로그인 API 호출 
+        // 로그인 API 호출
         const response = await fetch("/api/auth/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -70,7 +70,6 @@ export default function Login() {
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || "로그인에 실패했습니다.");
 
-        // 성공 시 토큰 및 유저 정보 저장
         if (data.token) localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
 
@@ -81,6 +80,7 @@ export default function Login() {
           iconColor: G.accent,
         });
 
+        // 로그인 성공 후 대시보드로 이동
         navigate("/dashboard");
 
       } else if (mode === "signup") {
@@ -89,7 +89,7 @@ export default function Login() {
         if (!name || !email || !pw) return setError("모든 항목을 입력해주세요.");
         if (pw.length < 6) return setError("비밀번호는 6자 이상이어야 합니다.");
 
-        // 회원가입 API 호출 
+        // 회원가입 API 호출
         const response = await fetch("/api/auth/signup", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -134,7 +134,7 @@ export default function Login() {
   }[mode];
 
   return (
-    <div style={{ minHeight: "100vh", background: G.light, display: "flex", flexDirection: "column", fontFamily: "'Noto Sans KR', sans-serif", position: "relative", overflow: "hidden" }}>
+    <div style={{ minHeight: "100vh", background: "#f0ede6", display: "flex", flexDirection: "column", fontFamily: "'Noto Sans KR', sans-serif", position: "relative", overflow: "hidden" }}>
       <div style={{ position: "fixed", top: -100, right: -100, width: 500, height: 500, background: `radial-gradient(circle, ${G.accent}11 0%, transparent 65%)`, pointerEvents: "none" }} />
 
       <nav style={{ padding: "20px 48px", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>

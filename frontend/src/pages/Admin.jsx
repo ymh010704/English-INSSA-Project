@@ -1,793 +1,658 @@
 import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  LayoutDashboard, BookOpen, Users, ShieldAlert, Sparkles,
-  BarChart3, CheckCircle2, Search, Plus, Filter,
-  Flame, Clock3, Tag, Trash2, Pencil, Eye,
-  LogOut, ChevronRight, MessageSquare, Bell, Star, Link,
-  AlertTriangle, ZapOff, BookMarked, UserCheck, UserPlus,
+  LayoutDashboard, BookOpen, Users, ShieldAlert, Sparkles,
+  BarChart3, CheckCircle2, Search, Plus, Filter,
+  Flame, Clock3, Tag, Trash2, Pencil, Eye,
+  LogOut, ChevronRight, MessageSquare, Bell, Star, Link,
+  AlertTriangle, ZapOff, BookMarked, UserCheck, UserPlus,
 } from "lucide-react";
 import {
-  LineChart, Line, BarChart, Bar, XAxis, YAxis,
-  CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, Legend,
+  LineChart, Line, BarChart, Bar, XAxis, YAxis,
+  CartesianGrid, Tooltip, ResponsiveContainer,
+  PieChart, Pie, Cell, Legend,
 } from "recharts";
 import G from "../constants/colors";
 import Button from "../components/Button";
 
-
-/* ─── 목 데이터 ──────────────────────────────────────── */
+/* ─── 데이터  ───────────────────────── */
 const STATS = [
-  { title: "전체 슬랭",   value: "284",   delta: "+12 this week", icon: BookOpen,     color: G.accent  },
-  { title: "활성 사용자", value: "1,842", delta: "+8.4%",         icon: Users,        color: G.blue    },
-  { title: "검수 대기",   value: "17",    delta: "Need review",   icon: CheckCircle2, color: "#f59e0b" },
-  { title: "신고 접수",   value: "6",     delta: "2 urgent",      icon: ShieldAlert,  color: G.red     },
+  { title: "전체 슬랭",   value: "284",   delta: "+12 this week", icon: BookOpen,      color: G.accent  },
+  { title: "활성 사용자", value: "1,842", delta: "+8.4%",         icon: Users,         color: G.blue    },
+  { title: "검수 대기",   value: "17",    delta: "Need review",   icon: CheckCircle2, color: "#f59e0b" },
+  { title: "신고 접수",   value: "6",     delta: "2 urgent",      icon: ShieldAlert,  color: G.red      },
 ];
 
 const WEEKLY = [
-  { name: "월", users: 540, completion: 61 },
-  { name: "화", users: 720, completion: 68 },
-  { name: "수", users: 660, completion: 65 },
-  { name: "목", users: 870, completion: 74 },
-  { name: "금", users: 920, completion: 78 },
-  { name: "토", users: 750, completion: 69 },
-  { name: "일", users: 690, completion: 64 },
+  { name: "월", users: 540, completion: 61 },
+  { name: "화", users: 720, completion: 68 },
+  { name: "수", users: 660, completion: 65 },
+  { name: "목", users: 870, completion: 74 },
+  { name: "금", users: 920, completion: 78 },
+  { name: "토", users: 750, completion: 69 },
+  { name: "일", users: 690, completion: 64 },
 ];
 
 const TRENDING = [
-  { name: "no cap", score: 94 },
-  { name: "ate",    score: 88 },
-  { name: "delulu", score: 81 },
-  { name: "lowkey", score: 74 },
-  { name: "rizz",   score: 71 },
+  { name: "no cap", score: 94 },
+  { name: "ate",    score: 88 },
+  { name: "delulu", score: 81 },
+  { name: "lowkey", score: 74 },
+  { name: "rizz",   score: 71 },
 ];
 
 const WRONG_SLANGS = [
-  { name: "Rent free",             score: 312 },
-  { name: "Main character energy", score: 278 },
-  { name: "Sus",                   score: 241 },
-  { name: "Stan",                  score: 198 },
-  { name: "Tea",                   score: 165 },
+  { name: "Rent free",               score: 312 },
+  { name: "Main character energy", score: 278 },
+  { name: "Sus",                    score: 241 },
+  { name: "Stan",                  score: 198 },
+  { name: "Tea",                   score: 165 },
 ];
 
 const RIGHT_SLANGS = [
-  { name: "Bet",      score: 654 },
-  { name: "Flex",     score: 589 },
-  { name: "No cap",   score: 541 },
-  { name: "Ghosting", score: 487 },
-  { name: "Slay",     score: 432 },
+  { name: "Bet",      score: 654 },
+  { name: "Flex",     score: 589 },
+  { name: "No cap",   score: 541 },
+  { name: "Ghosting", score: 487 },
+  { name: "Slay",     score: 432 },
 ];
 
 const AVG_QUIZ = [
-  { name: "월", avg: 3.8 },
-  { name: "화", avg: 4.2 },
-  { name: "수", avg: 5.1 },
-  { name: "목", avg: 4.6 },
-  { name: "금", avg: 5.5 },
-  { name: "토", avg: 3.2 },
-  { name: "일", avg: 4.7 },
+  { name: "월", avg: 3.8 },
+  { name: "화", avg: 4.2 },
+  { name: "수", avg: 5.1 },
+  { name: "목", avg: 4.6 },
+  { name: "금", avg: 5.5 },
+  { name: "토", avg: 3.2 },
+  { name: "일", avg: 4.7 },
 ];
 
 const PIPELINE = [
-  { label: "작성 완료",   value: 82 },
-  { label: "검수 대기",   value: 46 },
-  { label: "승인 완료",   value: 71 },
-  { label: "공개 배포",   value: 64 },
-];
-
-const SLANGS = [
-  { id: 1, term: "no cap",  meaning: "진짜, 거짓 없이",    origin: "African American Vernacular English", tags: ["SNS","Gen Z"], level: "중급", status: "공개",    validity: "트렌디",      trend: 94, source: "TikTok",  media: "https://youtube.com/shorts/abc" },
-  { id: 2, term: "ate",     meaning: "완전 잘했다, 찢었다", origin: "Drag culture",                        tags: ["밈","Gen Z"], level: "초급", status: "검수 대기", validity: "트렌디",      trend: 88, source: "X",       media: "" },
-  { id: 3, term: "delulu",  meaning: "망상에 빠진 상태",    origin: "K-pop fandom",                        tags: ["일상"],        level: "중급", status: "공개",    validity: "트렌디",      trend: 81, source: "Reddit",  media: "" },
-  { id: 4, term: "sus",     meaning: "수상한",              origin: "Among Us (게임)",                     tags: ["게임"],        level: "초급", status: "비공개",  validity: "올드패션드",  trend: 67, source: "Discord", media: "" },
-  { id: 5, term: "rizz",    meaning: "이성을 끄는 매력",    origin: "Charisma의 중간 음절",                tags: ["SNS","Gen Z"], level: "고급", status: "공개",    validity: "트렌디",      trend: 71, source: "TikTok",  media: "" },
-  { id: 6, term: "lowkey",  meaning: "은근히, 솔직히 말하면", origin: "Hip-hop slang",                   tags: ["일상","힙합"], level: "초급", status: "공개",    validity: "보통",        trend: 74, source: "X",       media: "" },
-  { id: 7, term: "slay",    meaning: "찢었다, 완전 멋지다", origin: "Drag/Ballroom culture",               tags: ["SNS","Gen Z"], level: "초급", status: "공개",    validity: "트렌디",      trend: 70, source: "Instagram", media: "" },
-  { id: 8, term: "bussin",  meaning: "완전 맛있다/대박이다", origin: "African American Vernacular English", tags: ["음식","Gen Z"], level: "중급", status: "공개",   validity: "보통",        trend: 62, source: "TikTok",  media: "" },
-];
-
-const USERS = [
-  { id: 1, name: "김두현", email: "k@example.com",   streak: 14, accuracy: 89, status: "활성", joined: "2025-12-01", reports: 2 },
-  { id: 2, name: "김민우", email: "kmw@example.com",  streak: 3,  accuracy: 72, status: "활성", role: "일반",    joined: "2026-01-10", reports: 0 },
-  { id: 3, name: "윤민혁", email: "y@example.com", streak: 0,  accuracy: 48, status: "휴면", role: "일반",    joined: "2026-02-14", reports: 1 },
-  { id: 4, name: "이경현", email: "l@example.com",   streak: 26, accuracy: 91, status: "활성", joined: "2026-03-05", reports: 5 },
-];
-
-const REPORTS = [
-  { id: 1, term: "smash", reason: "성적인 의미 오해 가능",   severity: "높음", reporter: "user_204", trust: 72 },
-  { id: 2, term: "simp",  reason: "비하 표현 여부 검토",     severity: "중간", reporter: "user_150", trust: 88 },
-  { id: 3, term: "dead",  reason: "문맥상 폭력적 의미 혼동", severity: "낮음", reporter: "user_031", trust: 55 },
-];
-
-const SUBMISSIONS = [
-  { id: 1, term: "understood the assignment", meaning: "상황을 완벽히 파악하고 해낸 것", reporter: "김민지", trust: 89, status: "대기" },
-  { id: 2, term: "it's giving",               meaning: "~한 느낌이 난다, ~같다",         reporter: "최준호", trust: 91, status: "대기" },
-  { id: 3, term: "main character syndrome",   meaning: "자기가 주인공인 줄 아는 것",     reporter: "이도윤", trust: 72, status: "대기" },
-];
-
-const EXAMPLES = [
-  { id: 1, term: "no cap", author: "김민지",  content: "This food is amazing, no cap!", likes: 34, isBest: true  },
-  { id: 2, term: "no cap", author: "이도윤",  content: "She's the best singer, no cap.", likes: 18, isBest: false },
-  { id: 3, term: "rizz",   author: "최준호",  content: "He's got so much rizz on the dance floor.", likes: 27, isBest: false },
-  { id: 4, term: "slay",   author: "박서연",  content: "She absolutely slayed that presentation!", likes: 41, isBest: true  },
-];
-
-const AI_LOGS = [
-  { id: 1, content: "wtf is this shit lol",       user: "user_099", filtered: "욕설", action: "숨김처리", time: "2026-04-04 14:22" },
-  { id: 2, content: "this is so damn good",        user: "user_204", filtered: "경미한 욕설", action: "경고",    time: "2026-04-04 15:10" },
-  { id: 3, content: "그 slur 써도 되는 거 아님?",  user: "user_031", filtered: "혐오표현", action: "숨김처리", time: "2026-04-04 16:45" },
-];
-
-const POPULAR_SEARCHES = [
-  { name: "rizz",   count: 412 },
-  { name: "no cap", count: 389 },
-  { name: "slay",   count: 301 },
-  { name: "ate",    count: 275 },
-  { name: "delulu", count: 248 },
-  { name: "NPC",    count: 201 },
-  { name: "era",    count: 178 },
-];
-
-const ZERO_RESULTS = [
-  { word: "understood the assignment", count: 87, date: "2026-04-04" },
-  { word: "it's giving",               count: 64, date: "2026-04-03" },
-  { word: "NPC energy",                count: 52, date: "2026-04-04" },
-  { word: "roman empire",              count: 41, date: "2026-04-02" },
-  { word: "very demure",               count: 38, date: "2026-04-01" },
-];
-
-const DROPOUT_DATA = [
-  { name: "도입부",   rate: 8  },
-  { name: "예시1",    rate: 12 },
-  { name: "예시2",    rate: 19 },
-  { name: "퀴즈1",    rate: 34 },
-  { name: "퀴즈2",    rate: 28 },
-  { name: "퀴즈3",    rate: 41 },
-  { name: "결과화면", rate: 15 },
+  { label: "작성 완료",   value: 82 },
+  { label: "검수 대기",   value: 46 },
+  { label: "승인 완료",   value: 71 },
+  { label: "공개 배포",   value: 64 },
 ];
 
 const AGE_GROUPS = [
-  { name: "10대",  value: 38, color: G.accent  },
-  { name: "20대",  value: 42, color: G.blue    },
-  { name: "30대",  value: 13, color: G.purple  },
-  { name: "40대+", value: 7,  color: G.green   },
+  { name: "10대",  value: 38, color: G.accent  },
+  { name: "20대",  value: 42, color: G.blue    },
+  { name: "30대",  value: 13, color: G.purple  },
+  { name: "40대+", value: 7,  color: G.green   },
 ];
 
 const DAILY_ACTIVE = [
-  { name: "재방문",  value: 289, color: G.blue   },
-  { name: "신규방문", value: 23,  color: G.accent },
+  { name: "재방문",  value: 289, color: G.blue   },
+  { name: "신규방문", value: 23,  color: G.accent },
 ];
 
 const SIGNUP_SOURCE = [
-  { name: "일반가입", value: 11, color: G.navy   },
-  { name: "Google",  value: 8,  color: G.blue   },
-  { name: "Kakao",   value: 4,  color: "#f59e0b" },
+  { name: "일반가입", value: 11, color: G.navy   },
+  { name: "Google",  value: 8,  color: G.blue    },
+  { name: "Kakao",   value: 4,  color: "#f59e0b" },
+];
+
+const SLANGS = [
+  { id: 1, term: "no cap",  meaning: "진짜, 거짓 없이",    origin: "African American Vernacular English", tags: ["SNS","Gen Z"], level: "중급", status: "공개",    validity: "트렌디",      trend: 94, source: "TikTok",  media: "https://youtube.com/shorts/abc" },
+  { id: 2, term: "ate",     meaning: "완전 잘했다, 찢었다", origin: "Drag culture",                        tags: ["밈","Gen Z"], level: "초급", status: "검수 대기", validity: "트렌디",      trend: 88, source: "X",       media: "" },
+  // ... 생략
+];
+
+const SUBMISSIONS = [
+  { id: 1, term: "understood the assignment", meaning: "상황을 완벽히 파악하고 해낸 것", reporter: "김민지", trust: 89, status: "대기" },
+  // ... 생략
+];
+
+const REPORTS = [
+  { id: 1, term: "smash", reason: "성적인 의미 오해 가능",   severity: "높음", reporter: "user_204", trust: 72 },
+  // ... 생략
+];
+
+const EXAMPLES = [
+  { id: 1, term: "no cap", author: "김민지",  content: "This food is amazing, no cap!", likes: 34, isBest: true  },
+  // ... 생략
+];
+
+const AI_LOGS = [
+  { id: 1, content: "wtf is this shit lol",        user: "user_099", filtered: "욕설", action: "숨김처리", time: "2026-04-04 14:22" },
+  // ... 생략
+];
+
+const POPULAR_SEARCHES = [
+  { name: "rizz",   count: 412 },
+  { name: "no cap", count: 389 },
+  // ... 생략
+];
+
+const ZERO_RESULTS = [
+  { word: "understood the assignment", count: 87, date: "2026-04-04" },
+  // ... 생략
+];
+
+const DROPOUT_DATA = [
+  { name: "도입부",   rate: 8  },
+  { name: "예시1",    rate: 12 },
+  // ... 생략
 ];
 
 const WEIGHTS = [
-  { label: "인기 점수",   value: 30 },
-  { label: "개인화 점수", value: 40 },
-  { label: "최신성",      value: 20 },
-  { label: "학습 부족도", value: 10 },
+  { label: "인기 점수",   value: 30 },
+  { label: "개인화 점수", value: 40 },
+  { label: "최신성",      value: 20 },
+  { label: "학습 부족도", value: 10 },
 ];
 
 const MENU = [
-  { key: "dashboard",    label: "대시보드",          icon: LayoutDashboard },
-  { key: "content",      label: "콘텐츠 관리",        icon: BookOpen        },
-  { key: "users",        label: "유저 관리",          icon: Users           },
-  { key: "review",       label: "검수 / 신고",        icon: ShieldAlert     },
-  { key: "community",    label: "커뮤니티",           icon: MessageSquare   },
-  { key: "analytics",    label: "통계",               icon: BarChart3       },
-  { key: "notification", label: "공지사항",             icon: Bell            },
-  { key: "recommend",    label: "추천 설정 (보류)",   icon: Sparkles        },
+  { key: "dashboard",    label: "대시보드",           icon: LayoutDashboard },
+  { key: "content",      label: "콘텐츠 관리",         icon: BookOpen        },
+  { key: "users",        label: "유저 관리",           icon: Users            },
+  { key: "review",       label: "검수 / 신고",         icon: ShieldAlert     },
+  { key: "community",    label: "커뮤니티",            icon: MessageSquare   },
+  { key: "analytics",    label: "통계",                icon: BarChart3        },
+  { key: "notification", label: "공지사항",              icon: Bell             },
+  { key: "recommend",    label: "추천 설정 (보류)",   icon: Sparkles         },
 ];
 
-/* ─── 공통 컴포넌트 ──────────────────────────────────── */
+/* ─── 공통 컴포넌트 ─────────────────────────── */
 function Card({ children, style = {} }) {
-  return (
-    <div style={{ background: G.white, borderRadius: 20, border: "1px solid rgba(0,0,0,0.05)", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", ...style }}>
-      {children}
-    </div>
-  );
+  return (
+    <div style={{ background: G.white, borderRadius: 20, border: "1px solid rgba(0,0,0,0.05)", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", ...style }}>
+      {children}
+    </div>
+  );
 }
 
 function SectionTitle({ title, subtitle, action }) {
-  return (
-    <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
-      <div>
-        <div style={{ fontSize: 22, fontWeight: 800, color: G.black }}>{title}</div>
-        {subtitle && <div style={{ fontSize: 13, color: G.gray, marginTop: 4 }}>{subtitle}</div>}
-      </div>
-      {action}
-    </div>
-  );
+  return (
+    <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+      <div>
+        <div style={{ fontSize: 22, fontWeight: 800, color: G.black }}>{title}</div>
+        {subtitle && <div style={{ fontSize: 13, color: G.gray, marginTop: 4 }}>{subtitle}</div>}
+      </div>
+      {action}
+    </div>
+  );
 }
 
 function Badge({ children, color = G.gray, bg }) {
-  return (
-    <span style={{ fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 100, background: bg || `${color}18`, color, whiteSpace: "nowrap" }}>
-      {children}
-    </span>
-  );
+  return (
+    <span style={{ fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 100, background: bg || `${color}18`, color, whiteSpace: "nowrap" }}>
+      {children}
+    </span>
+  );
 }
 
 function ProgressBar({ value, color = G.accent }) {
-  return (
-    <div style={{ height: 8, background: G.lightGray, borderRadius: 100, overflow: "hidden" }}>
-      <div style={{ height: "100%", width: `${value}%`, background: color, borderRadius: 100, transition: "width 0.8s ease" }} />
-    </div>
-  );
+  return (
+    <div style={{ height: 8, background: G.lightGray, borderRadius: 100, overflow: "hidden" }}>
+      <div style={{ height: "100%", width: `${value}%`, background: color, borderRadius: 100, transition: "width 0.8s ease" }} />
+    </div>
+  );
 }
 
 function SubTabs({ tabs, active, onChange }) {
-  return (
-    <div style={{ display: "flex", gap: 4, background: G.lightGray, borderRadius: 14, padding: 4, width: "fit-content" }}>
-      {tabs.map(t => (
-        <button key={t.key} onClick={() => onChange(t.key)} style={{
-          padding: "8px 20px", borderRadius: 10, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600,
-          background: active === t.key ? G.white : "transparent",
-          color: active === t.key ? G.black : G.gray,
-          boxShadow: active === t.key ? "0 1px 4px rgba(0,0,0,0.08)" : "none",
-          fontFamily: "'Noto Sans KR', sans-serif", transition: "all 0.15s",
-        }}>{t.label}</button>
-      ))}
-    </div>
-  );
+  return (
+    <div style={{ display: "flex", gap: 4, background: G.lightGray, borderRadius: 14, padding: 4, width: "fit-content" }}>
+      {tabs.map(t => (
+        <button key={t.key} onClick={() => onChange(t.key)} style={{
+          padding: "8px 20px", borderRadius: 10, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600,
+          background: active === t.key ? G.white : "transparent",
+          color: active === t.key ? G.black : G.gray,
+          boxShadow: active === t.key ? "0 1px 4px rgba(0,0,0,0.08)" : "none",
+          fontFamily: "'Noto Sans KR', sans-serif", transition: "all 0.15s",
+        }}>{t.label}</button>
+      ))}
+    </div>
+  );
 }
 
 function IconBtn({ icon: Icon, onClick, danger = false }) {
-  return (
-    <button onClick={onClick} style={{
-      width: 32, height: 32, borderRadius: 10, border: `1px solid ${danger ? G.red + "40" : G.border}`,
-      background: "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-      color: danger ? G.red : G.gray,
-    }}
-      onMouseEnter={e => e.currentTarget.style.background = danger ? "#fef2f2" : G.lightGray}
-      onMouseLeave={e => e.currentTarget.style.background = "white"}
-    >
-      <Icon size={14} />
-    </button>
-  );
+  return (
+    <button onClick={onClick} style={{
+      width: 32, height: 32, borderRadius: 10, border: `1px solid ${danger ? G.red + "40" : G.border}`,
+      background: "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+      color: danger ? G.red : G.gray,
+    }}
+      onMouseEnter={e => e.currentTarget.style.background = danger ? "#fef2f2" : G.lightGray}
+      onMouseLeave={e => e.currentTarget.style.background = "white"}
+    >
+      <Icon size={14} />
+    </button>
+  );
 }
 
 function TrustBadge({ score }) {
-  const color = score >= 80 ? G.green : score >= 60 ? "#f59e0b" : G.red;
-  return <Badge color={color}>{score}점</Badge>;
+  const color = score >= 80 ? G.green : score >= 60 ? "#f59e0b" : G.red;
+  return <Badge color={color}>{score}점</Badge>;
 }
 
-/* ─── 대시보드 ──────────────────────────────────────── */
+/* ─── 대시보드 ──────────────── */
 function DashboardPage({ onAddClick }) {
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-      <SectionTitle
-        title="오늘의 현황"
-        subtitle={new Date().toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric", weekday: "long" })}
-        action={
-          <div style={{ display: "flex", gap: 8 }}>
-            <Button variant="secondary" size="sm"><Bell size={14} style={{ marginRight: 6 }} />알림</Button>
-            <Button size="sm" onClick={onAddClick}>
-      <Plus size={14} style={{ marginRight: 6 }} />새 슬랭 등록
-    </Button>
-          </div>
-        }
-      />
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+      <SectionTitle
+        title="오늘의 현황"
+        subtitle={new Date().toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric", weekday: "long" })}
+        action={
+          <div style={{ display: "flex", gap: 8 }}>
+            <Button variant="secondary" size="sm"><Bell size={14} style={{ marginRight: 6 }} />알림</Button>
+            <Button size="sm" onClick={onAddClick}>
+              <Plus size={14} style={{ marginRight: 6 }} />새 슬랭 등록
+            </Button>
+          </div>
+        }
+      />
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
-        {STATS.map(s => {
-          const Icon = s.icon;
-          return (
-            <Card key={s.title} style={{ padding: "22px 24px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                <div>
-                  <div style={{ fontSize: 12, color: G.gray, marginBottom: 8 }}>{s.title}</div>
-                  <div style={{ fontSize: 28, fontWeight: 900, color: G.black, fontFamily: "'Unbounded', sans-serif" }}>{s.value}</div>
-                  <div style={{ fontSize: 11, color: G.gray, marginTop: 4 }}>{s.delta}</div>
-                </div>
-                <div style={{ background: `${s.color}15`, borderRadius: 14, padding: 10 }}>
-                  <Icon size={18} color={s.color} />
-                </div>
-              </div>
-            </Card>
-          );
-        })}
-      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
+        {STATS.map(s => {
+          const Icon = s.icon;
+          return (
+            <Card key={s.title} style={{ padding: "22px 24px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                <div>
+                  <div style={{ fontSize: 12, color: G.gray, marginBottom: 8 }}>{s.title}</div>
+                  <div style={{ fontSize: 28, fontWeight: 900, color: G.black, fontFamily: "'Unbounded', sans-serif" }}>{s.value}</div>
+                  <div style={{ fontSize: 11, color: G.gray, marginTop: 4 }}>{s.delta}</div>
+                </div>
+                <div style={{ background: `${s.color}15`, borderRadius: 14, padding: 10 }}>
+                  <Icon size={18} color={s.color} />
+                </div>
+              </div>
+            </Card>
+          );
+        })}
+      </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
-        {[
-          { title: "일일 접속자",  sub: "오늘 기준 총 312명", data: DAILY_ACTIVE,  isPercent: false },
-          { title: "일일 신규가입", sub: "오늘 기준 총 23명",  data: SIGNUP_SOURCE, isPercent: false },
-          { title: "연령대 분포",  sub: "전체 사용자 기준",   data: AGE_GROUPS,    isPercent: true  },
-        ].map(chart => (
-          <Card key={chart.title} style={{ padding: "20px 24px" }}>
-            <div style={{ fontSize: 14, fontWeight: 700 }}>{chart.title}</div>
-            <div style={{ fontSize: 12, color: G.gray, marginBottom: 4 }}>{chart.sub}</div>
-            <ResponsiveContainer width="100%" height={160}>
-              <PieChart>
-                <Pie data={chart.data} cx="50%" cy="50%" innerRadius={45} outerRadius={68} paddingAngle={3} dataKey="value">
-                  {chart.data.map((entry, i) => <Cell key={i} fill={entry.color} />)}
-                </Pie>
-                <Tooltip formatter={v => chart.isPercent ? `${v}%` : `${v}명`} />
-              </PieChart>
-            </ResponsiveContainer>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 14px" }}>
-              {chart.data.map(d => (
-                <div key={d.name} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  <div style={{ width: 8, height: 8, borderRadius: 100, background: d.color, flexShrink: 0 }} />
-                  <span style={{ fontSize: 12, color: G.gray }}>{d.name}</span>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: G.black }}>
-                    {chart.isPercent ? `${d.value}%` : `${d.value}명`}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </Card>
-        ))}
-      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
+        {[
+          { title: "일일 접속자",   sub: "오늘 기준 총 312명", data: DAILY_ACTIVE,  isPercent: false },
+          { title: "일일 신규가입", sub: "오늘 기준 총 23명",  data: SIGNUP_SOURCE, isPercent: false },
+          { title: "연령대 분포",   sub: "전체 사용자 기준",   data: AGE_GROUPS,    isPercent: true  },
+        ].map(chart => (
+          <Card key={chart.title} style={{ padding: "20px 24px" }}>
+            <div style={{ fontSize: 14, fontWeight: 700 }}>{chart.title}</div>
+            <div style={{ fontSize: 12, color: G.gray, marginBottom: 4 }}>{chart.sub}</div>
+            <ResponsiveContainer width="100%" height={160}>
+              <PieChart>
+                <Pie data={chart.data} cx="50%" cy="50%" innerRadius={45} outerRadius={68} paddingAngle={3} dataKey="value">
+                  {chart.data.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+                </Pie>
+                <Tooltip formatter={v => chart.isPercent ? `${v}%` : `${v}명`} />
+              </PieChart>
+            </ResponsiveContainer>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 14px" }}>
+              {chart.data.map(d => (
+                <div key={d.name} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <div style={{ width: 8, height: 8, borderRadius: 100, background: d.color, flexShrink: 0 }} />
+                  <span style={{ fontSize: 12, color: G.gray }}>{d.name}</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: G.black }}>
+                    {chart.isPercent ? `${d.value}%` : `${d.value}명`}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </Card>
+        ))}
+      </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 16 }}>
-        <Card>
-          <div style={{ padding: "20px 24px 0" }}>
-            <div style={{ fontSize: 14, fontWeight: 700 }}>주간 사용자 추이</div>
-          </div>
-          <div style={{ padding: "16px 8px 8px" }}>
-            <ResponsiveContainer width="100%" height={240}>
-              <LineChart data={WEEKLY}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0ede6" />
-                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip />
-                <Line type="monotone" dataKey="users" stroke={G.accent} strokeWidth={3} dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
+      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 16 }}>
+        <Card>
+          <div style={{ padding: "20px 24px 0" }}>
+            <div style={{ fontSize: 14, fontWeight: 700 }}>주간 사용자 추이</div>
+          </div>
+          <div style={{ padding: "16px 8px 8px" }}>
+            <ResponsiveContainer width="100%" height={240}>
+              <LineChart data={WEEKLY}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0ede6" />
+                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                <YAxis tick={{ fontSize: 12 }} />
+                <Tooltip />
+                <Line type="monotone" dataKey="users" stroke={G.accent} strokeWidth={3} dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
 
-        <Card style={{ padding: "20px 24px" }}>
-          <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 16 }}>오늘의 관리 포인트</div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {[
-              { icon: Flame,  color: G.accent, title: "트렌딩 슬랭 업데이트", desc: "급상승 표현 4개가 자동 후보로 등록되었습니다." },
-              { icon: Clock3, color: G.blue,   title: "검수 대기",             desc: "17건 중 5건이 48시간 이상 지연 중입니다." },
-              { icon: ZapOff, color: G.red,    title: "미등록 검색어",           desc: "오늘 미등록 검색어 5건이 수집되었습니다." },
-            ].map(item => {
-              const Icon = item.icon;
-              return (
-                <div key={item.title} style={{ background: G.lightGray, borderRadius: 14, padding: "12px 14px" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, fontWeight: 700, color: G.black, marginBottom: 4 }}>
-                    <Icon size={13} color={item.color} />{item.title}
-                  </div>
-                  <div style={{ fontSize: 12, color: G.gray }}>{item.desc}</div>
-                </div>
-              );
-            })}
-          </div>
-        </Card>
-      </div>
+        <Card style={{ padding: "20px 24px" }}>
+          <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 16 }}>오늘의 관리 포인트</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {[
+              { icon: Flame,  color: G.accent, title: "트렌딩 슬랭 업데이트", desc: "급상승 표현 4개가 자동 후보로 등록되었습니다." },
+              { icon: Clock3, color: G.blue,   title: "검수 대기",              desc: "17건 중 5건이 48시간 이상 지연 중입니다." },
+              { icon: ZapOff, color: G.red,    title: "미등록 검색어",            desc: "오늘 미등록 검색어 5건이 수집되었습니다." },
+            ].map(item => {
+              const Icon = item.icon;
+              return (
+                <div key={item.title} style={{ background: G.lightGray, borderRadius: 14, padding: "12px 14px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, fontWeight: 700, color: G.black, marginBottom: 4 }}>
+                    <Icon size={13} color={item.color} />{item.title}
+                  </div>
+                  <div style={{ fontSize: 12, color: G.gray }}>{item.desc}</div>
+                </div>
+              );
+            })}
+          </div>
+        </Card>
+      </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-        <Card>
-          <div style={{ padding: "20px 24px 0" }}>
-            <div style={{ fontSize: 14, fontWeight: 700 }}>인기 슬랭 TOP 5</div>
-          </div>
-          <div style={{ padding: "16px 8px 8px" }}>
-            <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={TRENDING}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0ede6" />
-                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip />
-                <Bar dataKey="score" fill={G.accent} radius={[8, 8, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+        <Card>
+          <div style={{ padding: "20px 24px 0" }}>
+            <div style={{ fontSize: 14, fontWeight: 700 }}>인기 슬랭 TOP 5</div>
+          </div>
+          <div style={{ padding: "16px 8px 8px" }}>
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={TRENDING}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0ede6" />
+                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                <YAxis tick={{ fontSize: 12 }} />
+                <Tooltip />
+                <Bar dataKey="score" fill={G.accent} radius={[8, 8, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
 
-        <Card style={{ padding: "20px 24px" }}>
-          <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 20 }}>콘텐츠 승인 파이프라인</div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-            {PIPELINE.map(p => (
-              <div key={p.label}>
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 8 }}>
-                  <span style={{ fontWeight: 500 }}>{p.label}</span>
-                  <span style={{ color: G.gray }}>{p.value}%</span>
-                </div>
-                <ProgressBar value={p.value} />
-              </div>
-            ))}
-          </div>
-        </Card>
-      </div>
-
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
-        <Card>
-          <div style={{ padding: "20px 24px 0" }}>
-            <div style={{ fontSize: 14, fontWeight: 700 }}>❌ 자주 틀린 슬랭 TOP 5</div>
-          </div>
-          <div style={{ padding: "16px 8px 8px" }}>
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={WRONG_SLANGS} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0ede6" />
-                <XAxis type="number" tick={{ fontSize: 11 }} />
-                <YAxis type="category" dataKey="name" tick={{ fontSize: 11 }} width={120} />
-                <Tooltip />
-                <Bar dataKey="score" fill={G.red} radius={[0, 8, 8, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
-
-        <Card>
-          <div style={{ padding: "20px 24px 0" }}>
-            <div style={{ fontSize: 14, fontWeight: 700 }}>✅ 자주 맞힌 슬랭 TOP 5</div>
-          </div>
-          <div style={{ padding: "16px 8px 8px" }}>
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={RIGHT_SLANGS} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0ede6" />
-                <XAxis type="number" tick={{ fontSize: 11 }} />
-                <YAxis type="category" dataKey="name" tick={{ fontSize: 11 }} width={80} />
-                <Tooltip />
-                <Bar dataKey="score" fill={G.green} radius={[0, 8, 8, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
-
-        <Card>
-          <div style={{ padding: "20px 24px 0" }}>
-            <div style={{ fontSize: 14, fontWeight: 700 }}>📝 평균 문제 풀이 횟수</div>
-            <div style={{ fontSize: 12, color: G.gray, marginTop: 2 }}>최근 7일 · 1인 기준</div>
-          </div>
-          <div style={{ padding: "16px 8px 8px" }}>
-            <ResponsiveContainer width="100%" height={200}>
-              <LineChart data={AVG_QUIZ}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0ede6" />
-                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} domain={[0, 7]} unit="회" />
-                <Tooltip formatter={v => `${v}회`} />
-                <Line type="monotone" dataKey="avg" stroke={G.purple} strokeWidth={3} dot={{ r: 4, fill: G.purple }} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
-      </div>
-    </div>
-  );
+        <Card style={{ padding: "20px 24px" }}>
+          <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 20 }}>콘텐츠 승인 파이프라인</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+            {PIPELINE.map(p => (
+              <div key={p.label}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 8 }}>
+                  <span style={{ fontWeight: 500 }}>{p.label}</span>
+                  <span style={{ color: G.gray }}>{p.value}%</span>
+                </div>
+                <ProgressBar value={p.value} />
+              </div>
+            ))}
+          </div>
+        </Card>
+      </div>
+    </div>
+  );
 }
 
-/* ─── 콘텐츠 관리 ───────────────────────────────────── */
+/* ─── 콘텐츠 관리 ─────────────────── */
 function ContentPage() {
-  const [tab, setTab] = useState("list");
-  const [query, setQuery] = useState("");
-  const [slangs, setSlangs] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newSlang, setNewSlang] = useState({ term: "", meaning: "", origin: "", tags: "" });
+  const [tab, setTab] = useState("list");
+  const [query, setQuery] = useState("");
+  const [slangs, setSlangs] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newSlang, setNewSlang] = useState({ term: "", meaning: "", origin: "", tags: "" });
 
-  useEffect(() => {
-  fetch('/api/admin/slangs')
-    .then(res => res.json())
-    .then(data => {
-      if (!Array.isArray(data)) return;
+  useEffect(() => {
+    fetch('/api/admin/slangs')
+      .then(res => res.json())
+      .then(data => {
+        if (!Array.isArray(data)) return;
+        const formattedData = data.map(item => ({
+          id: item.slang_id,          
+          term: item.word,            
+          meaning: item.definition_ko, 
+          origin: item.example_ko || "어원 정보 없음", 
+          status: "공개",
+          tags: [], 
+          trend: 80,
+          source: item.source || "Unknown",
+          media: item.media_url || ""
+        }));
+        setSlangs(formattedData);
+      })
+      .catch(err => console.error("데이터 로드 실패:", err));
+  }, []);
 
-      const formattedData = data.map(item => ({
-        id: item.slang_id,          
-        term: item.word,            
-        meaning: item.definition_ko, 
-        origin: item.example_ko || "어원 정보 없음", 
-        status: "공개",
-        tags: [], 
-        trend: 80
-      }));
-      
-      setSlangs(formattedData);
-    })
-    .catch(err => console.error("데이터 로드 실패:", err));
-}, []);
-  const filtered = useMemo(() => {
-  if (!Array.isArray(slangs)) return [];
-  return slangs.filter(s => {
-    const tags = Array.isArray(s.tags) ? s.tags : []; 
-    return [s.term, s.meaning, s.origin, ...tags].join(" ").toLowerCase().includes(query.toLowerCase());
-  });
-}, [slangs, query]);
+  const filtered = useMemo(() => {
+    if (!Array.isArray(slangs)) return [];
+    return slangs.filter(s => {
+      const tags = Array.isArray(s.tags) ? s.tags : []; 
+      return [s.term, s.meaning, s.origin, ...tags].join(" ").toLowerCase().includes(query.toLowerCase());
+    });
+  }, [slangs, query]);
 
-  function deleteSlang(id) {
-    if (window.confirm("정말로 삭제하시겠습니까?")) {
-      fetch(`/api/admin/slangs/${id}`, {
-        method: 'DELETE',
-      })
-      .then(res => {
-        if (res.ok) {
-          setSlangs(prev => prev.filter(s => s.id !== id));
-          alert("삭제 성공!");
-        } else {
-          alert("삭제 실패");
-        }
-      })
-      .catch(err => console.error("삭제 에러:", err));
-    }
-  }
+  function deleteSlang(id) {
+    if (window.confirm("정말로 삭제하시겠습니까?")) {
+      fetch(`/api/admin/slangs/${id}`, { method: 'DELETE' })
+        .then(res => {
+          if (res.ok) {
+            setSlangs(prev => prev.filter(s => s.id !== id));
+            alert("삭제 성공!");
+          } else alert("삭제 실패");
+        })
+        .catch(err => console.error("삭제 에러:", err));
+    }
+  }
 
-  const statusColor = { "공개": G.green, "검수 대기": "#f59e0b", "비공개": G.gray };
+  const statusColor = { "공개": G.green, "검수 대기": "#f59e0b", "비공개": G.gray };
 
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-      <SectionTitle
-        title="콘텐츠 관리"
-        subtitle="슬랭 카드, 어원, 태그, 멀티미디어를 관리합니다."
-        action={<Button size="sm" onClick={() => setIsModalOpen(true)}><Plus size={14} style={{ marginRight: 6 }} />슬랭 추가</Button>}
-      />
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+      <SectionTitle
+        title="콘텐츠 관리"
+        subtitle="슬랭 카드, 어원, 태그, 멀티미디어를 관리합니다."
+        action={<Button size="sm" onClick={() => setIsModalOpen(true)}><Plus size={14} style={{ marginRight: 6 }} />슬랭 추가</Button>}
+      />
 
-      <SubTabs
-        tabs={[{ key: "list", label: "슬랭 목록" }, { key: "media", label: "멀티미디어 매핑" }]}
-        active={tab} onChange={setTab}
-      />
+      <SubTabs
+        tabs={[{ key: "list", label: "슬랭 목록" }, { key: "media", label: "멀티미디어 매핑" }]}
+        active={tab} onChange={setTab}
+      />
 
-      {tab === "list" && (
-        <>
-          <Card style={{ padding: "14px 18px" }}>
-            <div style={{ display: "flex", gap: 10 }}>
-              <div style={{ position: "relative", flex: 1 }}>
-                <Search size={14} color={G.gray} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)" }} />
-                <input value={query} onChange={e => setQuery(e.target.value)} placeholder="슬랭, 뜻, 어원, 태그 검색"
-                  style={{ width: "100%", padding: "10px 14px 10px 36px", borderRadius: 100, border: `1.5px solid ${G.border}`, fontSize: 13, outline: "none", fontFamily: "'Noto Sans KR', sans-serif", boxSizing: "border-box" }} />
-              </div>
-              <Button variant="secondary" size="sm"><Filter size={13} style={{ marginRight: 6 }} />필터</Button>
-            </div>
-          </Card>
-          <Card>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-              <thead>
-                <tr style={{ borderBottom: "1.5px solid #f0ede6" }}>
-                  {["슬랭", "뜻", "어원", "태그", "상태", "트렌드", ""].map(h => (
-                    <th key={h} style={{ padding: "14px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: G.gray }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map(s => (
-                  <tr key={s.id} style={{ borderBottom: "1px solid #f7f4ef" }}>
-                    <td style={{ padding: "14px 16px", fontFamily: "'Unbounded', sans-serif", fontWeight: 700, fontSize: 12 }}>{s.term}</td>
-                    <td style={{ padding: "14px 16px", color: G.gray, maxWidth: 160 }}>{s.meaning}</td>
-                    <td style={{ padding: "14px 16px", color: G.gray, fontSize: 12, maxWidth: 140 }}>{s.origin}</td>
-                    <td style={{ padding: "14px 16px" }}>
-                      <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
-                        {(s.tags && Array.isArray(s.tags)) ? (
-                           s.tags.map(t => <Badge key={t} color={G.purple}>{t}</Badge>)) : (
-                           <Badge color={G.gray}>태그 없음</Badge> 
-                           )}
-                      </div>
-                    </td>
-                    <td style={{ padding: "14px 16px" }}><Badge color={statusColor[s.status] || G.gray}>{s.status}</Badge></td>
-                    <td style={{ padding: "14px 16px" }}>{s.trend}</td>
-                    <td style={{ padding: "14px 16px" }}>
-                      <div style={{ display: "flex", gap: 4, justifyContent: "flex-end" }}>
-                        <IconBtn icon={Trash2} onClick={() => deleteSlang(s.id)} danger />
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </Card>
-        </>
-      )}
+      {tab === "list" && (
+        <>
+          <Card style={{ padding: "14px 18px" }}>
+            <div style={{ display: "flex", gap: 10 }}>
+              <div style={{ position: "relative", flex: 1 }}>
+                <Search size={14} color={G.gray} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)" }} />
+                <input value={query} onChange={e => setQuery(e.target.value)} placeholder="슬랭, 뜻, 어원, 태그 검색"
+                  style={{ width: "100%", padding: "10px 14px 10px 36px", borderRadius: 100, border: `1.5px solid ${G.border}`, fontSize: 13, outline: "none", fontFamily: "'Noto Sans KR', sans-serif", boxSizing: "border-box" }} />
+              </div>
+              <Button variant="secondary" size="sm"><Filter size={13} style={{ marginRight: 6 }} />필터</Button>
+            </div>
+          </Card>
+          <Card>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+              <thead>
+                <tr style={{ borderBottom: "1.5px solid #f0ede6" }}>
+                  {["슬랭", "뜻", "어원", "태그", "상태", "트렌드", ""].map(h => (
+                    <th key={h} style={{ padding: "14px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: G.gray }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map(s => (
+                  <tr key={s.id} style={{ borderBottom: "1px solid #f7f4ef" }} onMouseEnter={e => e.currentTarget.style.background = "#fafaf9"} onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
+                    <td style={{ padding: "14px 16px", fontFamily: "'Unbounded', sans-serif", fontWeight: 700, fontSize: 12 }}>{s.term}</td>
+                    <td style={{ padding: "14px 16px", color: G.gray, maxWidth: 160 }}>{s.meaning}</td>
+                    <td style={{ padding: "14px 16px", color: G.gray, fontSize: 12, maxWidth: 140 }}>{s.origin}</td>
+                    <td style={{ padding: "14px 16px" }}>
+                      <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+                        {(s.tags && Array.isArray(s.tags)) && s.tags.length > 0 ? s.tags.map(t => <Badge key={t} color={G.purple}>{t}</Badge>) : <Badge color={G.gray}>태그 없음</Badge>}
+                      </div>
+                    </td>
+                    <td style={{ padding: "14px 16px" }}><Badge color={statusColor[s.status] || G.gray}>{s.status}</Badge></td>
+                    <td style={{ padding: "14px 16px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <div style={{ width: 50, height: 6, background: G.lightGray, borderRadius: 100, overflow: "hidden" }}>
+                          <div style={{ height: "100%", width: `${s.trend}%`, background: G.accent, borderRadius: 100 }} />
+                        </div>
+                        <span style={{ fontSize: 12, color: G.gray }}>{s.trend}</span>
+                      </div>
+                    </td>
+                    <td style={{ padding: "14px 16px" }}>
+                      <div style={{ display: "flex", gap: 4, justifyContent: "flex-end" }}>
+                        <IconBtn icon={Eye} />
+                        <IconBtn icon={Pencil} />
+                        <IconBtn icon={Trash2} onClick={() => deleteSlang(s.id)} danger />
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </Card>
+        </>
+      )}
 
-      {tab === "media" && (
-        <Card>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-            <thead>
-              <tr style={{ borderBottom: "1.5px solid #f0ede6" }}>
-                {["슬랭", "연결된 미디어 URL", "출처", ""].map(h => (
-                  <th key={h} style={{ padding: "14px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: G.gray }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {slangs.map(s => (
-                <tr key={s.id} style={{ borderBottom: "1px solid #f7f4ef" }}>
-                  <td style={{ padding: "14px 16px", fontFamily: "'Unbounded', sans-serif", fontWeight: 700 }}>{s.term}</td>
-                  <td style={{ padding: "14px 16px" }}>{s.media || "— 미연결"}</td>
-                  <td style={{ padding: "14px 16px", color: G.gray }}>{s.source}</td>
-                  <td style={{ padding: "14px 16px" }}><Button variant="secondary" size="sm">URL 연결</Button></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </Card>
-      )}
+      {tab === "media" && (
+        <Card>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+            <thead>
+              <tr style={{ borderBottom: "1.5px solid #f0ede6" }}>
+                {["슬랭", "연결된 미디어 URL", "출처", ""].map(h => (
+                  <th key={h} style={{ padding: "14px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: G.gray }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {slangs.map(s => (
+                <tr key={s.id} style={{ borderBottom: "1px solid #f7f4ef" }} onMouseEnter={e => e.currentTarget.style.background = "#fafaf9"} onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
+                  <td style={{ padding: "14px 16px", fontFamily: "'Unbounded', sans-serif", fontWeight: 700, fontSize: 12 }}>{s.term}</td>
+                  <td style={{ padding: "14px 16px", flex: 1 }}>
+                    {s.media ? <a href={s.media} target="_blank" rel="noreferrer" style={{ color: G.blue, fontSize: 12, textDecoration: "none" }}><Link size={12} style={{ marginRight: 4, verticalAlign: "middle" }} />{s.media}</a> : <span style={{ color: G.gray, fontSize: 12 }}>— 미연결</span>}
+                  </td>
+                  <td style={{ padding: "14px 16px", color: G.gray }}>{s.source}</td>
+                  <td style={{ padding: "14px 16px" }}><Button variant="secondary" size="sm"><Link size={12} style={{ marginRight: 4 }} />URL 연결</Button></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Card>
+      )}
 
-      {/* ─── 슬랭 추가 모달 ─── */}
-      {isModalOpen && (
-        <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
-          <Card style={{ width: 450, padding: 30 }}>
-            <div style={{ fontSize: 18, fontWeight: 800, marginBottom: 20 }}>새 슬랭 등록</div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 15 }}>
-              <input placeholder="슬랭 (예: Rizz)" style={{ padding: "10px 14px", borderRadius: 10, border: "1px solid #ddd" }} 
-                onChange={e => setNewSlang({...newSlang, term: e.target.value})} />
-              <input placeholder="뜻" style={{ padding: "10px 14px", borderRadius: 10, border: "1px solid #ddd" }} 
-                onChange={e => setNewSlang({...newSlang, meaning: e.target.value})} />
-              <textarea placeholder="어원/유래" style={{ padding: "10px 14px", borderRadius: 10, border: "1px solid #ddd", height: 80 }} 
-                onChange={e => setNewSlang({...newSlang, origin: e.target.value})} />
-              <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
-               <Button style={{ flex: 1 }} onClick={() => {
-  const payload = {
-    word: String(newSlang.term || ""),
-    definition_ko: String(newSlang.meaning || ""),
-    definition_en: "English definition", 
-    example_en: "English example",       
-    example_ko: String(newSlang.origin || "한국어 예문") 
-  };
-
-  fetch('/api/admin/slangs', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  })
-  .then(res => {
-    if (!res.ok) throw new Error("서버 저장 실패!");
-    return res.json();
-  })
-  .then(data => {
-    if (!data) return;
-
-    const newData = { 
-      id: data.slangId || Date.now(), 
-      term: payload.word, 
-      meaning: payload.definition_ko, 
-      origin: payload.example_ko,
-      tags: ["신규"], 
-      status: "공개",
-      trend: 70
-    };
-
-    setSlangs(prevSlangs => Array.isArray(prevSlangs) ? [newData, ...prevSlangs] : [newData]);
-    
-    setIsModalOpen(false);
-    setNewSlang({ term: "", meaning: "", origin: "", tags: "" });
-    alert("DB 등록 성공! ");
-  })
-  .catch(err => {
-    console.error("등록 중 에러 발생:", err);
-    alert("등록 중 에러가 발생했지만, 데이터는 DB에 저장됐을 수 있어! 새로고침해봐! 😎");
-  });
-}}>등록하기</Button>
-  
-                <Button variant="secondary" style={{ flex: 1 }} onClick={() => setIsModalOpen(false)}>취소</Button>
-              </div>
-            </div>
-          </Card>
-        </div>
-      )}
-    </div>
-  );
+      {/* ─── 슬랭 추가 ─── */}
+      {isModalOpen && (
+        <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
+          <Card style={{ width: 450, padding: 30 }}>
+            <div style={{ fontSize: 18, fontWeight: 800, marginBottom: 20 }}>새 슬랭 등록</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 15 }}>
+              <input placeholder="슬랭 (예: Rizz)" style={{ padding: "10px 14px", borderRadius: 10, border: "1px solid #ddd" }} onChange={e => setNewSlang({...newSlang, term: e.target.value})} />
+              <input placeholder="뜻" style={{ padding: "10px 14px", borderRadius: 10, border: "1px solid #ddd" }} onChange={e => setNewSlang({...newSlang, meaning: e.target.value})} />
+              <textarea placeholder="어원/유래" style={{ padding: "10px 14px", borderRadius: 10, border: "1px solid #ddd", height: 80 }} onChange={e => setNewSlang({...newSlang, origin: e.target.value})} />
+              <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
+               <Button style={{ flex: 1 }} onClick={() => {
+                  const payload = {
+                    word: String(newSlang.term || ""),
+                    definition_ko: String(newSlang.meaning || ""),
+                    definition_en: "English definition", 
+                    example_en: "English example",       
+                    example_ko: String(newSlang.origin || "한국어 예문") 
+                  };
+                  fetch('/api/admin/slangs', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                  })
+                  .then(res => res.json())
+                  .then(data => {
+                    const newData = { id: data.slangId || Date.now(), term: payload.word, meaning: payload.definition_ko, origin: payload.example_ko, tags: ["신규"], status: "공개", trend: 70 };
+                    setSlangs(prev => [newData, ...prev]);
+                    setIsModalOpen(false);
+                    setNewSlang({ term: "", meaning: "", origin: "", tags: "" });
+                    alert("DB 등록 성공!");
+                  }).catch(err => alert("등록 중 에러 발생!"));
+               }}>등록하기</Button>
+                <Button variant="secondary" style={{ flex: 1 }} onClick={() => setIsModalOpen(false)}>취소</Button>
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
+    </div>
+  );
 }
 
-/* ─── 유저 관리 ─────────────────────────────────────── */
+/* ─── 유저 관리 ────────────────── */
 function UsersPage() {
-  const [users, setUsers] = useState([]);
-  const [confirm, setConfirm] = useState(null);
-  const [query, setQuery] = useState("");
+  const [users, setUsers] = useState([]);
+  const [confirm, setConfirm] = useState(null);
+  const [query, setQuery] = useState("");
 
-  useEffect(() => {
-  fetch('/api/admin/users')
-    .then(res => res.json())
-    .then(response => {
-      if (response.success && Array.isArray(response.data)) {
-        const formattedUsers = response.data.map((u, index) => ({
-          displayId: index + 1,  
-          id: u.user_id,         
-          name: u.nickname || "이름 없음", 
-          email: u.email,
-          streak: u.streak || 0,
-          accuracy: u.accuracy || 0,
-          reports: u.reports || 0,
-          status: u.role === 1 ? "관리자" : "활성",
-          joinDate: u.created_at ? u.created_at.split('T')[0] : ""
-        }));
-        setUsers(formattedUsers);
-      }
-    })
-    .catch(err => console.error(err));
-}, []);
+  useEffect(() => {
+    fetch('/api/admin/users')
+      .then(res => res.json())
+      .then(response => {
+        if (response.success && Array.isArray(response.data)) {
+          const formattedUsers = response.data.map((u, index) => ({
+            displayId: index + 1,  
+            id: u.user_id,         
+            name: u.nickname || "이름 없음", 
+            email: u.email,
+            streak: u.streak || 0,
+            accuracy: u.accuracy || 0,
+            reports: u.reports || 0,
+            status: u.role === 1 ? "관리자" : "활성",
+            joinDate: u.created_at ? u.created_at.split('T')[0] : ""
+          }));
+          setUsers(formattedUsers);
+        }
+      });
+  }, []);
 
-  const handleDeleteUser = (id) => {
-    fetch(`/api/admin/users/${id}`, { method: 'DELETE' })
-      .then(res => res.json())
-      .then(response => {
-        if (response.success) {
-          setUsers(prev => prev.filter(user => user.id !== id));
-          alert("성공적으로 탈퇴 처리되었습니다.");
-        }
-      })
-      .catch(err => alert("삭제 실패"));
-  };
+  const handleDeleteUser = (id) => {
+    if (window.confirm("정말로 탈퇴 처리하시겠습니까?")) {
+      fetch(`/api/admin/users/${id}`, { method: 'DELETE' })
+        .then(res => res.json())
+        .then(response => {
+          if (response.success) {
+            setUsers(prev => prev.filter(user => user.id !== id));
+            alert("성공적으로 탈퇴 처리되었습니다.");
+          }
+        });
+    }
+  };
 
-  const filtered = useMemo(() =>
-    users.filter(u => [u.name, u.email].join(" ").toLowerCase().includes(query.toLowerCase())),
-    [users, query]);
+  const filtered = useMemo(() =>
+    users.filter(u => [u.name, u.email].join(" ").toLowerCase().includes(query.toLowerCase())),
+    [users, query]);
 
-  function deleteUser(id) {
-    setUsers(prev => prev.filter(u => u.id !== id));
-    setConfirm(null);
-  }
-
-
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-      <SectionTitle title="유저 관리" subtitle={`총 ${users.length}명`} />
-      <Card style={{ padding: "14px 18px" }}>
-        <div style={{ position: "relative" }}>
-          <Search size={14} color={G.gray} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)" }} />
-          <input value={query} onChange={e => setQuery(e.target.value)} placeholder="이름, 이메일 검색"
-            style={{ width: "100%", padding: "10px 14px 10px 36px", borderRadius: 100, border: `1.5px solid ${G.border}`, fontSize: 13, outline: "none", fontFamily: "'Noto Sans KR', sans-serif", boxSizing: "border-box" }} />
-        </div>
-      </Card>
-      <Card>
-        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-          <thead>
-            <tr style={{ borderBottom: "1.5px solid #f0ede6" }}>
-              {["#", "이름", "이메일", "연속 학습", "정답률", "신고누적", "상태", "가입일", ""].map(h => (
-                <th key={h} style={{ padding: "14px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: G.gray, letterSpacing: 0.5 }}>{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((u, index) => (
-  <tr 
-    key={u.id} 
-    style={{ borderBottom: "1px solid #f7f4ef" }}
-    onMouseEnter={e => e.currentTarget.style.background = "#fafaf9"}
-    onMouseLeave={e => e.currentTarget.style.background = "transparent"}
-  >
-    {/* 1. # (순번) */}
-    <td style={{ padding: "14px 16px" }}>{u.displayId}</td>
-    
-    {/* 2. 이름 */}
-    <td style={{ padding: "14px 16px", fontWeight: 700 }}>{u.name}</td>
-    
-    {/* 3. 이메일 */}
-    <td style={{ padding: "14px 16px", color: G.gray }}>{u.email}</td>
-    
-    {/* 4. 연속 학습 */}
-    <td style={{ padding: "14px 16px" }}>{u.streak}일</td>
-    
-    {/* 5. 정답률 (게이지 바가 있다면 u.accuracy 사용) */}
-    <td style={{ padding: "14px 16px" }}>
-       {/* 예시: 정답률 게이지 UI가 있다면 여기 넣어줘 */}
-       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-         <div style={{ width: 60, height: 6, background: '#eee', borderRadius: 3 }}>
-           <div style={{ width: `${u.accuracy}%`, height: '100%', background: G.green, borderRadius: 3 }} />
-         </div>
-         <span style={{ fontSize: 12 }}>{u.accuracy}%</span>
-       </div>
-    </td>
-    
-    {/* 6. 신고 누적 */}
-    <td style={{ padding: "14px 16px", color: u.reports > 3 ? G.red : G.black }}>
-      {u.reports}회
-    </td>
-    
-    {/* 7. 상태 (뱃지 UI) */}
-    <td style={{ padding: "14px 16px" }}>
-      <Badge color={u.status === "관리자" ? G.purple : G.green}>{u.status}</Badge>
-    </td>
-    
-    {/* 8. 가입일 */}
-    <td style={{ padding: "14px 16px", color: G.gray }}>{u.joinDate}</td>
-    
-    {/* 9. 관리 버튼 (탈퇴) */}
-    <td style={{ padding: "14px 16px" }}>
-      <Button variant="secondary" size="sm" onClick={() => handleDeleteUser(u.id)}
-              style={{ color: G.red, border: `1px solid ${G.red}40` }}>탈퇴</Button>
-    </td>
-  </tr>
-))}
-          </tbody>
-        </table>
-      </Card>
-    </div>
-  );
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+      <SectionTitle title="유저 관리" subtitle={`총 ${users.length}명`} />
+      <Card style={{ padding: "14px 18px" }}>
+        <div style={{ position: "relative" }}>
+          <Search size={14} color={G.gray} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)" }} />
+          <input value={query} onChange={e => setQuery(e.target.value)} placeholder="이름, 이메일 검색"
+            style={{ width: "100%", padding: "10px 14px 10px 36px", borderRadius: 100, border: `1.5px solid ${G.border}`, fontSize: 13, outline: "none", fontFamily: "'Noto Sans KR', sans-serif", boxSizing: "border-box" }} />
+        </div>
+      </Card>
+      <Card>
+        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+          <thead>
+            <tr style={{ borderBottom: "1.5px solid #f0ede6" }}>
+              {["#", "이름", "이메일", "연속 학습", "정답률", "신고누적", "상태", "가입일", ""].map(h => (
+                <th key={h} style={{ padding: "14px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: G.gray }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+         <tbody>
+  {filtered.map((u, index) => ( 
+    <tr key={u.id} style={{ borderBottom: "1px solid #f7f4ef" }} onMouseEnter={e => e.currentTarget.style.background = "#fafaf9"} onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
+      <td style={{ padding: "14px 16px" }}>{index + 1}</td> 
+      
+      <td style={{ padding: "14px 16px", fontWeight: 700 }}>{u.name}</td>
+      <td style={{ padding: "14px 16px", color: G.gray }}>{u.email}</td>
+      <td style={{ padding: "14px 16px" }}>{u.streak}일</td>
+      <td style={{ padding: "14px 16px" }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ width: 60, height: 6, background: '#eee', borderRadius: 3 }}>
+              <div style={{ width: `${u.accuracy}%`, height: '100%', background: G.green, borderRadius: 3 }} />
+            </div>
+            <span style={{ fontSize: 12 }}>{u.accuracy}%</span>
+          </div>
+      </td>
+      <td style={{ padding: "14px 16px", color: u.reports > 3 ? G.red : G.black }}>{u.reports}회</td>
+      <td style={{ padding: "14px 16px" }}><Badge color={u.status === "관리자" ? G.purple : G.green}>{u.status}</Badge></td>
+      <td style={{ padding: "14px 16px", color: G.gray }}>{u.joinDate}</td>
+      <td style={{ padding: "14px 16px" }}>
+        <Button variant="secondary" size="sm" onClick={() => handleDeleteUser(u.id)} style={{ color: G.red, border: `1px solid ${G.red}40` }}>탈퇴</Button>
+      </td>
+    </tr>
+  ))}
+</tbody>
+        </table>
+      </Card>
+    </div>
+  );
 }
 
 /* ─── 검수 / 신고 ───────────────────────────────────── */
@@ -1219,38 +1084,20 @@ function NotificationPage() {
   );
 }
 
-/* ─── 추천 설정 (보류) ──────────────────────────────── */
+/* ─── 추천 설정  ─── */
 function RecommendPage() {
-  const [weights, setWeights] = useState(WEIGHTS);
-  const total = weights.reduce((s, w) => s + w.value, 0);
-
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-      <SectionTitle title="추천 설정 (보류)" subtitle="인기, 개인화, 최신성, 학습 부족도 가중치를 관리합니다." />
-      <Card style={{ padding: "20px 24px", border: "1.5px dashed #e5e0d8" }}>
-        <div style={{ fontSize: 13, color: G.gray }}>⏸ 추천 알고리즘 백엔드 구현 전까지 보류된 기능입니다.</div>
-      </Card>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-        {weights.map((w, i) => (
-          <Card key={w.label} style={{ padding: "20px 24px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14, fontWeight: 600, marginBottom: 12 }}>
-              <span>{w.label}</span>
-              <span style={{ color: G.accent, fontWeight: 800 }}>{w.value}%</span>
-            </div>
-            <ProgressBar value={w.value} />
-            <input type="range" min={0} max={100} value={w.value}
-              onChange={e => setWeights(prev => prev.map((p, idx) => idx === i ? { ...p, value: Number(e.target.value) } : p))}
-              style={{ width: "100%", marginTop: 12, accentColor: G.accent }} />
-          </Card>
-        ))}
+    <div style={{ padding: 40 }}>
+      <h3>추천 가중치 설정 (보류)</h3>
+      <div style={{ 
+        background: "white", 
+        padding: 40, 
+        borderRadius: 20, 
+        textAlign: "center", 
+        color: "#666" 
+      }}>
+        ⏸ 현재 보류된 기능입니다.
       </div>
-      <Card style={{ padding: "22px 26px" }}>
-        <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 14 }}>추천 공식 미리보기</div>
-        <div style={{ background: G.navy, borderRadius: 14, padding: "14px 18px", fontFamily: "monospace", fontSize: 13, color: "rgba(255,255,255,0.85)", lineHeight: 1.6 }}>
-          추천 점수 = (인기 × {(weights[0].value / 100).toFixed(2)}) + (개인화 × {(weights[1].value / 100).toFixed(2)}) + (최신성 × {(weights[2].value / 100).toFixed(2)}) + (학습 부족도 × {(weights[3].value / 100).toFixed(2)})
-        </div>
-        {total !== 100 && <div style={{ marginTop: 10, fontSize: 12, color: G.red, fontWeight: 700 }}>⚠ 합계가 {total}%입니다 (100%여야 합니다)</div>}
-      </Card>
     </div>
   );
 }
@@ -1259,73 +1106,43 @@ function RecommendPage() {
 export default function Admin() {
   const navigate = useNavigate();
   const [active, setActive] = useState("dashboard");
-
-  useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user") || "{}");
-    if (user?.role !== 1) navigate("/dashboard");
-  }, []);
-
   const user = JSON.parse(localStorage.getItem("user") || "{}");
 
+  useEffect(() => { if (user?.role !== 1) navigate("/dashboard"); }, []);
+
   const pages = {
-    dashboard:    <DashboardPage onAddClick={() => setActive("content")} />,
-    content:      <ContentPage />,
-    users:        <UsersPage />,
-    review:       <ReviewPage />,
-    community:    <CommunityPage />,
-    analytics:    <AnalyticsPage />,
+    dashboard: <DashboardPage onAddClick={() => setActive("content")} />,
+    content: <ContentPage />,
+    users: <UsersPage />,
+    review: <ReviewPage />,
+    community: <CommunityPage />,
+    analytics: <AnalyticsPage />,
     notification: <NotificationPage />,
-    recommend:    <RecommendPage />,
+    recommend: <RecommendPage />,
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f0ede6", fontFamily: "'Noto Sans KR', sans-serif" }}>
-
-      {/* Sidebar */}
-      <aside style={{ background: G.white, borderRight: "1px solid rgba(0,0,0,0.06)", padding: 16, display: "flex", flexDirection: "column", position: "fixed", top: 0, left: 0, width: 260, height: "100vh", zIndex: 100, boxSizing: "border-box" }}>
-        <div style={{ padding: "8px 4px 20px", borderBottom: `1px solid ${G.border}`, marginBottom: 16, flexShrink: 0, textAlign: "center" }}>
-          <div style={{ fontSize: 18, fontWeight: 900, color: G.black, letterSpacing: -0.5 }}>관리자 페이지</div>
-        </div>
-
-        <nav style={{ display: "flex", flexDirection: "column", gap: 4, flex: 1, overflowY: "auto" }}>
-          {MENU.map(item => {
-            const Icon = item.icon;
-            const isActive = active === item.key;
-            return (
-              <button key={item.key} onClick={() => setActive(item.key)} style={{
-                display: "flex", alignItems: "center", gap: 10, padding: "11px 14px", borderRadius: 14,
-                border: "none", cursor: "pointer", textAlign: "left", width: "100%", transition: "all 0.15s",
-                background: isActive ? G.navy : "transparent",
-                color: isActive ? G.white : G.gray,
-                fontFamily: "'Noto Sans KR', sans-serif", fontSize: 13, fontWeight: isActive ? 700 : 500,
-                flexShrink: 0,
-              }}>
-                <Icon size={16} />
-                <span style={{ flex: 1 }}>{item.label}</span>
-                {isActive && <ChevronRight size={14} />}
-              </button>
-            );
-          })}
+    <div style={{ minHeight: "100vh", background: "#f0ede6", display: "flex" }}>
+      <aside style={{ background: G.white, width: 260, borderRight: "1px solid #eee", padding: 16, position: "fixed", height: "100vh", display: "flex", 
+  flexDirection: "column"}}>
+        <h2 style={{ padding: 20, fontSize: 18, fontWeight: 900 }}>관리자 페이지</h2>
+        <nav style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          {MENU.map(item => <button key={item.key} onClick={() => setActive(item.key)} style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", border: "none", background: active === item.key ? G.navy : "transparent", color: active === item.key ? G.white : G.gray, borderRadius: 12, cursor: "pointer", textAlign: "left" }}><item.icon size={16} />{item.label}</button>)}
         </nav>
-
-        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 14, border: `1px solid ${G.border}`, flexShrink: 0 }}>
-          <div style={{ width: 32, height: 32, borderRadius: 100, background: G.accent, display: "flex", alignItems: "center", justifyContent: "center", color: G.white, fontSize: 12, fontWeight: 700 }}>
-            {user.nickname?.[0] || "A"}
-          </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 13, fontWeight: 600, color: G.black }}>{user.nickname || "관리자"}</div>
-            <div style={{ fontSize: 11, color: G.gray }}>관리자</div>
-          </div>
-          <button onClick={() => navigate("/dashboard")} style={{ background: "none", border: "none", cursor: "pointer", color: G.gray, padding: 4, borderRadius: 8 }} title="일반 페이지로">
-            <LogOut size={15} />
-          </button>
-        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 14, border: `1px solid ${G.border}`, flexShrink: 0, marginTop: 'auto' }}>
+      <div style={{ width: 32, height: 32, borderRadius: 100, background: G.accent, display: "flex", alignItems: "center", justifyContent: "center", color: G.white, fontSize: 12, fontWeight: 700 }}>
+        {user.nickname?.[0] || "A"}
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 13, fontWeight: 600, color: G.black }}>{user.nickname || "관리자"}</div>
+        <div style={{ fontSize: 11, color: G.gray }}>관리자</div>
+      </div>
+      <button onClick={() => navigate("/dashboard")} style={{ background: "none", border: "none", cursor: "pointer", color: G.gray, padding: 4, borderRadius: 8 }}>
+        <LogOut size={15} />
+      </button>
+    </div>
       </aside>
-
-      {/* Main */}
-      <main style={{ marginLeft: 260, padding: "28px 32px", minHeight: "100vh" }}>
-        {pages[active]}
-      </main>
+      <main style={{ marginLeft: 260, flex: 1, padding: 32 }}>{pages[active]}</main>
     </div>
   );
 }

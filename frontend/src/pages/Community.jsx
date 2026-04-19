@@ -97,9 +97,6 @@ function SubmitModal({ onClose, onSubmit }) {
 /* ── 게시물 카드 ── */
 function PostCard({ post, onLike, onVote, onComment }) {
   const [showComments, setShowComments] = useState(false);
-  const total = post.correct + post.wrong;
-  const correctPct = total > 0 ? Math.round((post.correct / total) * 100) : 0;
-
   return (
     <div style={{ background: G.white, borderRadius: 24, border: "1px solid rgba(0,0,0,0.05)", boxShadow: "0 2px 16px rgba(0,0,0,0.06)", marginBottom: 16 }}>
       <div style={{ padding: "20px 24px" }}>
@@ -145,24 +142,26 @@ export default function Community() {
     setPosts(prev => prev.map(p => p.id === id ? { ...p, [type]: p[type] + 1 } : p));
   }
   function handleComment(id, text) {
-    setPosts(prev => prev.map(p => p.id === id ? { ...p, comments: [...p.comments, { id: Date.now(), user: "민우", avatar: "🙋", text }] } : p));
+    setPosts(prev => prev.map(p => p.id === id ? { ...p, comments: [...p.comments, { id: Date.now(), user: "두두현", avatar: "🙋", text }] } : p));
   }
   function handleSubmit(data) {
-    const newPost = { id: Date.now(), user: "민우", avatar: "🙋", time: "방금", ...data, likes: 0, liked: false, correct: 0, wrong: 0, comments: [], status: "pending" };
+    const newPost = { id: Date.now(), user: "민혁", avatar: "🙋", time: "방금", ...data, likes: 0, liked: false, correct: 0, wrong: 0, comments: [], status: "pending" };
     setPosts(prev => [newPost, ...prev]);
   }
 
   return (
     <div style={{ minHeight: "100vh", background: G.lightGray, fontFamily: "'Noto Sans KR', sans-serif" }}>
-      <PageHeader 
+
+      <PageHeader
         title="커뮤니티" emoji="🌐"
         right={
-          tab === "feed" ? <Button onClick={() => setShowSubmit(true)} size="sm">+ 제보하기</Button> 
-          : tab === "board" ? <Button onClick={() => setShowWrite(true)} size="sm">✏️ 글쓰기</Button> 
+          tab === "feed" ? <Button onClick={() => setShowSubmit(true)} size="sm">+ 제보하기</Button>
+          : tab === "board" ? <Button onClick={() => setShowWrite(true)} size="sm">✏️ 글쓰기</Button>
           : null
         }
       />
 
+      {/* 탭 메뉴 */}
       <div style={{ background: G.white, borderBottom: "1px solid rgba(0,0,0,0.06)", padding: "0 40px", display: "flex", gap: 4 }}>
         {TABS.map(t => (
           <button key={t.id} onClick={() => setTab(t.id)} style={{ padding: "14px 20px", border: "none", background: "transparent", cursor: "pointer", color: tab === t.id ? G.accent : G.gray, borderBottom: `2.5px solid ${tab === t.id ? G.accent : "transparent"}`, fontWeight: tab === t.id ? 700 : 500 }}>{t.emoji} {t.label}</button>
@@ -174,7 +173,7 @@ export default function Community() {
           <>
             <div style={{ display: "flex", gap: 8, marginBottom: 20, overflowX: "auto" }}>
               {CATEGORIES.map(c => (
-                <button key={c} onClick={() => setCategory(c)} style={{ padding: "7px 16px", borderRadius: 100, border: `1.5px solid ${category === c ? G.accent : "#eee"}`, background: category === c ? "rgba(255,77,0,0.06)" : G.white, color: category === c ? G.accent : G.gray, fontSize: 12 }}>{c}</button>
+                <button key={c} onClick={() => setCategory(c)} style={{ padding: "7px 16px", borderRadius: 100, border: `1.5px solid ${category === c ? G.accent : "#eee"}`, background: category === c ? "rgba(255,77,0,0.06)" : G.white, color: category === c ? G.accent : G.gray, fontSize: 12, whiteSpace: "nowrap" }}>{c}</button>
               ))}
             </div>
             {posts.filter(p => category === "전체" || p.category === category).map(post => (
@@ -186,7 +185,7 @@ export default function Community() {
         {tab === "board" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             {boardPosts.map(post => (
-              <div key={post.id} style={{ background: G.white, borderRadius: 24, padding: 24, border: "1px solid rgba(0,0,0,0.05)" }}>
+              <div key={post.id} style={{ background: G.white, borderRadius: 24, padding: 24, border: "1px solid rgba(0,0,0,0.05)", boxShadow: "0 2px 10px rgba(0,0,0,0.04)" }}>
                 <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 8 }}>{post.title}</div>
                 <div style={{ fontSize: 13, color: G.gray }}>{post.content}</div>
               </div>
@@ -197,7 +196,7 @@ export default function Community() {
         {tab === "hot" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {HOT_RANKING.map(r => (
-              <div key={r.rank} style={{ background: G.white, borderRadius: 20, padding: 20, display: "flex", alignItems: "center", gap: 16, border: "1px solid #eee" }}>
+              <div key={r.rank} style={{ background: G.white, borderRadius: 20, padding: 20, display: "flex", alignItems: "center", gap: 16, border: "1px solid #eee", boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
                 <div style={{ fontSize: 24 }}>{r.emoji}</div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontWeight: 900 }}>{r.word}</div>
