@@ -25,6 +25,7 @@ const DEFAULT_PROMPT = SYSTEM_PROMPTS.friend;
 export const getReply = async (message, history = [], scenario = null) => {
   const systemPrompt = SYSTEM_PROMPTS[scenario] || DEFAULT_PROMPT;
   const firstMessage = history.length === 0 ? (OPENING_MESSAGES[scenario] || message) : message;
+  
   const chat = ai.chats.create({
     model: "gemini-2.5-flash-lite",
     config: { systemInstruction: systemPrompt },

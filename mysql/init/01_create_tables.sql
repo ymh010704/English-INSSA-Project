@@ -7,12 +7,12 @@ SET CHARACTER SET utf8mb4;
 CREATE TABLE users (
   user_id int NOT NULL AUTO_INCREMENT,
   email varchar(100) NOT NULL unique,
-  password varchar(100), /* 소셜 로그인은 NULL 허용 */
+  password varchar(100), /* 원래 NOT NULL 이었는데 소셜 로그인은 NULL 허용해야한다고 함 */
   nickname varchar(50) DEFAULT NULL,
-  role tinyint(1) DEFAULT '0', /* 0: 일반, 1: 관리자 */
+  role tinyint(1) DEFAULT '0', /* 어드민 여부 */
   created_at datetime DEFAULT current_timestamp,
   updated_at datetime DEFAULT current_timestamp ON UPDATE CURRENT_TIMESTAMP,
-  sns_id VARCHAR(255), 
+  sns_id VARCHAR(255), /* 소셜 로그인을 위해 추가 */
   provider VARCHAR(20) default 'local',
   PRIMARY KEY (user_id)
 );
@@ -85,6 +85,15 @@ CREATE TABLE user_stats (
     total_xp INT DEFAULT 0,
     last_study_date DATE,
     PRIMARY KEY (stat_id),
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+CREATE TABLE user_stats (
+    user_id INT PRIMARY KEY,
+    total_xp INT DEFAULT 0,           /* XP */
+    current_streak INT DEFAULT 0,     /* 연속 접속일 */
+    max_streak INT DEFAULT 0,         /* 역대 최고 연속 접속일 */
+    last_login_date DATE,             /* 마지막 접속일 (스트릭 계산용) */
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 

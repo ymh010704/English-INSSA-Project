@@ -121,7 +121,7 @@ const StudiesService = {
         } 
       }
 
-      // 3. 스트릭 업데이트 (오늘 첫 학습일 경우 +1)
+      // 3. 🚩 스트릭 업데이트 (오늘 첫 학습일 경우 +1)
       // 오늘 해당 유저가 남긴 로그가 방금 넣은 1개뿐인지 확인
       const checkStreakQuery = `
         SELECT COUNT(*) as todayLogs FROM study_logs 

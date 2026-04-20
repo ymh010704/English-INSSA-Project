@@ -1,94 +1,24 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+
+// 아래부터 컴포넌트
 import G from "../constants/colors";
 import Sidebar from "../components/Sidebar";
-
-/* ── 0. 정적 데이터 및 검색바 ── */
-const SLANG_DATA = [
-  { word: "No cap", meaning: "진심으로, 거짓말 아님", category: "SNS / 일상", emoji: "🔥" },
-  { word: "It's giving", meaning: "~느낌이야, ~분위기다", category: "Gen Z", emoji: "✨" },
-  { word: "Lowkey", meaning: "은근히, 살짝", category: "일상 / 강조", emoji: "🤫" },
-  { word: "Slay", meaning: "완전 잘해냈어, 멋지다", category: "칭찬 / 긍정", emoji: "👑" },
-  { word: "Vibe check", meaning: "분위기 파악, 상태 확인", category: "SNS / 일상", emoji: "📡" },
-  { word: "Ghosted", meaning: "갑자기 연락을 끊다", category: "연애 / SNS", emoji: "👻" },
-  { word: "Bussin", meaning: "완전 맛있다, 대박이다", category: "음식 / 긍정", emoji: "🤤" },
-  { word: "Flex", meaning: "자랑하다, 과시하다", category: "SNS / 일상", emoji: "💪" },
-];
-
-function SearchBar() {
-  const navigate = useNavigate();
-  const [query, setQuery] = useState("");
-  const [focused, setFocused] = useState(false);
-  const [recent, setRecent] = useState(JSON.parse(localStorage.getItem("recentSearch") || "[]"));
-  const ref = useRef(null);
-
-  const results = query.trim()
-    ? SLANG_DATA.filter(s =>
-        s.word.toLowerCase().includes(query.toLowerCase()) ||
-        s.meaning.includes(query) ||
-        s.category.includes(query)
-      ).slice(0, 5)
-    : [];
-
-  const handleSelect = (word) => {
-    const updated = [word, ...recent.filter(r => r !== word)].slice(0, 5);
-    setRecent(updated);
-    localStorage.setItem("recentSearch", JSON.stringify(updated));
-    setQuery("");
-    setFocused(false);
-    navigate("/learning-intro");
-  };
-
-  useEffect(() => {
-    const handleClick = (e) => { if (ref.current && !ref.current.contains(e.target)) setFocused(false); };
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, []);
-
-  return (
-    <div ref={ref} style={{ position: "relative", width: "100%", maxWidth: 800 }}>
-      <div style={{
-        display: "flex", alignItems: "center", gap: 10, background: "#ffffff", borderRadius: 14,
-        border: `1.5px solid ${focused ? G.accent : "rgba(0,0,0,0.08)"}`,
-        padding: "11px 16px", transition: "border-color 0.2s",
-        boxShadow: focused ? "0 4px 20px rgba(255,77,0,0.1)" : "0 2px 8px rgba(0,0,0,0.04)",
-      }}>
-        <span style={{ fontSize: 16 }}>🔍</span>
-        <input
-          value={query} onChange={e => setQuery(e.target.value)}
-          onFocus={() => setFocused(true)}
-          placeholder="슬랭 단어 검색... (예: No cap, 은근히)"
-          style={{ flex: 1, border: "none", outline: "none", fontSize: 14, background: "transparent", color: G.black }}
-        />
-      </div>
-      {focused && (results.length > 0 || (query === "" && recent.length > 0)) && (
-        <div style={{
-          position: "absolute", top: "calc(100% + 8px)", left: 0, right: 0,
-          background: "#ffffff", borderRadius: 16, boxShadow: "0 12px 40px rgba(0,0,0,0.12)", zIndex: 100, overflow: "hidden",
-        }}>
-          {results.map(s => (
-            <div key={s.word} onClick={() => handleSelect(s.word)} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", cursor: "pointer" }}>
-              <span style={{ fontSize: 20 }}>{s.emoji}</span>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 14, fontWeight: 700 }}>{s.word}</div>
-                <div style={{ fontSize: 12, color: G.gray }}>{s.meaning}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
+import SearchBar from "../components/SearchBar";
 
 /* ── 1. 상단 통계 카드 ── */
-function StatCard({ icon, label, value, sub, color = G.accent, onClick }) {
+function StatCard({ icon, label, value, sub, color = G.accent, bg, onClick }) {
   return (
     <div onClick={onClick} style={{
-      background: G.white, borderRadius: 20, padding: "24px 26px", border: "1px solid rgba(0,0,0,0.05)",
-      flex: 1, minWidth: 0, cursor: onClick ? "pointer" : "default", transition: "transform 0.15s",
-    }} onMouseEnter={e => onClick && (e.currentTarget.style.transform = "translateY(-2px)")} onMouseLeave={e => e.currentTarget.style.transform = "none"}>
+      background: bg || G.white, borderRadius: 20, padding: "24px 26px",
+      border: "1px solid rgba(0,0,0,0.05)", flex: 1, minWidth: 0,
+      fontFamily: "'Noto Sans KR', sans-serif",
+      cursor: onClick ? "pointer" : "default", transition: "transform 0.15s",
+    }}
+      onMouseEnter={e => onClick && (e.currentTarget.style.transform = "translateY(-2px)")}
+      onMouseLeave={e => (e.currentTarget.style.transform = "none")}
+    >
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
         <div style={{ width: 44, height: 44, borderRadius: 14, background: `${color}18`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>{icon}</div>
         {sub && <div style={{ fontSize: 11, color: G.green, fontWeight: 700, background: "#d1fae5", padding: "3px 9px", borderRadius: 100 }}>{sub}</div>}
@@ -130,13 +60,15 @@ function TodayCard({ navigate }) {
       <div onClick={() => setFlipped(!flipped)} style={{ background: "rgba(255,255,255,0.05)", borderRadius: 16, padding: "28px 20px", textAlign: "center", cursor: "pointer", minHeight: 140, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
         {todayWord ? (!flipped ? (
           <>
-            <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 38, fontWeight: 900, color: G.white }}>{todayWord.word}</div>
-            <div style={{ fontSize: 10, color: "rgba(255,204,0,0.7)" }}>{todayWord.category || "SNS / 일상"}</div>
+            <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 38, fontWeight: 900, color: G.white, letterSpacing: -1 }}>{todayWord.word}</div>
+            <div style={{ fontSize: 10, color: "rgba(255,204,0,0.7)", letterSpacing: 1, textTransform: "uppercase" }}>{todayWord.category || "SNS / 일상"}</div>
+            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.2)", marginTop: 8 }}>탭해서 뒤집기 👆</div>
           </>
         ) : (
           <>
-            <div style={{ fontSize: 16, fontWeight: 700, color: G.white }}>{todayWord.meaning}</div>
-            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", marginTop: 6 }}>{todayWord.example}</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: G.white }}>{todayWord.definition_ko}</div>
+            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", marginTop: 6 }}>🇪🇳 e.g. : {todayWord.example_en}</div>
+            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", marginTop: 6 }}>🇰🇷 e.g. : {todayWord.example_ko}</div>
           </>
         )) : <div style={{ color: "#fff" }}>단어를 불러오는 중...</div>}
       </div>
@@ -156,8 +88,21 @@ function AIChatPreview({ navigate }) {
     { from: "ai", text: "Try using 'no cap' in a sentence! 🔥" },
   ];
   return (
-    <div style={{ background: G.white, borderRadius: 24, padding: 28, border: "1px solid rgba(0,0,0,0.05)", flex: 1, display: "flex", flexDirection: "column", gap: 16 }}>
-      <div style={{ fontSize: 15, fontWeight: 700 }}>🤖 AI 회화 연습</div>
+    <div style={{ 
+      background: G.white, borderRadius: 24, padding: 28, 
+      border: "1px solid rgba(0,0,0,0.05)", flex: 1, display: "flex", 
+      flexDirection: "column", gap: 16 
+    }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div>
+          <div style={{ fontSize: 15, fontWeight: 700 }}>🤖 AI 회화 연습</div>
+          <div style={{ fontSize: 12, color: G.gray, marginTop: 2 }}>원어민 친구와 대화 연습</div> 
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ width: 10, height: 10, borderRadius: "50%", background: G.green, boxShadow: `0 0 0 3px ${G.green}30` }} />
+        </div>
+      </div>
+      
       <div style={{ display: "flex", flexDirection: "column", gap: 10, flex: 1 }}>
         {msgs.map((m, i) => (
           <div key={i} style={{ display: "flex", justifyContent: m.from === "user" ? "flex-end" : "flex-start" }}>

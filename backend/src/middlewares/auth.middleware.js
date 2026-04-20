@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 
 export const authenticateJWT = (req, res, next) => {
-  // 헤더에서 토큰 추출 
+  // 1. 헤더에서 토큰 추출 (Authorization: Bearer <token>)
   const authHeader = req.headers.authorization;
 
   if (authHeader) {
@@ -12,6 +12,9 @@ export const authenticateJWT = (req, res, next) => {
         console.error("🚨 JWT 검증 실패:", err.message);
         return res.status(403).json({ error: "유효하지 않은 토큰입니다." });
       }
+
+      // 2. 검증 성공 시 유저 정보를 req 객체에 담음
+      // 이제 다음 컨트롤러에서 req.user.id 로 접근 가능
       req.user = user; 
       next(); // 다음 로직(컨트롤러)으로 진행
     });
