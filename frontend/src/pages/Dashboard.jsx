@@ -33,18 +33,23 @@ function StatCard({ icon, label, value, sub, color = G.accent, bg, onClick }) {
 function TodayCard({ navigate }) {
   const [flipped, setFlipped] = useState(false);
   const [todayWord, setTodayWord] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchToday = async () => {
-      try {
-        const res = await axios.get('/api/slangs/today');
-        // 배열로 올 경우 첫 번째 요소 사용
-        const data = Array.isArray(res.data) ? res.data[0] : res.data;
-        setTodayWord(data);
-      } catch (e) { console.error(e); }
-    };
-    fetchToday();
-  }, []);
+  const fetchToday = async () => {
+    try {
+      const res = await axios.get('/api/slangs/today-dashboard');
+      
+      const data = Array.isArray(res.data) ? res.data[0] : res.data;
+      setTodayWord(data);
+      
+      console.log("오늘의 단어 로딩 완료! No cap! 🃏");
+    } catch (e) {
+      console.error("오늘의 단어 로딩 실패:", e);
+    }
+  };
+  fetchToday();
+}, []);
 
   return (
     <div style={{
@@ -116,17 +121,41 @@ function AIChatPreview({ navigate }) {
 }
 
 /* ── 4. 이번 주 학습 그래프 ── */
-function WeeklyProgress() {
-  const days = ["월", "화", "수", "목", "금", "토", "일"];
-  const data = [3, 5, 4, 6, 2, 0, 0]; // 실제로는 서버에서 받아와야 함
+function WeeklyProgress({ navigate }) {
+  const days = [
+    { d: "월", done: true,  count: 3 },
+    { d: "화", done: true,  count: 5 },
+    { d: "수", done: true,  count: 4 },
+    { d: "목", done: true,  count: 6 },
+    { d: "금", done: false, count: 2 },
+    { d: "토", done: false, count: 0 },
+    { d: "일", done: false, count: 0, today: true },
+  ];
   return (
-    <div style={{ background: G.white, borderRadius: 24, padding: 28, border: "1px solid rgba(0,0,0,0.05)" }}>
-      <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 20 }}>📅 이번 주 학습</div>
+    <div style={{
+      background: G.white, borderRadius: 24, padding: 28,
+      border: "1px solid rgba(0,0,0,0.05)",
+      fontFamily: "'Noto Sans KR', sans-serif",
+    }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 22 }}>
+        <div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: G.black }}>📅 이번 주 학습</div>
+          <div style={{ fontSize: 12, color: G.gray, marginTop: 2 }}>4일 연속 학습 중 🔥</div>
+        </div>
+        <div onClick={() => navigate("/progress")} style={{ fontSize: 12, color: G.accent, fontWeight: 700, cursor: "pointer" }}>전체 보기 →</div>
+      </div>
       <div style={{ display: "flex", gap: 8, alignItems: "flex-end" }}>
-        {days.map((d, i) => (
-          <div key={d} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-            <div style={{ width: "100%", height: data[i] * 10 || 5, background: data[i] > 0 ? G.accent : G.lightGray, borderRadius: 6 }} />
-            <div style={{ fontSize: 11, color: G.gray }}>{d}</div>
+        {days.map(d => (
+          <div key={d.d} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+            <div style={{ fontSize: 11, fontWeight: d.count > 0 ? 700 : 400, color: d.count > 0 ? G.black : G.gray }}>{d.count > 0 ? d.count : ""}</div>
+            <div style={{
+              width: "100%", borderRadius: 8,
+              height: d.count ? Math.max(d.count * 10, 20) : 8,
+              background: d.today ? G.accent : d.done ? "#fed7aa" : G.lightGray,
+              transition: "height 0.3s",
+              border: d.today ? `2px solid ${G.accent}` : "none",
+            }} />
+            <div style={{ fontSize: 11, color: d.today ? G.accent : G.gray, fontWeight: d.today ? 700 : 400 }}>{d.d}</div>
           </div>
         ))}
       </div>
@@ -233,29 +262,64 @@ function MainContent({ stats }) {
 /* ── 대시보드 메인 ── */
 export default function Dashboard() {
   const [active, setActive] = useState("home");
-  const [stats, setStats] = useState(null);
+
+  const [stats, setStats] = useState({
+    todayCount: 0,
+    masteredCount: 0,
+    aiCount: 0,
+    streak: 0,
+    xp: 0,
+    accuracy: 0
+  });
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const token = localStorage.getItem('token')?.replace(/^["']|["']$/g, '');
-        if (!token) return;
-        const res = await axios.get('/api/dashboard/stats', {
+        const token = localStorage.getItem('token');
+
+        const cleanToken = token ? token.trim().replace(/^["']|["']$/g, '') : null;
+        if (!cleanToken) return;
+
+        if (!token || token === "undefined") {
+          console.error("토큰이 없어서 요청을 보낼 수 없습니다.");
+          return;
+        }
+
+        const res = await axios.get('http://localhost/api/dashboard/stats', {
           headers: { Authorization: `Bearer ${token}` }
         });
-        if (res.data) setStats(res.data);
-      } catch (err) { console.error("Stats 로딩 실패", err); }
+        // 서버 응답이 와야만 업데이트 하도록
+        if (res.data) {
+          setStats(res.data);
+        }
+      } catch (err) {
+        console.error("Stats 로딩 실패", err);
+      }
     };
+
     fetchStats();
   }, []);
-
+  
   return (
-  <div style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
-    {stats ? <MainContent stats={stats} /> : (
-      <div style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center", background: "#f0ede6" }}>
-        <p>데이터를 불러오는 중입니다...</p>
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { overflow-x: hidden; }
+      `}</style>
+      
+      <div style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
+        
+        {/* 2. MainContent는 아래처럼 "단 한 번만" 호출해야 합니다. */}
+        {/* stats가 있으면 MainContent를 그리고, 없으면 로딩 화면을 보여줍니다. */}
+        {stats ? (
+          <MainContent stats={stats} />
+        ) : (
+          <div style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center", background: "#F3F4F6" }}>
+            <p>데이터를 불러오는 중입니다...</p>
+          </div>
+        )}
       </div>
-    )}
-  </div>
-);
+    </>
+  );
 }

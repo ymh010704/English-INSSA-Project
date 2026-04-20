@@ -11,24 +11,16 @@ export default defineConfig({
     host: true, // Docker 컨테이너 외부(브라우저)에서 접속 허용
     strictPort: true,
     port: 5173, // Vite 기본 포트 고정
-server: {
-      watch: {
-        usePolling: true, 
-      },
-      host: true, 
-      strictPort: true,
-      port: 5173, 
-      hmr: {
-        protocol: 'ws',
-        host: 'localhost',
-        clientPort: 80, 
-      },
-      proxy: {
-        "/api": {
-          target: "http://backend:3000", // 도커 네트워크 상의 백엔드 서비스명
-          changeOrigin: true,
-        },
-      },
+    hmr: {
+      protocol: 'ws',
+      host: 'localhost',
+      clientPort: 80,
     },
+    Proxy: {
+      "/api" : {
+        target: "http:backend:3000", // docker 환경
+        changeOrigin: true,
+      }
+    }
   },
 })

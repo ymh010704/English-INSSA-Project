@@ -19,7 +19,7 @@ const StudiesController = {
       res.status(200).json({ success: true, data: quizData });
     } catch (error) {
       // 🚩 3번 로그: 여기서 에러가 나면 무조건 터미널에 찍힘
-      console.error("❌ [스터디 Controller] 에러 발생!!!");
+      console.error("❌ [Controller] 에러 발생!!!");
       console.error(error); // 에러 객체 전체 출력
       res.status(500).json({ success: false, message: error.message });
     }

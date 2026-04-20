@@ -25,10 +25,21 @@ export async function listSlangs(req, res, next) {
   }
 }
 
-// 오늘의 학습 관련 > learning-intro에 씀
+// 오늘의 학습 관련 > learning-intro에 씀 (5개)
 export const getTodaySlangs = async (req, res) => {
   try {
     const slangs = await SlangService.getTodaySlangs();
+    res.json(slangs);
+  } catch (err) {
+    console.error("[Controller] 오늘의 단어 로딩 실패:", err.message);
+    res.status(500).json({ error: "데이터를 불러오는 중 오류가 발생했습니다." });
+  }
+};
+
+// Dashboard에 보일 슬랭 단어 (한 개)
+export const getTodayDashboardSlangs = async (req, res) => {
+  try {
+    const slangs = await SlangService.getTodayDashboardSlangs();
     res.json(slangs);
   } catch (err) {
     console.error("[Controller] 오늘의 단어 로딩 실패:", err.message);
