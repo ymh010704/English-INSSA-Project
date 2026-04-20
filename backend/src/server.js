@@ -1,7 +1,9 @@
 import { app } from "./app.js";
+import { startDailyWordCron } from "./utils/dailyWordCron.js";
 
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
   console.log(`Backend listening on ${PORT}`);
+  startDailyWordCron();
 });
