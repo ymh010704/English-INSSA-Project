@@ -6,13 +6,13 @@ import G from "../constants/colors";
 const menus = [
   { id: "home",         icon: "🏠", label: "홈",         path: "/dashboard" },
   { id: "bookmark",     icon: "⭐", label: "북마크",      path: "/bookmark" },
-  { id: "today",        icon: "🃏", label: "오늘의 학습", path: "/learning-intro" },
-  { id: "practice",     icon: "✍️", label: "연습",        path: "/practice" },
-  { id: "conversation", icon: "💬", label: "회화 학습",   path: "/conversation" },
-  { id: "community",    icon: "🌐", label: "커뮤니티",    path: "/community" },
+  { id: "today",         icon: "🃏", label: "오늘의 학습", path: "/learning-intro" },
+  { id: "practice",     icon: "✍️", label: "연습",         path: "/practice" },
+  { id: "conversation", icon: "💬", label: "회화 학습",    path: "/conversation" },
+  { id: "community",     icon: "🌐", label: "커뮤니티",    path: "/community" },
   { id: "ai",           icon: "🤖", label: "AI 회화",     path: "/ai-chat" },
-  { id: "review",       icon: "🔁", label: "복습",        path: "/review" },
-  { id: "progress",     icon: "📊", label: "진도 관리",   path: "/progress" },
+  { id: "review",       icon: "🔁", label: "복습",         path: "/review" },
+  { id: "progress",     icon: "📊", label: "진도 관리",    path: "/progress" },
 ];
 
 export default function Sidebar() {
@@ -22,10 +22,12 @@ export default function Sidebar() {
 
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
+    
     if (!savedUser) {
       navigate("/login");
       return;
     }
+
     try {
       const parsedUser = JSON.parse(savedUser);
       setUser({
@@ -39,6 +41,7 @@ export default function Sidebar() {
 
   const active = menus.find(m => location.pathname === m.path)?.id ?? "";
 
+  // 로그아웃 
   const handleLogout = () => {
     Swal.fire({
       title: "로그아웃 하시겠어요?",
@@ -105,6 +108,7 @@ export default function Sidebar() {
         <span style={{ fontSize: 18 }}>⚙️</span> 설정
       </button>
 
+      {/* User & Logout Section */}
       <div style={{ borderTop: "1px solid rgba(255,255,255,0.07)", paddingTop: 20 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
           <div style={{
