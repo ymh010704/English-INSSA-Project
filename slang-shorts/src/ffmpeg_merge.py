@@ -47,15 +47,17 @@ def add_subtitles(
     return output_path
 
 
+VIDEO_DURATION = 8.0  # 영상 총 길이 (초)
+
 def _write_srt(subtitles: list, srt_path: str):
     """subtitle 리스트를 .srt 형식으로 저장"""
     lines = []
     for i, sub in enumerate(subtitles, 1):
-        start = sub["time"]
+        start = min(sub["time"], VIDEO_DURATION - 0.5)
         if i < len(subtitles):
-            end = subtitles[i]["time"] - 0.1
+            end = min(subtitles[i]["time"] - 0.1, VIDEO_DURATION)
         else:
-            end = start + 3.0
+            end = min(start + 3.0, VIDEO_DURATION)
 
         lines.append(str(i))
         lines.append(f"{_fmt_time(start)} --> {_fmt_time(end)}")

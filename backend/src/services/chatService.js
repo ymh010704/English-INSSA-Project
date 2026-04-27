@@ -24,11 +24,17 @@ const DEFAULT_PROMPT = SYSTEM_PROMPTS.friend;
 
 export const getReply = async (message, history = [], scenario = null) => {
   const systemPrompt = SYSTEM_PROMPTS[scenario] || DEFAULT_PROMPT;
-  const firstMessage = history.length === 0 ? (OPENING_MESSAGES[scenario] || message) : message;
+
+  //첫 메세지 AI가 먼저 대화 시작
+  const firstMessage = history.length === 0 
+  ? (OPENING_MESSAGES[scenario] || message)  //AI가 먼저 말걸기
+  : message; // 이후 사용자 메세지
+  
+  // 이전 대화 기록 포함 context유지
   const chat = ai.chats.create({
     model: "gemini-2.5-flash-lite",
     config: { systemInstruction: systemPrompt },
-    history: history.map((h) => ({
+    history: history.map((h) => ({  //대화 내용 gemini로 전달
       role: h.role === "ai" ? "model" : "user",
       parts: [{ text: h.content }],
     })),

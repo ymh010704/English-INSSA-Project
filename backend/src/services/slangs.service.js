@@ -19,6 +19,13 @@ export const list = async () => {
   return rows;
 };
 
+export const getShorts = async () => {
+  const [rows] = await pool.query(
+    "SELECT slang_id, word, definition_ko, example_en, example_ko, shorts_url FROM slangs WHERE shorts_url IS NOT NULL AND shorts_url != '' AND shorts_url != 'SKIPPED' ORDER BY created_at DESC"
+  );
+  return rows;
+};
+
 // 오늘의 학습 단어 5개 가져오기
 export const getTodaySlangs = async () => {
   // 오늘 날짜를 숫자 형태로 생성 (예: 20240520) // 매일 바꿀라고

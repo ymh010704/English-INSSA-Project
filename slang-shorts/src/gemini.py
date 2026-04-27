@@ -6,33 +6,38 @@ client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
 
 
 def generate_script(word: str, definition_ko: str, example_en: str, example_ko: str = "") -> dict:
-    """
-    슬랭 단어를 받아 쇼츠용 스크립트와 Veo 프롬프트를 생성합니다.
-    반환: { narration, subtitles, veo_prompt }
-    """
     prompt = f"""
-You are a creative director for English learning TikTok/Shorts.
-Based on the slang "{word}", create a high-fidelity video prompt for Google Veo 3.1.
+Create a natural 8-second 'Yanadoo' style script for the slang "{word}".
 
-Rules for Veo 3.1 Prompt:
-1. Include dialogue: Use 'Character says: "actual line"' format for lip-sync.
-2. Include audio: Describe SFX and ambient sounds.
-3. Structure: [Camera] + [Subject/Action] + [Setting] + [Style] + [Audio].
+[Goal]
+Imagine a situation where a young foreigner and an elderly Korean person are interacting. 
+The slang "{word}" must be used naturally in their conversation.
+
+[Rules for veo_prompt]
+1. SCENE: A specific place (e.g., Donut shop, Cafe, Park, or Street).
+2. CHARACTERS: 
+   - A young foreigner (English speaker)
+   - An elderly Korean person (Korean speaker)
+3. LIP-SYNC DIALOGUE:
+   - 0s-3s: The foreigner says a short English sentence using "{word}".
+   - 4s-8s: The elderly person responds in Korean, naturally incorporating "{word}" or reacting to its meaning.
+   - Example: The grandmother says in Korean: "아~ 그게 바로 {word}라는 거구만!"
+4. CAMERA: Start with a medium shot, then a DRAMATIC CLOSE-UP on the elderly person's face at 4s.
+5. NO TEXT: Absolutely no letters or subtitles in the background.
+6. SAFETY: The scene must be bright, cheerful, and family-friendly. NO dark, scary, ghost, supernatural, or violent imagery. Always use a positive, funny, or warm tone.
+7. SLANG MEANING ONLY: The word "{word}" is a modern internet slang meaning "{definition_ko}". Do NOT use the literal/traditional meaning of the word. The scene must reflect ONLY the slang meaning. For example, "Slay" means "to do something impressively" NOT "to kill". "Ghosting" means "ignoring someone" NOT a ghost/supernatural event.
 
 Slang: {word} ({definition_ko})
-Example: {example_en}
 
-Return only a JSON object:
+Return ONLY JSON:
 {{
-  "narration": "전체 한국어 해설 (TTS용, 8초 이내, 짧고 임팩트 있게)",
-  "subtitles": [ {{"time": 0.0, "text": "자막"}} ],
-  "veo_prompt": "A medium shot of an elderly Korean grandmother with permed gray hair and a young Black male in a sunny cafe. The grandmother looks at the man and says in Korean: '이거 완전 {word}네!'. The man laughs warmly and says in Korean: '맞아, {word} 진짜 딱이야!'. SFX: Busy cafe ambience, clinking of coffee cups, cheerful laughter. Style: 4K, cinematic lighting, vibrant colors, 9:16 aspect ratio."
+  "narration": "{word}의 뜻은 {definition_ko}입니다. 실생활에선 이렇게 쓰이죠.",
+  "subtitles": [
+    {{ "time": 0.0, "text": "외국인: (단어 사용 상황)" }},
+    {{ "time": 4.0, "text": "할머니: 아~ 이게 바로 {word}!" }}
+  ],
+  "veo_prompt": "A cinematic medium shot of a young foreigner and a Korean grandmother in a bright [SETTING]. The foreigner says something using '{word}'. Then, a dramatic close-up of the grandmother's face as she smirks and says in Korean: '(Natural Korean response)'. 4K, realistic, 9:16, NO TEXT in scene."
 }}
-
-Rules:
-- narration은 8초 이내 한국어, 최대한 짧고 핵심만
-- subtitles는 narration 타이밍에 맞게 2~3개, 마지막 자막 time은 7.0 이하
-- JSON만 반환, 다른 텍스트 없이
 """
     response = client.models.generate_content(
         model="gemini-3-flash-preview",

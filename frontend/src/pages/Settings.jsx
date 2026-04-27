@@ -190,9 +190,6 @@ export default function Settings() {
             <Row icon="🗑️" label="계정 탈퇴" sub="모든 데이터가 영구 삭제돼요" right={<span style={{ fontSize: 16, color: G.gray }}>›</span>} onClick={() => setModal("delete")} danger />
           </Section>
 
-          <div style={{ textAlign: "center", padding: "24px 0", fontSize: 12, color: G.gray }}>
-            영어인싸되기 v1.0.0 · Made with 🧡 by Engssa Team
-          </div>
         </div>
       </div>
 

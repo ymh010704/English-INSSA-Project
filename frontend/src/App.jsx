@@ -17,6 +17,7 @@ import Settings from "./pages/Settings";
 import ConversationLearn from "./pages/ConversationLearn";
 import Community from "./pages/Community";
 import SlangList from "./pages/SlangList";
+import Shorts from "./pages/Shorts";
 
 export default function App() {
   return (
@@ -35,10 +36,11 @@ export default function App() {
         <Route path="/review" element={<Layout><Review /></Layout>} />
         <Route path="/progress" element={<Layout><Progress /></Layout>} />
         <Route path="/bookmark" element={<Layout><Bookmark /></Layout>} />
-        <Route path="/settings" element={<Layout><Settings /></Layout>} />
+        <Route path="/settings" element={<Settings />} />
         <Route path="/conversation" element={<Layout><ConversationLearn /></Layout>} />
         <Route path="/community" element={<Layout><Community /></Layout>} />
         <Route path="/slangs" element={<Layout><SlangList /></Layout>} />
+        <Route path="/shorts" element={<Shorts />} />
       </Routes>
     </BrowserRouter>
   );
