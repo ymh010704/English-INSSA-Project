@@ -2,7 +2,7 @@ import { pool } from "../repositories/db.js";
 
 // 검색 관련 함수 e.g.: 대시보드, 북마크
 export const search = async (keyword) => {
-  const searchTerm = `%${keyword}%`; // 앞뒤로 %를 붙여야 부분 일치 검색 가능
+  const searchTerm = `%${keyword}%`; // 부분 일치 검사하려고 %단어% 넣음
   const query = `
     SELECT word, definition_ko as meaning, category, emoji 
     FROM slangs 
@@ -11,7 +11,7 @@ export const search = async (keyword) => {
   `;
   const [rows] = await pool.execute(query, [searchTerm, searchTerm, searchTerm]);
   return rows;
-};
+}; 
 
 export const list = async () => {
   // DB에서 모든 슬랭 데이터를 가져와서 반환합니다.
