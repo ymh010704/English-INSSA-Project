@@ -46,3 +46,13 @@ export const getTodayDashboardSlangs = async (req, res) => {
     res.status(500).json({ error: "데이터를 불러오는 중 오류가 발생했습니다." });
   }
 };
+
+// 쇼츠용 슬랭 목록 (shorts_url 있는 것만)
+export const getShorts = async (req, res) => {
+  try {
+    const data = await SlangService.getShorts();
+    res.json({ success: true, data });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+};
