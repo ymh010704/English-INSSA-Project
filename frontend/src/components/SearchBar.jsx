@@ -42,7 +42,7 @@ export default function SearchBar() {
     saveRecent(word);
     setQuery("");
     setFocused(false);
-    navigate("/card-study");
+    navigate(`/slangs?q=${encodeURIComponent(word)}`);
   }
 
   function removeRecent(word, e) {
@@ -105,12 +105,10 @@ export default function SearchBar() {
                   onMouseEnter={e => e.currentTarget.style.background = G.lightGray}
                   onMouseLeave={e => e.currentTarget.style.background = "transparent"}
                 >
-                  <span style={{ fontSize: 20 }}>{s.emoji}</span>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 14, fontWeight: 700, color: G.black }}>{s.word}</div>
                     <div style={{ fontSize: 12, color: G.gray }}>{s.meaning}</div>
                   </div>
-                  <div style={{ fontSize: 10, background: "rgba(255,77,0,0.08)", color: G.accent, padding: "3px 8px", borderRadius: 100, fontWeight: 600, whiteSpace: "nowrap" }}>{s.category}</div>
                 </div>
               ))}
             </div>

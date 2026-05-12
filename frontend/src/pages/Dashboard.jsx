@@ -247,13 +247,45 @@ function MainContent({ stats }) {
         <div style={{ flex: 1 }}><CategoryProgress /></div>
       </div>
 
-      {/* 4. 회화 학습 배너 */}
-      <div onClick={() => navigate("/conversation")} style={{ background: `linear-gradient(135deg, #0d1b2a 0%, #1e3a5f 100%)`, borderRadius: 20, padding: "24px 28px", marginBottom: 20, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between", color: "#fff" }}>
-        <div>
-           <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 15, fontWeight: 900 }}>회화 학습</div>
-           <div style={{ fontSize: 13, opacity: 0.6 }}>상황별 패턴 · 실전 대화문</div>
+      {/* 회화 학습 배너 */}
+      <div onClick={() => navigate("/conversation")} style={{
+        background: `linear-gradient(135deg, #0d1b2a 0%, #1e3a5f 100%)`,
+        borderRadius: 20, padding: "24px 28px", marginBottom: 20, cursor: "pointer",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        border: "1px solid rgba(255,255,255,0.06)",
+        boxShadow: "0 4px 20px rgba(0,0,0,0.08)", transition: "transform 0.2s",
+      }}
+        onMouseEnter={e => e.currentTarget.style.transform = "translateY(-2px)"}
+        onMouseLeave={e => e.currentTarget.style.transform = "none"}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <div style={{ fontSize: 36 }}>💬</div>
+          <div>
+            <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 15, fontWeight: 900, color: "#ffffff", marginBottom: 4 }}>회화 학습</div>
+            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.5)" }}>상황별 패턴 · 핵심 표현 · 실전 대화문 · 문법 포인트</div>
+          </div>
         </div>
-        <div style={{ background: G.accent, padding: "8px 18px", borderRadius: 100, fontSize: 12, fontWeight: 700 }}>학습하기 →</div>
+        <div style={{ background: "rgba(255,77,0,1)", color: "#ffffff", fontSize: 12, fontWeight: 700, padding: "8px 18px", borderRadius: 100, fontFamily: "'Noto Sans KR', sans-serif", whiteSpace: "nowrap", boxShadow: "0 4px 14px rgba(255,77,0,0.4)" }}>학습하기 →</div>
+      </div>
+
+      {/* 커뮤니티 배너 */}
+      <div onClick={() => navigate("/community")} style={{
+        background: `linear-gradient(135deg, #4c1d95, #7c3aed)`,
+        borderRadius: 20, padding: "24px 28px", marginBottom: 20, cursor: "pointer",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        boxShadow: "0 4px 20px rgba(124,58,237,0.2)", transition: "transform 0.2s",
+      }}
+        onMouseEnter={e => e.currentTarget.style.transform = "translateY(-2px)"}
+        onMouseLeave={e => e.currentTarget.style.transform = "none"}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <div style={{ fontSize: 36 }}>🌐</div>
+          <div>
+            <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 15, fontWeight: 900, color: "#ffffff", marginBottom: 4 }}>커뮤니티</div>
+            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.5)" }}>새 슬랭 제보 · 좋아요 · 댓글 · 이번 주 핫 랭킹</div>
+          </div>
+        </div>
+        <div style={{ background: "#7c3aed", color: "#ffffff", fontSize: 12, fontWeight: 700, padding: "8px 18px", borderRadius: 100, fontFamily: "'Noto Sans KR', sans-serif", whiteSpace: "nowrap", border: "1px solid rgba(255,255,255,0.2)" }}>참여하기 →</div>
       </div>
     </main>
   );

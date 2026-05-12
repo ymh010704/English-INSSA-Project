@@ -13,6 +13,8 @@ const menus = [
   { id: "ai",           icon: "🤖", label: "AI 회화",     path: "/ai-chat" },
   { id: "review",       icon: "🔁", label: "복습",        path: "/review" },
   { id: "progress",     icon: "📊", label: "진도 관리",   path: "/progress" },
+  { id: "slangs",       icon: "📖", label: "슬랭 사전",   path: "/slangs" },
+  { id: "shorts",       icon: "📱", label: "슬랭 쇼츠",   path: "/shorts" },
 ];
 
 export default function Sidebar() {

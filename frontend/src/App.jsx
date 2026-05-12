@@ -40,7 +40,7 @@ export default function App() {
         <Route path="/conversation" element={<Layout><ConversationLearn /></Layout>} />
         <Route path="/community" element={<Layout><Community /></Layout>} />
         <Route path="/slangs" element={<Layout><SlangList /></Layout>} />
-        <Route path="/shorts" element={<Shorts />} />
+        <Route path="/shorts" element={<Layout><Shorts /></Layout>} />
       </Routes>
     </BrowserRouter>
   );

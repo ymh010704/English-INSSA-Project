@@ -2,14 +2,14 @@ import { pool } from "../repositories/db.js";
 
 // 검색 관련 함수 e.g.: 대시보드, 북마크
 export const search = async (keyword) => {
-  const searchTerm = `%${keyword}%`; // 부분 일치 검사하려고 %단어% 넣음
+  const searchTerm = `%${keyword}%`;
   const query = `
-    SELECT word, definition_ko as meaning, category, emoji 
-    FROM slangs 
-    WHERE word LIKE ? OR definition_ko LIKE ? OR category LIKE ?
+    SELECT word, definition_ko as meaning
+    FROM slangs
+    WHERE word LIKE ? OR definition_ko LIKE ?
     LIMIT 5
   `;
-  const [rows] = await pool.execute(query, [searchTerm, searchTerm, searchTerm]);
+  const [rows] = await pool.execute(query, [searchTerm, searchTerm]);
   return rows;
 }; 
 
