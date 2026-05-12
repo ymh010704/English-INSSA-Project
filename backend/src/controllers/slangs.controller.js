@@ -18,8 +18,8 @@ export const searchSlangs = async (req, res) => {
 
 export async function listSlangs(req, res, next) {
   try {
-    const data = await service.list();
-    return ok(res, data); 
+    const data = await SlangService.list();
+    res.json({ success: true, data });
   } catch (e) {
     next(e);
   }
