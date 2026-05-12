@@ -47,6 +47,9 @@ services:
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
       TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID}
     command: sh -c "npm install && node src/server.js"
+    expose:
+      - "3000"
+    depends_on:
       - mysql
 
   nginx:

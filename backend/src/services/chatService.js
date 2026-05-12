@@ -45,10 +45,10 @@ export const getReply = async (message, history = [], scenario = null) => {
   const systemPrompt = SYSTEM_PROMPTS[scenario] || DEFAULT_PROMPT;
 
   // 첫 메세지: AI가 먼저 대화 시작 여부 결정
-  const firstMessage = history.length === 0 
-    ? (OPENING_MESSAGES[scenario] || message) 
+  const firstMessage = history.length === 0
+    ? (OPENING_MESSAGES[scenario] || message)
     : message;
-  
+
   // 채팅 객체 생성 및 컨텍스트 유지
   const chat = ai.chats.create({
     model: "gemini-2.5-flash-lite",

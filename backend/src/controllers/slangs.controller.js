@@ -1,5 +1,4 @@
 import * as SlangService from '../services/slangs.service.js';
-import { pool } from '../repositories/db.js';
 
 export const searchSlangs = async (req, res) => {
   try {
@@ -26,20 +25,24 @@ export async function listSlangs(req, res, next) {
   }
 }
 
-// 오늘의 학습 관련 > learning-intro에 씀
+// 오늘의 학습 관련 > learning-intro에 씀 (5개)
 export const getTodaySlangs = async (req, res) => {
   try {
-    const [rows] = await pool.execute("SELECT * FROM slangs ORDER BY RAND() LIMIT 1");
-    
-    if (rows.length === 0) {
-      return res.status(404).json({ message: "데이터가 없습니다." });
-    }
-    
-    console.log("✅ [Controller] 오늘의 슬랭 데이터 전송 성공!");
-    res.json(rows[0]); 
-
+    const slangs = await SlangService.getTodaySlangs();
+    res.json(slangs);
   } catch (err) {
-    console.error("❌ [Controller] 오늘의 단어 로딩 실패:", err.message);
-    res.status(500).json({ error: "Internal Server Error" });
+    console.error("[Controller] 오늘의 단어 로딩 실패:", err.message);
+    res.status(500).json({ error: "데이터를 불러오는 중 오류가 발생했습니다." });
+  }
+};
+
+// Dashboard에 보일 슬랭 단어 (한 개)
+export const getTodayDashboardSlangs = async (req, res) => {
+  try {
+    const slangs = await SlangService.getTodayDashboardSlangs();
+    res.json(slangs);
+  } catch (err) {
+    console.error("[Controller] 오늘의 단어 로딩 실패:", err.message);
+    res.status(500).json({ error: "데이터를 불러오는 중 오류가 발생했습니다." });
   }
 };

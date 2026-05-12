@@ -65,6 +65,7 @@ export default function SearchBar() {
 
   return (
     <div ref={ref} style={{ position: "relative", width: "100%", maxWidth: 800 }}>
+      {/* 검색 바 영역 */}
       <div style={{
         display: "flex", alignItems: "center", gap: 10,
         background: "#ffffff", borderRadius: 14,

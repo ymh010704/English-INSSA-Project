@@ -45,6 +45,7 @@ export default function Bookmark() {
         setLoading(false);
       }
     }
+
     fetchBookmarks();
   }, []);
 
@@ -55,6 +56,7 @@ export default function Bookmark() {
 
   // 북마크 해제 함수 
   const handleUnbookmark = async (slangId) => {
+    // 먼저 물어보기(혹시나 잘못 눌렀을 때 방지)
     const result = await Swal.fire({
       title: '정말로 북마크를 해제하시겠습니까?',
       text: "해제하면 나의 북마크 목록에서 사라집니다.",
@@ -66,6 +68,7 @@ export default function Bookmark() {
       cancelButtonText: '안 할래요',
     });
 
+    // 사용자가 북마크 해제한다 하면 아래 실행
     if (result.isConfirmed) {
       try {
         const token = localStorage.getItem('token');
@@ -74,9 +77,11 @@ export default function Bookmark() {
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
+        // 백엔드에서 해제 성공(false) 응답이 왔을 때 UI 업데이트 // 즉시 업뎃해서 자연스럽게 사라지게함
         if (res.data.success && res.data.isBookmarked === false) {
           setBookmarks(prev => prev.filter(b => b.slang_id !== slangId));
 
+          // 성공 토스트 알림
           const Toast = Swal.mixin({
             toast: true,
             position: 'top-end',
@@ -91,6 +96,7 @@ export default function Bookmark() {
             background: '#ffffff',
             iconColor: G.accent,
           });
+          console.log("북마크 해제 완료");
         }
       } catch (err) {
         console.error("해제 실패:", err);
@@ -147,6 +153,7 @@ export default function Bookmark() {
             />
           </div>
 
+          {/* 북마크 내역 로딩(서버 느릴때 ..)*/}
           {loading ? (
             <div style={{ textAlign: "center", padding: "100px 0", color: G.gray }}>
                <p>북마크를 불러오고 있어요... 📥</p>
@@ -195,6 +202,7 @@ export default function Bookmark() {
                 ))}
               </div>
 
+              {/* 데이터가 없을 때 처리 */}
               {filtered.length === 0 && (
                 <div style={{ textAlign: "center", padding: "80px 0", color: G.gray }}>
                   <div style={{ fontSize: 48, marginBottom: 16 }}>🔍</div>

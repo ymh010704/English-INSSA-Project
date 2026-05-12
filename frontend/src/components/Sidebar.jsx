@@ -6,13 +6,13 @@ import G from "../constants/colors";
 const menus = [
   { id: "home",         icon: "🏠", label: "홈",         path: "/dashboard" },
   { id: "bookmark",     icon: "⭐", label: "북마크",      path: "/bookmark" },
-  { id: "today",         icon: "🃏", label: "오늘의 학습", path: "/learning-intro" },
-  { id: "practice",     icon: "✍️", label: "연습",         path: "/practice" },
-  { id: "conversation", icon: "💬", label: "회화 학습",    path: "/conversation" },
-  { id: "community",     icon: "🌐", label: "커뮤니티",    path: "/community" },
+  { id: "today",        icon: "🃏", label: "오늘의 학습", path: "/learning-intro" },
+  { id: "practice",     icon: "✍️", label: "연습",        path: "/practice" },
+  { id: "conversation", icon: "💬", label: "회화 학습",   path: "/conversation" },
+  { id: "community",    icon: "🌐", label: "커뮤니티",    path: "/community" },
   { id: "ai",           icon: "🤖", label: "AI 회화",     path: "/ai-chat" },
-  { id: "review",       icon: "🔁", label: "복습",         path: "/review" },
-  { id: "progress",     icon: "📊", label: "진도 관리",    path: "/progress" },
+  { id: "review",       icon: "🔁", label: "복습",        path: "/review" },
+  { id: "progress",     icon: "📊", label: "진도 관리",   path: "/progress" },
 ];
 
 export default function Sidebar() {
@@ -20,28 +20,38 @@ export default function Sidebar() {
   const location = useLocation();
   const [user, setUser] = useState({ name: "인싸", nickname: "인" });
 
+  // 화면에 뿌려줄 메뉴 상태 (기본값은 위에 상수로 정의한 menus해놈)
+  const [displayMenus, setDisplayMenus] = useState(menus);
+
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
-    
+    // 로그인 여부 체크: 정보가 없으면 로그인 페이지로 튕기기
     if (!savedUser) {
       navigate("/login");
       return;
     }
-
     try {
       const parsedUser = JSON.parse(savedUser);
       setUser({
         name: parsedUser.nickname || parsedUser.name || "인싸",
-        nickname: (parsedUser.nickname || parsedUser.name || "경").substring(0, 1),
+        nickname: (parsedUser.nickname || parsedUser.name || "인").substring(0, 1),
       });
+
+      // 관리자 권한 확인하고 관리자 탭 추가 <<
+      if (parsedUser.role === 1) {
+        setDisplayMenus([
+          ...menus,
+          { id: "admin", icon: "👑", label: "관리자 페이지", path: "/admin", isAdmin: true}
+        ]);
+        console.log("Admin 계정 로그인 완료 / 사이드바에 관리자 탭 추가");
+      }
     } catch (e) {
       console.error("유저 정보 파싱 에러:", e);
     }
   }, [navigate]);
 
-  const active = menus.find(m => location.pathname === m.path)?.id ?? "";
-
-  // 로그아웃 
+  const active = displayMenus.find(m => location.pathname === m.path)?.id ?? "";
+  // 로그아웃 함수
   const handleLogout = () => {
     Swal.fire({
       title: "로그아웃 하시겠어요?",
@@ -78,7 +88,7 @@ export default function Sidebar() {
       </div>
 
       <nav style={{ display: "flex", flexDirection: "column", gap: 4, flex: 1 }}>
-        {menus.map(m => (
+        {displayMenus.map(m => (
           <button key={m.id} onClick={() => navigate(m.path)} style={{
             display: "flex", alignItems: "center", gap: 12,
             padding: "12px 14px", borderRadius: 12,
