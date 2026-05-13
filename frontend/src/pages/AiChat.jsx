@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import G from "../constants/colors";
 import PageHeader from "../components/PageHeader";
 import Button from "../components/Button";
+import RemyAvatar from "../components/RemyAvatar";
 
 const SCENARIOS = [
   { id: "cafe",    emoji: "☕", label: "카페에서",     desc: "친구랑 카페 얘기",      color: "#92400e", bg: "#fef3c7" },
@@ -129,6 +130,61 @@ function SummaryScreen({ messages, scenario, onBack }) {
   );
 }
 
+// ── 음성 유틸 (나중에 외부 API로 교체 시 이 함수만 수정) ──
+function speakEnglish(text, onStart, onEnd) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = "en-US";
+  utter.rate = 0.9;
+  utter.pitch = 1;
+  const voices = window.speechSynthesis.getVoices();
+  const enVoice =
+    voices.find(v => v.lang.startsWith("en") && v.name.includes("Male")) ||
+    voices.find(v => v.lang.startsWith("en") && v.name.includes("David")) ||
+    voices.find(v => v.lang.startsWith("en") && v.name.includes("Mark")) ||
+    voices.find(v => v.lang === "en-US");
+  if (enVoice) utter.voice = enVoice;
+  // 크롬 버그: 15초 후 자동 중단 → 10초마다 pause/resume으로 방지
+  const keepAlive = setInterval(() => {
+    if (window.speechSynthesis.speaking) {
+      window.speechSynthesis.pause();
+      window.speechSynthesis.resume();
+    } else {
+      clearInterval(keepAlive);
+    }
+  }, 10000);
+
+  utter.onstart = onStart;
+  utter.onend = () => { clearInterval(keepAlive); onEnd(); };
+  utter.onerror = () => { clearInterval(keepAlive); onEnd(); };
+  window.speechSynthesis.speak(utter);
+}
+
+function stopSpeaking() {
+  window.speechSynthesis?.cancel();
+}
+
+function createSTT(onResult, onEnd) {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return null;
+  const r = new SR();
+  r.lang = "en-US";
+  r.continuous = false;
+  r.interimResults = true;
+  r.onresult = (e) => {
+    const text = Array.from(e.results).map(x => x[0].transcript).join("");
+    onResult(text, e.results[e.results.length - 1].isFinal);
+  };
+  r.onend = onEnd;
+  r.onerror = onEnd;
+  return r;
+}
+
+function extractSpeakText(text) {
+  return text.replace(/\[💡 Tip: .+?\]/s, "").replace(/\[KR: .+?\]/s, "").trim();
+}
+
 /* ── 메인 채팅 화면 ── */
 export default function AiChat() {
   const [scenario, setScenario] = useState(null);
@@ -136,11 +192,46 @@ export default function AiChat() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
+  const [showKr, setShowKr] = useState({});
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef(null);
   const bottomRef = useRef(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // AI 메시지 도착 시 자동 TTS
+  useEffect(() => {
+    const last = messages[messages.length - 1];
+    if (last?.role === "assistant") {
+      const text = extractSpeakText(last.content);
+      speakEnglish(text, () => setIsSpeaking(true), () => setIsSpeaking(false));
+    }
+  }, [messages]);
+
+  function replayTTS(content) {
+    const text = extractSpeakText(content);
+    speakEnglish(text, () => setIsSpeaking(true), () => setIsSpeaking(false));
+  }
+
+  function toggleListening() {
+    if (isListening) {
+      recognitionRef.current?.stop();
+      return;
+    }
+    stopSpeaking();
+    setIsSpeaking(false);
+    const r = createSTT(
+      (text, isFinal) => { setInput(text); if (isFinal) recognitionRef.current?.stop(); },
+      () => setIsListening(false)
+    );
+    if (!r) { alert("이 브라우저는 음성 인식을 지원하지 않아요. Chrome을 사용해주세요."); return; }
+    recognitionRef.current = r;
+    r.start();
+    setIsListening(true);
+  }
 
   async function startChat(s) {
     setScenario(s);
@@ -177,6 +268,8 @@ export default function AiChat() {
 
   async function send() {
     if (!input.trim() || loading) return;
+    stopSpeaking();
+    setIsSpeaking(false);
     const userMsg = { role: "user", content: input.trim() };
     const newMessages = [...messages, userMsg];
     setMessages(newMessages);
@@ -192,9 +285,13 @@ export default function AiChat() {
   if (done) return <SummaryScreen messages={messages} scenario={scenario} onBack={() => { setScenario(null); setMessages([]); setDone(false); }} />;
 
   function parseMessage(text) {
-    const tipMatch = text.match(/\[💡 Tip: (.+?)\]/);
-    const cleanText = text.replace(/\[💡 Tip: .+?\]/, "").trim();
-    return { cleanText, tip: tipMatch?.[1] };
+    const tipMatch = text.match(/\[💡 Tip: (.+?)\]/s);
+    const krMatch = text.match(/\[KR: (.+?)\]/s);
+    const cleanText = text
+      .replace(/\[💡 Tip: .+?\]/s, "")
+      .replace(/\[KR: .+?\]/s, "")
+      .trim();
+    return { cleanText, tip: tipMatch?.[1], kr: krMatch?.[1] };
   }
 
   return (
@@ -210,9 +307,9 @@ export default function AiChat() {
       </div>
 
       <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
-        <div style={{ width: 300, flexShrink: 0, background: "rgba(0,0,0,0.2)", borderRight: "1px solid rgba(255,255,255,0.06)", display: "flex", flexDirection: "column" }}>
-          <div style={{ flex: 1 }}>
-            <Avatar speaking={loading} scenario={scenario.id} />
+        <div style={{ width: 840, flexShrink: 0, background: "rgba(0,0,0,0.2)", borderRight: "1px solid rgba(255,255,255,0.06)", display: "flex", flexDirection: "column" }}>
+          <div style={{ flex: 1, position: "relative" }}>
+            <RemyAvatar speaking={loading || isSpeaking} accentColor={scenario.color} />
           </div>
           <div style={{ padding: "16px 20px", background: "rgba(0,0,0,0.2)", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
             <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", color: "rgba(255,255,255,0.3)", marginBottom: 6 }}>현재 상황</div>
@@ -224,21 +321,59 @@ export default function AiChat() {
           <div style={{ flex: 1, overflowY: "auto", padding: "24px 28px", display: "flex", flexDirection: "column", gap: 16 }}>
             {messages.map((m, i) => {
               const isAI = m.role === "assistant";
-              const { cleanText, tip } = parseMessage(m.content);
+              const { cleanText, tip, kr } = parseMessage(m.content);
               return (
                 <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: isAI ? "flex-start" : "flex-end", gap: 6 }}>
-                  {isAI && <div style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", marginLeft: 4, fontWeight: 600 }}>Alex</div>}
+                  {isAI && (
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginLeft: 4 }}>
+                      <span style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", fontWeight: 600 }}>Alex</span>
+                      <button onClick={() => replayTTS(m.content)} title="다시 듣기" style={{
+                        background: "none", border: "none", cursor: "pointer",
+                        color: "rgba(255,255,255,0.3)", padding: 0, lineHeight: 1,
+                        display: "flex", alignItems: "center",
+                      }}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                          <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                          <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                        </svg>
+                      </button>
+                    </div>
+                  )}
                   <div style={{
                     maxWidth: "75%", padding: "12px 18px",
                     borderRadius: isAI ? "4px 18px 18px 18px" : "18px 18px 4px 18px",
                     background: isAI ? "rgba(255,255,255,0.08)" : G.accent,
                     color: G.white, fontSize: 14, lineHeight: 1.6,
-                    whiteSpace: "pre-wrap", 
+                    whiteSpace: "pre-wrap",
                     wordBreak: "break-word",
                     boxShadow: isAI ? "none" : "0 4px 16px rgba(255,77,0,0.3)",
                   }}>
                     {cleanText}
                   </div>
+                  {isAI && kr && (
+                    <div style={{ maxWidth: "75%", display: "flex", flexDirection: "column", gap: 4 }}>
+                      <button
+                        onClick={() => setShowKr(prev => ({ ...prev, [i]: !prev[i] }))}
+                        style={{
+                          alignSelf: "flex-start", background: "none", border: "none",
+                          cursor: "pointer", fontSize: 11, color: "rgba(255,255,255,0.35)",
+                          padding: "2px 4px", fontFamily: "'Noto Sans KR', sans-serif",
+                        }}
+                      >
+                        {showKr[i] ? "번역 숨기기 ▲" : "번역 보기 ▼"}
+                      </button>
+                      {showKr[i] && (
+                        <div style={{
+                          background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)",
+                          borderRadius: 12, padding: "10px 14px", fontSize: 13,
+                          color: "rgba(255,255,255,0.55)", lineHeight: 1.6,
+                        }}>
+                          {kr}
+                        </div>
+                      )}
+                    </div>
+                  )}
                   {tip && (
                     <div style={{ maxWidth: "75%", display: "flex", gap: 8, background: "rgba(255,204,0,0.1)", border: "1px solid rgba(255,204,0,0.25)", borderRadius: 12, padding: "10px 14px" }}>
                       <span style={{ fontSize: 14, flexShrink: 0 }}>💡</span>
@@ -252,18 +387,40 @@ export default function AiChat() {
           </div>
 
           <div style={{ padding: "16px 24px", borderTop: "1px solid rgba(255,255,255,0.07)", background: "rgba(0,0,0,0.2)", flexShrink: 0 }}>
+            {isListening && (
+              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8, fontSize: 12, color: "#ef4444" }}>
+                <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#ef4444", display: "inline-block", animation: "pulse 1s infinite" }} />
+                음성 인식 중... 영어로 말해보세요
+              </div>
+            )}
             <div style={{ display: "flex", gap: 10, alignItems: "flex-end" }}>
+              <button onClick={toggleListening} title="음성 입력" style={{
+                width: 48, height: 48, borderRadius: 14, border: "none", flexShrink: 0,
+                background: isListening ? "#ef4444" : "rgba(255,255,255,0.1)",
+                color: G.white, cursor: "pointer",
+                boxShadow: isListening ? "0 0 12px rgba(239,68,68,0.5)" : "none",
+                transition: "all 0.2s",
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="9" y="2" width="6" height="12" rx="3" />
+                  <path d="M5 10a7 7 0 0 0 14 0" />
+                  <line x1="12" y1="19" x2="12" y2="22" />
+                  <line x1="9" y1="22" x2="15" y2="22" />
+                </svg>
+              </button>
               <input
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => e.key === "Enter" && !e.shiftKey && send()}
-                placeholder="영어로 입력해보세요... (슬랭 써도 돼요!)"
+                placeholder={isListening ? "음성 인식 중..." : "영어로 입력하거나 마이크 버튼을 눌러보세요"}
                 disabled={loading}
                 style={{
                   flex: 1, padding: "14px 18px", borderRadius: 16,
-                  border: "1px solid rgba(255,255,255,0.1)",
+                  border: `1px solid ${isListening ? "rgba(239,68,68,0.4)" : "rgba(255,255,255,0.1)"}`,
                   background: "rgba(255,255,255,0.06)",
                   color: G.white, fontSize: 14, outline: "none",
+                  transition: "border-color 0.2s",
                 }}
               />
               <button onClick={send} disabled={!input.trim() || loading} style={{

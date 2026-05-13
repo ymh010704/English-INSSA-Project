@@ -32,9 +32,9 @@ export const getTodaySlangs = async () => {
   const todaySeed = new Date().toISOString().slice(0, 10).replace(/-/g, '');
   
   const query = `
-    SELECT slang_id, word, definition_ko, category, emoji
-    FROM slangs 
-    ORDER BY RAND(${todaySeed}) 
+    SELECT slang_id, word, definition_ko
+    FROM slangs
+    ORDER BY RAND(${todaySeed})
     LIMIT 5
   `;
   const [rows] = await pool.execute(query);
@@ -44,13 +44,13 @@ export const getTodaySlangs = async () => {
 // Dashboard에 보일 슬랭 1개 가져오기
 export const getTodayDashboardSlangs = async () => {
   const todaySeed = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-  
+
   const query = `
-    SELECT slang_id, word, definition_ko, category, emoji, example_en, example_ko 
-    FROM slangs 
-    ORDER BY RAND(${todaySeed}) 
+    SELECT slang_id, word, definition_ko, example_en, example_ko
+    FROM slangs
+    ORDER BY RAND(${todaySeed})
     LIMIT 1
-  `; 
+  `;
   const [rows] = await pool.execute(query);
   return rows[0];
 };
