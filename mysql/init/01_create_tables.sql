@@ -7,7 +7,7 @@ SET CHARACTER SET utf8mb4;
 CREATE TABLE users (
   user_id int NOT NULL AUTO_INCREMENT,
   email varchar(100) NOT NULL unique,
-  password varchar(100), /* 원래 NOT NULL 이었는데 소셜 로그인은 NULL 허용해야한다고 함 */
+  password char(100), /* 원래 NOT NULL 이었는데 소셜 로그인은 NULL 허용해야한다고 함 */
   nickname varchar(50) DEFAULT NULL,
   role tinyint(1) DEFAULT '0', /* 어드민 여부 */
   created_at datetime DEFAULT current_timestamp,
@@ -19,12 +19,7 @@ CREATE TABLE users (
 
 /* 초기 유저 데이터 삽입 (비밀번호: 1234) */
 INSERT INTO users (email, password, nickname, role, provider) VALUES
-('kim@google.com', '$2b$10$7vNIm6VlZf3l.uE3Xy5u/.X/g0/nE4jH8kG.U6/wH7p6V6m3G5.Kq', '김민우', 1, 'local'),
-('yun@google.com', '$2b$10$7vNIm6VlZf3l.uE3Xy5u/.X/g0/nE4jH8kG.U6/wH7p6V6m3G5.Kq', '윤민혁', 1, 'local'),
-('doodoo@google.com', '$2b$10$7vNIm6VlZf3l.uE3Xy5u/.X/g0/nE4jH8kG.U6/wH7p6V6m3G5.Kq', '김두현', 1, 'local'),
-('lee@google.com', '$2b$10$7vNIm6VlZf3l.uE3Xy5u/.X/g0/nE4jH8kG.U6/wH7p6V6m3G5.Kq', '이경현', 0, 'local'),
-('che@google.com', '$2b$10$7vNIm6VlZf3l.uE3Xy5u/.X/g0/nE4jH8kG.U6/wH7p6V6m3G5.Kq', '이채영', 0, 'local'),
-('admin@google.com', '$2b$10$7vNIm6VlZf3l.uE3Xy5u/.X/g0/nE4jH8kG.U6/wH7p6V6m3G5.Kq', '관리자', 1, 'local');
+('kim@google.com', '$2b$10$7vNIm6VlZf3l.uE3Xy5u/.X/g0/nE4jH8kG.U6/wH7p6V6m3G5.Kq', '김민우', 1, 'local');
 
 /* 2. 슬랭 테이블 생성 */
 CREATE TABLE slangs (

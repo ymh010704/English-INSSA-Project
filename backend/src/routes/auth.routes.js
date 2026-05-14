@@ -110,7 +110,8 @@ router.get("/google/callback",
       provider: req.user.provider || 'google'
     }));
     // 프론트엔드 로그인 페이지로 토큰과 유저 정보를 들고 리다이렉트
-    res.redirect(`http://localhost/login?token=${token}&user=${user}`);
+    const domainURL = process.env.FRONTBACK_URL || "http://localhost"
+    res.redirect(`${domainURL}/login?token=${token}&user=${user}`);
   }
 );
 
@@ -137,11 +138,13 @@ router.get("/kakao/callback",
 
       console.log(`✅ 로그인 성공: ${req.user.nickname}`);
       // 프론트엔드로 최종 리다이렉트
-      res.redirect(`http://localhost/login?token=${token}&user=${userData}`);
+      const domainURL = process.env.FRONTBACK_URL || "http://localhost"
+      res.redirect(`${domainURL}/login?token=${token}&user=${userData}`);
 
     } catch (err) {
       console.error("🚨 리다이렉트 처리 중 에러:", err.message);
-      res.redirect("http://localhost/login?error=server_error");
+      const domainURL = process.env.FRONTBACK_URL || "http://localhost"
+      res.redirect(`${domainURL}/login?error=server_error"`);
     }
   }
 );

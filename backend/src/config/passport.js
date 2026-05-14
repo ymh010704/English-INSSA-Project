@@ -9,7 +9,7 @@ import { pool } from '../repositories/db.js';
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "http://localhost/api/auth/google/callback"
+    callbackURL: `${process.env.BACKEND_URL}${process.env.GOOGLE_CALLBACK_PATH}`
   },
   async (accessToken, refreshToken, profile, done) => {
     try {
@@ -45,7 +45,7 @@ passport.use(new GoogleStrategy({
 passport.use(new KakaoStrategy({
     clientID: process.env.KAKAO_CLIENT_ID,
     clientSecret: process.env.KAKAO_CLIENT_SECRET, 
-    callbackURL: "http://localhost/api/auth/kakao/callback"
+    callbackURL: `${process.env.BACKEND_URL}${process.env.KAKAO_CALLBACK_PATH}`,
   },
   async (accessToken, refreshToken, profile, done) => {
     console.log("--- 🚀 카카오 인증 프로세스 시작 ---");

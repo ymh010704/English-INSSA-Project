@@ -11,9 +11,10 @@ export default defineConfig({
     host: true, // Docker 컨테이너 외부(브라우저)에서 접속 허용
     strictPort: true,
     port: 5173, // Vite 기본 포트 고정
+    allowedHosts: [process.env.VITE_HMR_HOST || 'localhost'],
     hmr: {
       protocol: 'ws',
-      host: 'localhost',
+      host: process.env.VITE_HMR_HOST || 'localhost',
       clientPort: 80,
     },
     Proxy: {
