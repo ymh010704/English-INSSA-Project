@@ -20,7 +20,7 @@ const Toast = Swal.mixin({
 const inputStyle = {
   width: "100%", padding: "13px 16px", borderRadius: 12,
   border: "1.5px solid #e5e0d8", fontSize: 14, outline: "none",
-  fontFamily: "'Noto Sans KR', sans-serif", background: "#f9f8f5",
+  fontFamily: "'Noto Sans KR', sans-serif", background: "#f3f4f6",
   color: "#0a0a0a", boxSizing: "border-box", transition: "border-color 0.2s",
 };
 
@@ -121,7 +121,7 @@ export default function Login() {
           icon: 'success',
           confirmButtonText: '확인',
           confirmButtonColor: '#ff4d00', // 우리가 정한 G.accent 색상
-          background: '#f9f8f5', // G.light 색상
+          background: '#f3f4f6', // G.light 색상
           borderRadius: '20px',
         });
 

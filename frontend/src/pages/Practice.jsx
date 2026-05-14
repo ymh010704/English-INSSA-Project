@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { PenLine, Trophy, ThumbsUp, Dumbbell, RotateCcw, Home, CheckCircle, XCircle } from "lucide-react";
 import G from "../constants/colors";
 import PageHeader from "../components/PageHeader";
 import Button from "../components/Button";
@@ -58,13 +59,15 @@ const QUESTIONS = [
 function ResultScreen({ score, total, onRetry }) {
   const navigate = useNavigate();
   const pct = Math.round((score / total) * 100);
-  const grade = pct >= 80 ? "완벽해요! 🏆" : pct >= 60 ? "잘했어요! 👍" : "조금 더 연습해요 💪";
+  const grade = pct >= 80 ? "완벽해요!" : pct >= 60 ? "잘했어요!" : "조금 더 연습해요";
 
   return (
     <div style={{ minHeight: "100vh", background: G.navy, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontFamily: "'Noto Sans KR', sans-serif", padding: 40, textAlign: "center", position: "relative", overflow: "hidden" }}>
       <div style={{ position: "absolute", top: "20%", left: "50%", transform: "translateX(-50%)", width: 500, height: 500, background: "radial-gradient(circle, rgba(255,77,0,0.12) 0%, transparent 70%)", pointerEvents: "none" }} />
 
-      <div style={{ fontSize: 72, marginBottom: 20 }}>{pct >= 80 ? "🏆" : pct >= 60 ? "👍" : "💪"}</div>
+      <div style={{ marginBottom: 20 }}>
+        {pct >= 80 ? <Trophy size={72} color={G.accent} strokeWidth={1.4} /> : pct >= 60 ? <ThumbsUp size={72} color={G.green} strokeWidth={1.4} /> : <Dumbbell size={72} color="#94a3b8" strokeWidth={1.4} />}
+      </div>
       <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 12 }}>연습 완료!</div>
       <h1 style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 36, fontWeight: 900, color: G.white, lineHeight: 1.2, letterSpacing: -1, marginBottom: 8 }}>
         {grade}
@@ -85,8 +88,8 @@ function ResultScreen({ score, total, onRetry }) {
       </div>
 
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
-        <Button onClick={onRetry} style={{ padding: "14px 32px" }}>🔁 다시 풀기</Button>
-        <Button variant="secondary" onClick={() => navigate("/dashboard")} style={{ padding: "14px 32px", color: G.white, border: "1.5px solid rgba(255,255,255,0.2)" }}>🏠 대시보드로</Button>
+        <Button onClick={onRetry} style={{ padding: "14px 32px", display: "inline-flex", alignItems: "center", gap: 6 }}><RotateCcw size={14} strokeWidth={2} /> 다시 풀기</Button>
+        <Button variant="secondary" onClick={() => navigate("/dashboard")} style={{ padding: "14px 32px", color: G.white, border: "1.5px solid rgba(255,255,255,0.2)", display: "inline-flex", alignItems: "center", gap: 6 }}><Home size={14} strokeWidth={2} /> 대시보드로</Button>
       </div>
     </div>
   );
@@ -138,10 +141,10 @@ export default function Practice() {
   const canCheck = q.type === "input" ? inputVal.trim().length > 0 : selected !== null;
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f0ede6", fontFamily: "'Noto Sans KR', sans-serif", display: "flex", flexDirection: "column" }}>
+    <div style={{ minHeight: "100vh", background: G.pageBg, fontFamily: "'Noto Sans KR', sans-serif", display: "flex", flexDirection: "column" }}>
 
       <PageHeader
-        title="연습" emoji="✍️"
+        title="연습" icon={PenLine}
         right={<span style={{ fontSize: 13, fontWeight: 700, color: G.gray }}>{index + 1} / {total}</span>}
         noSeparator
       />
@@ -158,7 +161,7 @@ export default function Practice() {
           {/* 문제 유형 뱃지 */}
           <div style={{ marginBottom: 16 }}>
             <span style={{ background: "rgba(255,77,0,0.1)", border: "1px solid rgba(255,77,0,0.2)", color: G.accent, fontSize: 11, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase", padding: "6px 16px", borderRadius: 100 }}>
-              {q.type === "fill" ? "🔤 빈칸 채우기" : q.type === "input" ? "⌨️ 직접 입력" : "🎯 객관식"}
+              {q.type === "fill" ? "빈칸 채우기" : q.type === "input" ? "직접 입력" : "객관식"}
             </span>
           </div>
 
@@ -237,8 +240,8 @@ export default function Practice() {
                     fontFamily: "'Noto Sans KR', sans-serif", textAlign: "left",
                     transition: "all 0.2s", display: "flex", alignItems: "center", gap: 10,
                   }}>
-                    {checked && opt === q.answer && <span>✅</span>}
-                    {checked && opt === selected && opt !== q.answer && <span>❌</span>}
+                    {checked && opt === q.answer && <CheckCircle size={15} color={G.green} strokeWidth={2.5} />}
+                    {checked && opt === selected && opt !== q.answer && <XCircle size={15} color={G.red} strokeWidth={2.5} />}
                     {opt}
                   </button>
                 );
@@ -250,7 +253,10 @@ export default function Practice() {
           {checked && (
             <div style={{ background: isCorrect ? "#f0fdf4" : "#fef2f2", border: `1px solid ${isCorrect ? "#86efac" : "#fca5a5"}`, borderRadius: 16, padding: "16px 20px", marginBottom: 20 }}>
               <div style={{ fontSize: 15, fontWeight: 700, color: isCorrect ? G.green : G.red, marginBottom: 6 }}>
-                {isCorrect ? "✅ 정답이에요!" : "❌ 틀렸어요!"}
+                <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  {isCorrect ? <CheckCircle size={15} color={G.green} strokeWidth={2.5} /> : <XCircle size={15} color={G.red} strokeWidth={2.5} />}
+                  {isCorrect ? "정답이에요!" : "틀렸어요!"}
+                </span>
               </div>
               <div style={{ fontSize: 13, color: "#374151", lineHeight: 1.7 }}>{q.explanation}</div>
             </div>
@@ -261,7 +267,9 @@ export default function Practice() {
             {!checked ? (
               <Button onClick={check} disabled={!canCheck} style={{ flex: 1, borderRadius: 20, padding: "18px", fontSize: 15, ...(!canCheck && { background: "#e5e0d8", color: G.gray, boxShadow: "none", opacity: 1 }) }}>정답 확인</Button>
             ) : (
-              <Button onClick={next} style={{ flex: 1, borderRadius: 20, padding: "18px", fontSize: 15, background: G.black, boxShadow: "0 8px 24px rgba(0,0,0,0.2)" }}>{index + 1 >= total ? "결과 보기 🏆" : "다음 문제 →"}</Button>
+              <Button onClick={next} style={{ flex: 1, borderRadius: 20, padding: "18px", fontSize: 15, background: G.black, boxShadow: "0 8px 24px rgba(0,0,0,0.2)", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+                {index + 1 >= total ? <><Trophy size={15} strokeWidth={2} /> 결과 보기</> : "다음 문제 →"}
+              </Button>
             )}
           </div>
 

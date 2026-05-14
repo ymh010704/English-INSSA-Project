@@ -1,16 +1,17 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Flame, BookOpen, Zap, Moon, Trophy, Crown, Star, Gem, Bot, Sprout, TrendingUp, Award, Smartphone, MessageSquare, ThumbsUp, MinusCircle, Sparkles, Heart, CheckCircle, Timer, BarChart2, Calendar, Lock } from "lucide-react";
 import G from "../constants/colors";
 import PageHeader from "../components/PageHeader";
 
 // 티어 정의
 const TIERS = [
-  { name: "Newbie",       min: 0,    max: 200,  color: "#94a3b8", emoji: "🌱" },
-  { name: "Beginner",     min: 200,  max: 500,  color: "#22c55e", emoji: "🌿" },
-  { name: "Intermediate", min: 500,  max: 1000, color: "#3b82f6", emoji: "💧" },
-  { name: "Advanced",     min: 1000, max: 2000, color: "#8b5cf6", emoji: "⚡" },
-  { name: "Expert",       min: 2000, max: 4000, color: "#f59e0b", emoji: "🔥" },
-  { name: "Native-Like",  min: 4000, max: 9999, color: "#ff4d00", emoji: "👑" },
+  { name: "입문",     min: 0,    max: 200,  color: "#94a3b8", icon: Sprout     },
+  { name: "초보",     min: 200,  max: 500,  color: "#22c55e", icon: BookOpen   },
+  { name: "중급",     min: 500,  max: 1000, color: "#3b82f6", icon: TrendingUp },
+  { name: "고급",     min: 1000, max: 2000, color: "#8b5cf6", icon: Zap        },
+  { name: "전문가",   min: 2000, max: 4000, color: "#f59e0b", icon: Award      },
+  { name: "원어민급", min: 4000, max: 9999, color: "#ff4d00", icon: Crown      },
 ];
 
 const XP = 1240;
@@ -26,24 +27,24 @@ const WEEKLY = [
 ];
 
 const CATEGORIES = [
-  { label: "SNS / 일상",   pct: 72, color: G.accent,  icon: "📱", count: 18 },
-  { label: "감탄 / 리액션", pct: 55, color: G.blue,    icon: "😮", count: 11 },
-  { label: "칭찬 / 긍정",  pct: 88, color: G.green,   icon: "🙌", count: 22 },
-  { label: "완곡 / 거절",  pct: 34, color: G.purple,  icon: "🙅", count: 8  },
-  { label: "Gen Z 유행어", pct: 61, color: "#f59e0b",  icon: "✨", count: 15 },
-  { label: "연애 / SNS",   pct: 47, color: "#ec4899",  icon: "💕", count: 12 },
+  { label: "SNS / 일상",   pct: 72, color: G.accent,  icon: Smartphone, count: 18 },
+  { label: "감탄 / 리액션", pct: 55, color: G.blue,    icon: MessageSquare, count: 11 },
+  { label: "칭찬 / 긍정",  pct: 88, color: G.green,   icon: ThumbsUp,   count: 22 },
+  { label: "완곡 / 거절",  pct: 34, color: G.purple,  icon: MinusCircle, count: 8  },
+  { label: "Gen Z 유행어", pct: 61, color: "#f59e0b",  icon: Sparkles,   count: 15 },
+  { label: "연애 / SNS",   pct: 47, color: "#ec4899",  icon: Heart,      count: 12 },
 ];
 
 const BADGES = [
-  { emoji: "🔥", name: "7일 연속",      desc: "7일 연속 학습",        done: true  },
-  { emoji: "📚", name: "첫 10개",       desc: "표현 10개 학습",       done: true  },
-  { emoji: "⚡", name: "스피드 러너",   desc: "하루 10개 학습",       done: true  },
-  { emoji: "🌙", name: "야간 학습",     desc: "밤 11시 이후 학습",    done: true  },
-  { emoji: "🏆", name: "퍼펙트 스코어", desc: "연습 100% 달성",       done: true  },
-  { emoji: "👑", name: "30일 연속",     desc: "30일 연속 학습",       done: false },
-  { emoji: "🔥", name: "올라운더",      desc: "모든 카테고리 50% 이상", done: false },
-  { emoji: "💎", name: "100개 달성",    desc: "표현 100개 학습",      done: false },
-  { emoji: "🤖", name: "AI 마스터",     desc: "AI 대화 50회",         done: false },
+  { icon: Flame,    color: "#f97316", bg: "#fff7ed", name: "7일 연속",      desc: "7일 연속 학습",          done: true  },
+  { icon: BookOpen, color: "#3b82f6", bg: "#eff6ff", name: "첫 10개",       desc: "표현 10개 학습",         done: true  },
+  { icon: Zap,      color: "#eab308", bg: "#fefce8", name: "스피드 러너",   desc: "하루 10개 학습",         done: true  },
+  { icon: Moon,     color: "#8b5cf6", bg: "#f5f3ff", name: "야간 학습",     desc: "밤 11시 이후 학습",      done: true  },
+  { icon: Trophy,   color: "#f59e0b", bg: "#fffbeb", name: "퍼펙트 스코어", desc: "연습 100% 달성",         done: true  },
+  { icon: Crown,    color: "#ff4d00", bg: "#fff5f0", name: "30일 연속",     desc: "30일 연속 학습",         done: false },
+  { icon: Star,     color: "#10b981", bg: "#f0fdf4", name: "올라운더",      desc: "모든 카테고리 50% 이상",  done: false },
+  { icon: Gem,      color: "#06b6d4", bg: "#ecfeff", name: "100개 달성",    desc: "표현 100개 학습",        done: false },
+  { icon: Bot,      color: "#6366f1", bg: "#eef2ff", name: "AI 마스터",     desc: "AI 대화 50회",           done: false },
 ];
 
 // 이번 달 캘린더 데이터 (3월 기준)
@@ -56,11 +57,14 @@ const CALENDAR = {
 };
 
 /* ── 섹션 카드 래퍼 ── */
-function Section({ title, sub, children, style = {} }) {
+function Section({ title, sub, children, style = {}, icon: Icon }) {
   return (
     <div style={{ background: G.white, borderRadius: 24, padding: "28px 30px", border: "1px solid rgba(0,0,0,0.05)", ...style }}>
       <div style={{ marginBottom: 22 }}>
-        <div style={{ fontSize: 15, fontWeight: 700, color: G.black }}>{title}</div>
+        <div style={{ fontSize: 15, fontWeight: 700, color: G.black, display: "flex", alignItems: "center", gap: 6 }}>
+          {Icon && <Icon size={14} color={G.gray} strokeWidth={2} />}
+          {title}
+        </div>
         {sub && <div style={{ fontSize: 12, color: G.gray, marginTop: 3 }}>{sub}</div>}
       </div>
       {children}
@@ -75,10 +79,10 @@ function XpTier() {
   const pct = next ? ((XP - tier.min) / (next.min - tier.min)) * 100 : 100;
 
   return (
-    <Section title="⚡ 경험치 & 티어" sub={`다음 티어까지 ${next ? next.min - XP : 0} XP`}>
+    <Section icon={Zap} title="경험치 & 티어" sub={`다음 티어까지 ${next ? next.min - XP : 0} XP`}>
       <div style={{ display: "flex", alignItems: "center", gap: 20, marginBottom: 20 }}>
-        <div style={{ width: 72, height: 72, borderRadius: 20, background: `${tier.color}18`, border: `2px solid ${tier.color}44`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-          <span style={{ fontSize: 28 }}>{tier.emoji}</span>
+        <div style={{ width: 72, height: 72, borderRadius: 20, background: `${tier.color}18`, border: `2px solid ${tier.color}44`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+          {(() => { const I = tier.icon; return <I size={32} color={tier.color} strokeWidth={1.8} />; })()}
         </div>
         <div style={{ flex: 1 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
@@ -94,12 +98,23 @@ function XpTier() {
         </div>
       </div>
       <div style={{ display: "flex", gap: 8 }}>
-        {TIERS.map((t, i) => (
-          <div key={t.name} style={{ flex: 1, textAlign: "center" }}>
-            <div style={{ fontSize: 18, marginBottom: 3, filter: XP < t.min ? "grayscale(1) opacity(0.3)" : "none" }}>{t.emoji}</div>
-            <div style={{ fontSize: 9, color: XP >= t.min ? t.color : G.gray, fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.name}</div>
-          </div>
-        ))}
+        {TIERS.map(t => {
+          const I = t.icon;
+          const unlocked = XP >= t.min;
+          return (
+            <div key={t.name} style={{ flex: 1, textAlign: "center", opacity: unlocked ? 1 : 0.3 }}>
+              <div style={{
+                width: 36, height: 36, borderRadius: 10, margin: "0 auto 4px",
+                background: unlocked ? `${t.color}18` : G.lightGray,
+                border: `1.5px solid ${unlocked ? t.color + "44" : "#e5e7eb"}`,
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}>
+                <I size={17} color={unlocked ? t.color : "#aaa"} strokeWidth={2} />
+              </div>
+              <div style={{ fontSize: 9, color: unlocked ? t.color : G.gray, fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.name}</div>
+            </div>
+          );
+        })}
       </div>
     </Section>
   );
@@ -110,10 +125,14 @@ function StreakCard() {
   return (
     <div style={{ background: `linear-gradient(145deg, ${G.navy}, #1e3a5f)`, borderRadius: 24, padding: "28px 30px", border: "1px solid rgba(255,255,255,0.06)", position: "relative", overflow: "hidden" }}>
       <div style={{ position: "absolute", top: -30, right: -30, width: 140, height: 140, background: "radial-gradient(circle, rgba(255,77,0,0.2) 0%, transparent 70%)", pointerEvents: "none" }} />
-      <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", marginBottom: 12, fontFamily: "'Noto Sans KR', sans-serif" }}>🔥 연속 학습 스트릭</div>
+      <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", marginBottom: 12, fontFamily: "'Noto Sans KR', sans-serif", display: "flex", alignItems: "center", gap: 5 }}>
+        <Flame size={12} color="rgba(255,255,255,0.4)" strokeWidth={2} /> 연속 학습 스트릭
+      </div>
       <div style={{ display: "flex", alignItems: "flex-end", gap: 12, marginBottom: 16 }}>
         <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 56, fontWeight: 900, color: G.white, lineHeight: 1 }}>{STREAK}</div>
-        <div style={{ fontSize: 18, color: "rgba(255,255,255,0.5)", marginBottom: 8, fontFamily: "'Noto Sans KR', sans-serif" }}>일 연속 🔥</div>
+        <div style={{ fontSize: 18, color: "rgba(255,255,255,0.5)", marginBottom: 8, fontFamily: "'Noto Sans KR', sans-serif", display: "flex", alignItems: "center", gap: 5 }}>
+          일 연속 <Flame size={16} color={G.accent} strokeWidth={2} />
+        </div>
       </div>
       <div style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", fontFamily: "'Noto Sans KR', sans-serif" }}>최장 기록 <span style={{ color: G.accent2, fontWeight: 700 }}>21일</span> · 오늘도 학습하면 <span style={{ color: G.green, fontWeight: 700 }}>15일</span></div>
     </div>
@@ -124,7 +143,7 @@ function StreakCard() {
 function WeeklyChart() {
   const max = Math.max(...WEEKLY.map(d => d.count), 1);
   return (
-    <Section title="📈 주간 학습량" sub="이번 주 일별 학습한 표현 수">
+    <Section icon={TrendingUp} title="주간 학습량" sub="이번 주 일별 학습한 표현 수">
       <div style={{ display: "flex", gap: 8, alignItems: "flex-end", height: 120 }}>
         {WEEKLY.map((d, i) => {
           const isToday = i === 6;
@@ -145,13 +164,14 @@ function WeeklyChart() {
 /* ── 카테고리 숙련도 ── */
 function CategoryChart() {
   return (
-    <Section title="📊 카테고리별 숙련도" sub="카테고리별 학습 완료 비율">
+    <Section icon={BarChart2} title="카테고리별 숙련도" sub="카테고리별 학습 완료 비율">
       <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
         {CATEGORIES.map(c => (
           <div key={c.label}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 500, color: G.black }}>
-                <span>{c.icon}</span>{c.label}
+                {(() => { const I = c.icon; return <I size={14} color={c.color} strokeWidth={2} />; })()}
+                {c.label}
                 <span style={{ fontSize: 11, color: G.gray }}>({c.count}개)</span>
               </div>
               <span style={{ fontSize: 12, fontWeight: 700, color: c.color }}>{c.pct}%</span>
@@ -175,7 +195,7 @@ function MonthlyCalendar() {
   for (let d = 1; d <= days; d++) cells.push(d);
 
   return (
-    <Section title="📅 월간 학습 캘린더" sub={`${year}년 ${month}월 · ${studied.length}일 학습`}>
+    <Section icon={Calendar} title="월간 학습 캘린더" sub={`${year}년 ${month}월 · ${studied.length}일 학습`}>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 4, marginBottom: 6 }}>
         {dayLabels.map(d => (
           <div key={d} style={{ textAlign: "center", fontSize: 10, fontWeight: 700, color: G.gray, padding: "4px 0" }}>{d}</div>
@@ -219,25 +239,37 @@ function BadgeGrid() {
   const locked = BADGES.filter(b => !b.done);
 
   return (
-    <Section title="🏆 달성 뱃지" sub={`${done.length} / ${BADGES.length}개 획득`}>
+    <Section icon={Trophy} title="달성 뱃지" sub={`${done.length} / ${BADGES.length}개 획득`}>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, marginBottom: 16 }}>
-        {done.map(b => (
-          <div key={b.name} style={{ background: "rgba(255,77,0,0.06)", border: "1px solid rgba(255,77,0,0.15)", borderRadius: 16, padding: "16px 12px", textAlign: "center" }}>
-            <div style={{ fontSize: 28, marginBottom: 6 }}>{b.emoji}</div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: G.black, marginBottom: 2 }}>{b.name}</div>
-            <div style={{ fontSize: 10, color: G.gray, lineHeight: 1.4 }}>{b.desc}</div>
-          </div>
-        ))}
+        {done.map(b => {
+          const Icon = b.icon;
+          return (
+            <div key={b.name} style={{ background: b.bg, border: `1px solid ${b.color}22`, borderRadius: 16, padding: "16px 10px", textAlign: "center" }}>
+              <div style={{ width: 46, height: 46, borderRadius: 13, background: `linear-gradient(145deg, ${b.color}, ${b.color}cc)`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 8px", boxShadow: `0 4px 12px ${b.color}44` }}>
+                <Icon size={22} color="#fff" strokeWidth={2} />
+              </div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: G.black, marginBottom: 2 }}>{b.name}</div>
+              <div style={{ fontSize: 10, color: G.gray, lineHeight: 1.4 }}>{b.desc}</div>
+            </div>
+          );
+        })}
       </div>
-      <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", color: G.gray, marginBottom: 10 }}>잠김 🔒</div>
+      <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", color: G.gray, marginBottom: 10, display: "flex", alignItems: "center", gap: 4 }}>
+        잠김 <Lock size={10} strokeWidth={2.5} color={G.gray} />
+      </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
-        {locked.map(b => (
-          <div key={b.name} style={{ background: G.lightGray, border: "1px solid #e5e7eb", borderRadius: 16, padding: "16px 12px", textAlign: "center", opacity: 0.5 }}>
-            <div style={{ fontSize: 28, marginBottom: 6, filter: "grayscale(1)" }}>{b.emoji}</div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: G.gray, marginBottom: 2 }}>{b.name}</div>
-            <div style={{ fontSize: 10, color: G.gray, lineHeight: 1.4 }}>{b.desc}</div>
-          </div>
-        ))}
+        {locked.map(b => {
+          const Icon = b.icon;
+          return (
+            <div key={b.name} style={{ background: G.lightGray, border: "1px solid #e5e7eb", borderRadius: 16, padding: "16px 10px", textAlign: "center", opacity: 0.4 }}>
+              <div style={{ width: 46, height: 46, borderRadius: 13, background: "#d1d5db", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 8px" }}>
+                <Icon size={22} color="#fff" strokeWidth={2} />
+              </div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: G.gray, marginBottom: 2 }}>{b.name}</div>
+              <div style={{ fontSize: 10, color: G.gray, lineHeight: 1.4 }}>{b.desc}</div>
+            </div>
+          );
+        })}
       </div>
     </Section>
   );
@@ -248,9 +280,9 @@ export default function Progress() {
   const navigate = useNavigate();
 
   return (
-    <div style={{ minHeight: "100vh", fontFamily: "'Noto Sans KR', sans-serif" }}>
+    <div style={{ minHeight: "100vh", fontFamily: "'Noto Sans KR', sans-serif", background: G.pageBg }}>
 
-      <PageHeader title="진도 관리" emoji="📊" />
+      <PageHeader title="진도 관리" icon={BarChart2} />
 
       {/* 메인 그리드 */}
       <div style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 24px", display: "flex", flexDirection: "column", gap: 20 }}>
@@ -258,17 +290,21 @@ export default function Progress() {
         {/* 상단 요약 */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
           {[
-            { icon: "📚", label: "총 학습 표현", value: "48개", color: G.accent },
-            { icon: "✅", label: "완료한 카드", value: "36개", color: G.green },
-            { icon: "🔥", label: "연속 학습일", value: "14일", color: G.blue },
-            { icon: "⏱️", label: "총 학습 시간", value: "4.2h", color: G.purple },
-          ].map(s => (
+            { icon: BookOpen,     label: "총 학습 표현", value: "48개",  color: G.accent },
+            { icon: CheckCircle,  label: "완료한 카드", value: "36개",  color: G.green  },
+            { icon: Flame,        label: "연속 학습일", value: "14일",  color: G.blue   },
+            { icon: Timer,        label: "총 학습 시간", value: "4.2h", color: G.purple },
+          ].map(s => {
+            const Icon = s.icon;
+            return (
             <div key={s.label} style={{ background: G.white, borderRadius: 20, padding: "22px 24px", border: "1px solid rgba(0,0,0,0.05)" }}>
-              <div style={{ width: 42, height: 42, borderRadius: 12, background: `${s.color}15`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, marginBottom: 12 }}>{s.icon}</div>
+              <div style={{ width: 42, height: 42, borderRadius: 12, background: `${s.color}15`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 12 }}>
+                <Icon size={20} color={s.color} strokeWidth={1.8} />
+              </div>
               <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 24, fontWeight: 900, color: G.black, lineHeight: 1, marginBottom: 4 }}>{s.value}</div>
               <div style={{ fontSize: 12, color: G.gray }}>{s.label}</div>
             </div>
-          ))}
+          );})}
         </div>
 
         {/* 스트릭 + XP */}

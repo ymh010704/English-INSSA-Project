@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Globe, PlusCircle, MessageSquare, Flame, Trophy, Medal, CircleUser, PenLine, PartyPopper, CheckCircle, Clock, XCircle, Search } from "lucide-react";
 import G from "../constants/colors";
 import PageHeader from "../components/PageHeader";
 import Button from "../components/Button";
@@ -93,12 +94,12 @@ function SubmitModal({ onClose, onSubmit }) {
     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}
       onClick={onClose}>
       <div onClick={e => e.stopPropagation()} style={{ background: G.white, borderRadius: 28, padding: "32px", width: "100%", maxWidth: 480, boxShadow: "0 24px 60px rgba(0,0,0,0.2)", maxHeight: "90vh", overflowY: "auto" }}>
-        <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 18, fontWeight: 900, color: G.black, marginBottom: 6 }}>📝 슬랭 제보하기</div>
+        <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 18, fontWeight: 900, color: G.black, marginBottom: 6, display: "flex", alignItems: "center", gap: 8 }}><PenLine size={16} color={G.black} strokeWidth={2} /> 슬랭 제보하기</div>
         <div style={{ fontSize: 13, color: G.gray, marginBottom: 24 }}>알고 있는 새로운 슬랭을 공유해주세요!</div>
 
         {done ? (
           <div style={{ textAlign: "center", padding: "32px 0" }}>
-            <div style={{ fontSize: 48, marginBottom: 12 }}>🎉</div>
+            <div style={{ marginBottom: 12, display: "flex", justifyContent: "center" }}><PartyPopper size={48} color={G.accent} strokeWidth={1.4} /></div>
             <div style={{ fontWeight: 700, fontSize: 16, color: G.black }}>제보해주셔서 감사해요!</div>
             <div style={{ fontSize: 13, color: G.gray, marginTop: 6 }}>검수 후 등록될 예정이에요</div>
           </div>
@@ -150,7 +151,7 @@ function PostCard({ post, onLike, onVote, onComment }) {
       {/* 헤더 */}
       <div style={{ padding: "20px 24px 0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 38, height: 38, borderRadius: "50%", background: G.lightGray, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>{post.avatar}</div>
+          <div style={{ width: 38, height: 38, borderRadius: "50%", background: G.lightGray, display: "flex", alignItems: "center", justifyContent: "center" }}><CircleUser size={20} color="#94a3b8" strokeWidth={1.6} /></div>
           <div>
             <div style={{ fontSize: 13, fontWeight: 700, color: G.black }}>{post.user}</div>
             <div style={{ fontSize: 11, color: G.gray }}>{post.time}</div>
@@ -158,7 +159,10 @@ function PostCard({ post, onLike, onVote, onComment }) {
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <span style={{ fontSize: 10, fontWeight: 700, background: post.status === "verified" ? "#d1fae5" : "#fef3c7", color: post.status === "verified" ? G.green : "#92400e", padding: "4px 10px", borderRadius: 100 }}>
-            {post.status === "verified" ? "✅ 검수완료" : "⏳ 검수중"}
+            {post.status === "verified"
+              ? <span style={{ display: "flex", alignItems: "center", gap: 3 }}><CheckCircle size={9} strokeWidth={2.5} /> 검수완료</span>
+              : <span style={{ display: "flex", alignItems: "center", gap: 3 }}><Clock size={9} strokeWidth={2.5} /> 검수중</span>
+            }
           </span>
           <span style={{ fontSize: 10, fontWeight: 700, background: "rgba(255,77,0,0.08)", color: G.accent, padding: "4px 10px", borderRadius: 100 }}>{post.category}</span>
         </div>
@@ -180,11 +184,11 @@ function PostCard({ post, onLike, onVote, onComment }) {
       <div style={{ padding: "14px 24px 0" }}>
         <div style={{ fontSize: 11, fontWeight: 700, color: G.gray, marginBottom: 8, letterSpacing: 1 }}>실제로 쓰이는 표현인가요?</div>
         <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
-          <button onClick={() => onVote(post.id, "correct")} style={{ flex: 1, padding: "9px", borderRadius: 10, border: "none", background: "#d1fae5", color: G.green, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif" }}>
-            ✅ 맞아요 {post.correct}
+          <button onClick={() => onVote(post.id, "correct")} style={{ flex: 1, padding: "9px", borderRadius: 10, border: "none", background: "#d1fae5", color: G.green, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif", display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
+            <CheckCircle size={13} strokeWidth={2.5} /> 맞아요 {post.correct}
           </button>
-          <button onClick={() => onVote(post.id, "wrong")} style={{ flex: 1, padding: "9px", borderRadius: 10, border: "none", background: "#fef2f2", color: "#ef4444", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif" }}>
-            ❌ 틀려요 {post.wrong}
+          <button onClick={() => onVote(post.id, "wrong")} style={{ flex: 1, padding: "9px", borderRadius: 10, border: "none", background: "#fef2f2", color: "#ef4444", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif", display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
+            <XCircle size={13} strokeWidth={2.5} /> 틀려요 {post.wrong}
           </button>
         </div>
         <div style={{ height: 6, background: G.lightGray, borderRadius: 100, overflow: "hidden", marginBottom: 4 }}>
@@ -210,7 +214,7 @@ function PostCard({ post, onLike, onVote, onComment }) {
           color: G.gray, fontSize: 13, fontWeight: 700,
           cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif",
         }}>
-          💬 댓글 {post.comments.length}
+          <MessageSquare size={13} strokeWidth={2} /> 댓글 {post.comments.length}
         </button>
       </div>
 
@@ -221,7 +225,7 @@ function PostCard({ post, onLike, onVote, onComment }) {
             <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 14 }}>
               {post.comments.map(c => (
                 <div key={c.id} style={{ display: "flex", gap: 10 }}>
-                  <div style={{ width: 32, height: 32, borderRadius: "50%", background: G.lightGray, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, flexShrink: 0 }}>{c.avatar}</div>
+                  <div style={{ width: 32, height: 32, borderRadius: "50%", background: G.lightGray, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><CircleUser size={16} color="#94a3b8" strokeWidth={1.6} /></div>
                   <div style={{ flex: 1, background: G.lightGray, borderRadius: 14, padding: "10px 14px" }}>
                     <div style={{ fontSize: 11, fontWeight: 700, color: G.black, marginBottom: 3 }}>{c.user}</div>
                     <div style={{ fontSize: 13, color: G.black, lineHeight: 1.5 }}>{c.text}</div>
@@ -230,7 +234,7 @@ function PostCard({ post, onLike, onVote, onComment }) {
               ))}
             </div>
           ) : (
-            <div style={{ fontSize: 13, color: G.gray, textAlign: "center", marginBottom: 14 }}>첫 댓글을 남겨보세요! 💬</div>
+            <div style={{ fontSize: 13, color: G.gray, textAlign: "center", marginBottom: 14 }}>첫 댓글을 남겨보세요!</div>
           )}
           <div style={{ display: "flex", gap: 8 }}>
             <input value={newComment} onChange={e => setNewComment(e.target.value)} onKeyDown={e => { if (e.key === "Enter" && newComment.trim()) { onComment(post.id, newComment); setNewComment(""); }}}
@@ -306,11 +310,11 @@ function WriteBoardModal({ onClose, onSubmit }) {
     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}
       onClick={onClose}>
       <div onClick={e => e.stopPropagation()} style={{ background: G.white, borderRadius: 28, padding: "32px", width: "100%", maxWidth: 480, boxShadow: "0 24px 60px rgba(0,0,0,0.2)" }}>
-        <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 18, fontWeight: 900, color: G.black, marginBottom: 6 }}>✏️ 글쓰기</div>
+        <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 18, fontWeight: 900, color: G.black, marginBottom: 6, display: "flex", alignItems: "center", gap: 8 }}><PenLine size={16} color={G.black} strokeWidth={2} /> 글쓰기</div>
         <div style={{ fontSize: 13, color: G.gray, marginBottom: 24 }}>자유롭게 질문하거나 경험을 공유해보세요!</div>
         {done ? (
           <div style={{ textAlign: "center", padding: "32px 0" }}>
-            <div style={{ fontSize: 48, marginBottom: 12 }}>🎉</div>
+            <div style={{ marginBottom: 12, display: "flex", justifyContent: "center" }}><PartyPopper size={48} color={G.accent} strokeWidth={1.4} /></div>
             <div style={{ fontWeight: 700, fontSize: 16 }}>게시됐어요!</div>
           </div>
         ) : (
@@ -362,7 +366,7 @@ function BoardCard({ post, onLike, onComment }) {
       <div style={{ padding: "20px 24px" }}>
         {/* 헤더 */}
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
-          <div style={{ width: 36, height: 36, borderRadius: "50%", background: G.lightGray, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>{post.avatar}</div>
+          <div style={{ width: 36, height: 36, borderRadius: "50%", background: G.lightGray, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><CircleUser size={18} color="#94a3b8" strokeWidth={1.6} /></div>
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: G.black }}>{post.user}</div>
             <div style={{ fontSize: 11, color: G.gray }}>{post.time}</div>
@@ -379,7 +383,7 @@ function BoardCard({ post, onLike, onComment }) {
           {post.liked ? "❤️" : "🤍"} {post.likes}
         </button>
         <button onClick={() => setShowComments(!showComments)} style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 100, border: "1.5px solid #e5e0d8", background: G.white, color: G.gray, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif" }}>
-          💬 댓글 {post.comments.length}
+          <MessageSquare size={13} strokeWidth={2} /> 댓글 {post.comments.length}
         </button>
       </div>
       {/* 댓글 */}
@@ -389,7 +393,7 @@ function BoardCard({ post, onLike, onComment }) {
             <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 14 }}>
               {post.comments.map(c => (
                 <div key={c.id} style={{ display: "flex", gap: 10 }}>
-                  <div style={{ width: 30, height: 30, borderRadius: "50%", background: G.lightGray, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, flexShrink: 0 }}>{c.avatar}</div>
+                  <div style={{ width: 30, height: 30, borderRadius: "50%", background: G.lightGray, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><CircleUser size={15} color="#94a3b8" strokeWidth={1.6} /></div>
                   <div style={{ flex: 1, background: G.lightGray, borderRadius: 12, padding: "10px 14px" }}>
                     <div style={{ fontSize: 11, fontWeight: 700, color: G.black, marginBottom: 3 }}>{c.user}</div>
                     <div style={{ fontSize: 13, color: G.black, lineHeight: 1.5 }}>{c.text}</div>
@@ -398,7 +402,7 @@ function BoardCard({ post, onLike, onComment }) {
               ))}
             </div>
           ) : (
-            <div style={{ fontSize: 13, color: G.gray, textAlign: "center", marginBottom: 14 }}>첫 댓글을 남겨보세요! 💬</div>
+            <div style={{ fontSize: 13, color: G.gray, textAlign: "center", marginBottom: 14 }}>첫 댓글을 남겨보세요!</div>
           )}
           <div style={{ display: "flex", gap: 8 }}>
             <input value={newComment} onChange={e => setNewComment(e.target.value)}
@@ -418,9 +422,9 @@ function BoardCard({ post, onLike, onComment }) {
 
 /* ── 메인 ── */
 const TABS = [
-  { id: "feed", label: "슬랭 제보", emoji: "🆕" },
-  { id: "board", label: "자유게시판", emoji: "💬" },
-  { id: "hot", label: "이번 주 핫", emoji: "🔥" },
+  { id: "feed",  label: "슬랭 제보",  icon: PlusCircle    },
+  { id: "board", label: "자유게시판", icon: MessageSquare  },
+  { id: "hot",   label: "이번 주 핫", icon: Flame          },
 ];
 
 export default function Community() {
@@ -436,10 +440,10 @@ export default function Community() {
     setBoardPosts(prev => prev.map(p => p.id === id ? { ...p, liked: !p.liked, likes: p.liked ? p.likes - 1 : p.likes + 1 } : p));
   }
   function handleBoardComment(id, text) {
-    setBoardPosts(prev => prev.map(p => p.id === id ? { ...p, comments: [...p.comments, { id: Date.now(), user: "이경현", avatar: "🙋", text, likes: 0 }] } : p));
+    setBoardPosts(prev => prev.map(p => p.id === id ? { ...p, comments: [...p.comments, { id: Date.now(), user: "이경현", avatar: null, text, likes: 0 }] } : p));
   }
   function handleBoardWrite(data) {
-    const newPost = { id: Date.now(), user: "이경현", avatar: "🙋", time: "방금", ...data, likes: 0, liked: false, comments: [] };
+    const newPost = { id: Date.now(), user: "이경현", avatar: null, time: "방금", ...data, likes: 0, liked: false, comments: [] };
     setBoardPosts(prev => [newPost, ...prev]);
   }
 
@@ -456,13 +460,13 @@ export default function Community() {
   function handleComment(id, text) {
     setPosts(prev => prev.map(p => p.id === id ? {
       ...p,
-      comments: [...p.comments, { id: Date.now(), user: "이경현", avatar: "🙋", text, likes: 0 }]
+      comments: [...p.comments, { id: Date.now(), user: "이경현", avatar: null, text, likes: 0 }]
     } : p));
   }
 
   function handleSubmit(data) {
     const newPost = {
-      id: Date.now(), user: "이경현", avatar: "🙋", time: "방금",
+      id: Date.now(), user: "이경현", avatar: null, time: "방금",
       ...data, likes: 0, liked: false,
       correct: 0, wrong: 0, comments: [], status: "pending",
     };
@@ -470,13 +474,13 @@ export default function Community() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", fontFamily: "'Noto Sans KR', sans-serif" }}>
+    <div style={{ height: "100vh", overflow: "hidden", display: "flex", flexDirection: "column", fontFamily: "'Noto Sans KR', sans-serif", background: G.pageBg }}>
 
       <PageHeader
-        title="커뮤니티" emoji="🌐"
+        title="커뮤니티" icon={Globe}
         right={
           tab === "feed" ? <Button onClick={() => setShowSubmit(true)} size="sm">+ 제보하기</Button>
-          : tab === "board" ? <Button onClick={() => setShowWrite(true)} size="sm">✏️ 글쓰기</Button>
+          : tab === "board" ? <Button onClick={() => setShowWrite(true)} size="sm" style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><PenLine size={13} strokeWidth={2} /> 글쓰기</Button>
           : null
         }
       />
@@ -490,17 +494,17 @@ export default function Community() {
             color: tab === t.id ? G.accent : G.gray,
             borderBottom: `2.5px solid ${tab === t.id ? G.accent : "transparent"}`,
             fontFamily: "'Noto Sans KR', sans-serif", transition: "all 0.15s",
-          }}>{t.emoji} {t.label}</button>
+          }}>{(() => { const I = t.icon; return <I size={13} strokeWidth={2} style={{ display: "inline", verticalAlign: "middle", marginRight: 5 }} />; })()} {t.label}</button>
         ))}
       </div>
 
-      <div style={{ maxWidth: 720, margin: "0 auto", padding: "28px 24px" }}>
+      <div style={{ flex: 1, overflowY: "auto", padding: "20px 20px 40px" }}>
 
         {/* 🔥 핫 랭킹 */}
         {tab === "hot" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10, maxWidth: 640, margin: "0 auto" }}>
             <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 18, fontWeight: 900, color: G.black, marginBottom: 8 }}>
-              🔥 이번 주 핫한 슬랭
+              <span style={{ display: "flex", alignItems: "center", gap: 8 }}><Flame size={16} color={G.accent} strokeWidth={2} /> 이번 주 핫한 슬랭</span>
             </div>
             {HOT_RANKING.map((r, i) => (
               <div key={r.rank} style={{
@@ -509,7 +513,12 @@ export default function Community() {
                 display: "flex", alignItems: "center", gap: 16,
                 border: "1px solid rgba(0,0,0,0.05)", boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
               }}>
-                <div style={{ fontSize: 24, flexShrink: 0 }}>{r.emoji}</div>
+                <div style={{ width: 32, height: 32, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  {r.rank === 1 ? <Trophy size={24} color="#f59e0b" strokeWidth={1.8} />
+                  : r.rank === 2 ? <Medal size={24} color="#94a3b8" strokeWidth={1.8} />
+                  : r.rank === 3 ? <Medal size={24} color="#cd7c2f" strokeWidth={1.8} />
+                  : <span style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 14, fontWeight: 900, color: i === 0 ? "rgba(255,255,255,0.5)" : G.gray }}>{r.rank}</span>}
+                </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 16, fontWeight: 900, color: i === 0 ? G.white : G.black }}>{r.word}</div>
                   <div style={{ fontSize: 12, color: i === 0 ? "rgba(255,255,255,0.5)" : G.gray, marginTop: 2 }}>{r.meaning}</div>
@@ -523,11 +532,10 @@ export default function Community() {
           </div>
         )}
 
-        {/* 📰 피드 */}
+        {/* 📰 슬랭 제보 피드 */}
         {tab === "feed" && (
           <>
-            {/* 카테고리 필터 */}
-            <div style={{ display: "flex", gap: 8, marginBottom: 20, overflowX: "auto", paddingBottom: 4 }}>
+            <div style={{ display: "flex", gap: 8, marginBottom: 16, overflowX: "auto", paddingBottom: 4 }}>
               {CATEGORIES.map(c => (
                 <button key={c} onClick={() => setCategory(c)} style={{
                   padding: "7px 16px", borderRadius: 100, whiteSpace: "nowrap",
@@ -539,31 +547,29 @@ export default function Community() {
                 }}>{c}</button>
               ))}
             </div>
-
-            {/* 게시물 목록 */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {filtered.map(post => (
                 <PostCard key={post.id} post={post} onLike={handleLike} onVote={handleVote} onComment={handleComment} />
               ))}
               {filtered.length === 0 && (
                 <div style={{ textAlign: "center", padding: "60px 0", color: G.gray, fontSize: 14 }}>
-                  <div style={{ fontSize: 40, marginBottom: 12 }}>🔍</div>
+                  <div style={{ marginBottom: 12, display: "flex", justifyContent: "center" }}><Search size={40} color={G.gray} strokeWidth={1.4} /></div>
                   이 카테고리엔 아직 제보가 없어요!
                 </div>
               )}
             </div>
           </>
         )}
-      </div>
 
-      {/* 자유게시판 탭 */}
-      {tab === "board" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          {boardPosts.map(post => (
-            <BoardCard key={post.id} post={post} onLike={handleBoardLike} onComment={handleBoardComment} />
-          ))}
-        </div>
-      )}
+        {/* 자유게시판 */}
+        {tab === "board" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {boardPosts.map(post => (
+              <BoardCard key={post.id} post={post} onLike={handleBoardLike} onComment={handleBoardComment} />
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* 제보 모달 */}
       {showSubmit && <SubmitModal onClose={() => setShowSubmit(false)} onSubmit={handleSubmit} />}

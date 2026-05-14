@@ -1,17 +1,18 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Bot, Coffee, PartyPopper, Smartphone, Users, Briefcase, Heart, RotateCcw, Home, Lightbulb } from "lucide-react";
 import G from "../constants/colors";
 import PageHeader from "../components/PageHeader";
 import Button from "../components/Button";
 import RemyAvatar from "../components/RemyAvatar";
 
 const SCENARIOS = [
-  { id: "cafe",    emoji: "☕", label: "카페에서",     desc: "친구랑 카페 얘기",      color: "#92400e", bg: "#fef3c7" },
-  { id: "party",   emoji: "🎉", label: "파티에서",     desc: "파티 분위기 대화",      color: "#6d28d9", bg: "#ede9fe" },
-  { id: "sns",     emoji: "📱", label: "SNS DM",       desc: "인스타 DM 스타일",      color: "#0369a1", bg: "#e0f2fe" },
-  { id: "friend",  emoji: "👯", label: "친구 사이",     desc: "편한 일상 대화",        color: "#065f46", bg: "#d1fae5" },
-  { id: "work",    emoji: "💼", label: "직장 동료",     desc: "캐주얼한 직장 대화",    color: "#9f1239", bg: "#ffe4e6" },
-  { id: "date",    emoji: "💕", label: "썸 타는 중",    desc: "설레는 대화",           color: "#be185d", bg: "#fce7f3" },
+  { id: "cafe",    icon: Coffee,       label: "카페에서",  desc: "친구랑 카페 얘기",    color: "#92400e", bg: "#fef3c7" },
+  { id: "party",   icon: PartyPopper,  label: "파티에서",  desc: "파티 분위기 대화",    color: "#6d28d9", bg: "#ede9fe" },
+  { id: "sns",     icon: Smartphone,   label: "SNS DM",    desc: "인스타 DM 스타일",    color: "#0369a1", bg: "#e0f2fe" },
+  { id: "friend",  icon: Users,        label: "친구 사이",  desc: "편한 일상 대화",      color: "#065f46", bg: "#d1fae5" },
+  { id: "work",    icon: Briefcase,    label: "직장 동료",  desc: "캐주얼한 직장 대화",  color: "#9f1239", bg: "#ffe4e6" },
+  { id: "date",    icon: Heart,        label: "썸 타는 중", desc: "설레는 대화",         color: "#be185d", bg: "#fce7f3" },
 ];
 
 /* ── 애니메이션 캐릭터 ── */
@@ -64,7 +65,7 @@ function Avatar({ speaking, scenario }) {
 function ScenarioSelect({ onSelect }) {
   return (
     <div style={{ minHeight: "100vh", background: G.navy, display: "flex", flexDirection: "column", fontFamily: "'Noto Sans KR', sans-serif" }}>
-      <PageHeader title="AI 회화" emoji="🤖" dark />
+      <PageHeader title="AI 회화" icon={Bot} dark />
       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "48px 24px" }}>
         <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 14 }}>상황 선택</div>
         <h1 style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 32, fontWeight: 900, color: G.white, letterSpacing: -1, marginBottom: 10, textAlign: "center", lineHeight: 1.2 }}>
@@ -81,7 +82,9 @@ function ScenarioSelect({ onSelect }) {
               onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; e.currentTarget.style.transform = "translateY(-4px)"; }}
               onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.transform = "none"; }}
             >
-              <div style={{ fontSize: 32, marginBottom: 10 }}>{s.emoji}</div>
+              <div style={{ display: "flex", justifyContent: "center", marginBottom: 10 }}>
+                {(() => { const I = s.icon; return <I size={32} color="rgba(255,255,255,0.85)" strokeWidth={1.5} />; })()}
+              </div>
               <div style={{ fontSize: 13, fontWeight: 700, color: G.white, marginBottom: 4 }}>{s.label}</div>
               <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)" }}>{s.desc}</div>
             </button>
@@ -106,7 +109,7 @@ function SummaryScreen({ messages, scenario, onBack }) {
   return (
     <div style={{ minHeight: "100vh", background: G.navy, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontFamily: "'Noto Sans KR', sans-serif", padding: 40, textAlign: "center", position: "relative", overflow: "hidden" }}>
       <div style={{ position: "absolute", top: "20%", left: "50%", transform: "translateX(-50%)", width: 500, height: 500, background: "radial-gradient(circle, rgba(255,77,0,0.1) 0%, transparent 70%)", pointerEvents: "none" }} />
-      <div style={{ fontSize: 64, marginBottom: 16 }}>🎉</div>
+      <div style={{ marginBottom: 16 }}><PartyPopper size={64} color={G.accent} strokeWidth={1.4} /></div>
       <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 12 }}>대화 완료!</div>
       <h1 style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 32, fontWeight: 900, color: G.white, lineHeight: 1.2, letterSpacing: -1, marginBottom: 36 }}>
         오늘도 <span style={{ color: G.accent }}>원어민처럼</span> 했어요!
@@ -123,8 +126,8 @@ function SummaryScreen({ messages, scenario, onBack }) {
         ))}
       </div>
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
-        <Button onClick={onBack}>🔄 다시 대화하기</Button>
-        <Button variant="secondary" onClick={() => navigate("/dashboard")} style={{ color: G.white, border: "1.5px solid rgba(255,255,255,0.2)" }}>🏠 대시보드로</Button>
+        <Button onClick={onBack} style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><RotateCcw size={14} strokeWidth={2} /> 다시 대화하기</Button>
+        <Button variant="secondary" onClick={() => navigate("/dashboard")} style={{ color: G.white, border: "1.5px solid rgba(255,255,255,0.2)", display: "inline-flex", alignItems: "center", gap: 6 }}><Home size={14} strokeWidth={2} /> 대시보드로</Button>
       </div>
     </div>
   );
@@ -138,27 +141,41 @@ function speakEnglish(text, onStart, onEnd) {
   utter.lang = "en-US";
   utter.rate = 0.9;
   utter.pitch = 1;
-  const voices = window.speechSynthesis.getVoices();
-  const enVoice =
-    voices.find(v => v.lang.startsWith("en") && v.name.includes("Male")) ||
-    voices.find(v => v.lang.startsWith("en") && v.name.includes("David")) ||
-    voices.find(v => v.lang.startsWith("en") && v.name.includes("Mark")) ||
-    voices.find(v => v.lang === "en-US");
-  if (enVoice) utter.voice = enVoice;
-  // 크롬 버그: 15초 후 자동 중단 → 10초마다 pause/resume으로 방지
-  const keepAlive = setInterval(() => {
-    if (window.speechSynthesis.speaking) {
-      window.speechSynthesis.pause();
-      window.speechSynthesis.resume();
-    } else {
-      clearInterval(keepAlive);
-    }
-  }, 10000);
 
-  utter.onstart = onStart;
-  utter.onend = () => { clearInterval(keepAlive); onEnd(); };
-  utter.onerror = () => { clearInterval(keepAlive); onEnd(); };
-  window.speechSynthesis.speak(utter);
+  const speak = () => {
+    const voices = window.speechSynthesis.getVoices();
+    const enVoice =
+      voices.find(v => v.lang.startsWith("en") && v.name.includes("Male")) ||
+      voices.find(v => v.lang.startsWith("en") && v.name.includes("David")) ||
+      voices.find(v => v.lang.startsWith("en") && v.name.includes("Mark")) ||
+      voices.find(v => v.lang === "en-US");
+    if (enVoice) utter.voice = enVoice;
+
+    // 크롬 버그: 15초 후 자동 중단 → 10초마다 pause/resume으로 방지
+    const keepAlive = setInterval(() => {
+      if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.pause();
+        window.speechSynthesis.resume();
+      } else {
+        clearInterval(keepAlive);
+      }
+    }, 10000);
+
+    utter.onstart = onStart;
+    utter.onend = () => { clearInterval(keepAlive); onEnd(); };
+    utter.onerror = () => { clearInterval(keepAlive); onEnd(); };
+    window.speechSynthesis.speak(utter);
+  };
+
+  const voices = window.speechSynthesis.getVoices();
+  if (voices.length > 0) {
+    speak();
+  } else {
+    window.speechSynthesis.onvoiceschanged = () => {
+      window.speechSynthesis.onvoiceschanged = null;
+      speak();
+    };
+  }
 }
 
 function stopSpeaking() {
@@ -197,6 +214,13 @@ export default function AiChat() {
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef(null);
   const bottomRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      window.speechSynthesis?.cancel();
+      recognitionRef.current?.stop();
+    };
+  }, []);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -299,7 +323,7 @@ export default function AiChat() {
       <div style={{ padding: "16px 32px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.07)", flexShrink: 0 }}>
         <Button variant="ghost" onClick={() => setScenario(null)} style={{ fontSize: 14, color: "rgba(255,255,255,0.5)" }}>← 상황 변경</Button>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ fontSize: 18 }}>{scenario.emoji}</span>
+          {(() => { const I = scenario.icon; return <I size={18} color="rgba(255,255,255,0.7)" strokeWidth={1.8} />; })()}
           <span style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 14, fontWeight: 900, color: G.white }}>{scenario.label}</span>
           <div style={{ width: 8, height: 8, borderRadius: "50%", background: G.green, boxShadow: `0 0 0 3px ${G.green}33` }} />
         </div>
@@ -307,7 +331,7 @@ export default function AiChat() {
       </div>
 
       <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
-        <div style={{ width: 840, flexShrink: 0, background: "rgba(0,0,0,0.2)", borderRight: "1px solid rgba(255,255,255,0.06)", display: "flex", flexDirection: "column" }}>
+        <div style={{ width: 540, flexShrink: 0, background: "rgba(0,0,0,0.2)", borderRight: "1px solid rgba(255,255,255,0.06)", display: "flex", flexDirection: "column" }}>
           <div style={{ flex: 1, position: "relative" }}>
             <RemyAvatar speaking={loading || isSpeaking} accentColor={scenario.color} />
           </div>
@@ -376,7 +400,7 @@ export default function AiChat() {
                   )}
                   {tip && (
                     <div style={{ maxWidth: "75%", display: "flex", gap: 8, background: "rgba(255,204,0,0.1)", border: "1px solid rgba(255,204,0,0.25)", borderRadius: 12, padding: "10px 14px" }}>
-                      <span style={{ fontSize: 14, flexShrink: 0 }}>💡</span>
+                      <Lightbulb size={14} color="#fbbf24" strokeWidth={2} style={{ flexShrink: 0 }} />
                       <div style={{ fontSize: 13, color: "#f59e0b", lineHeight: 1.6 }}>Tip: {tip}</div>
                     </div>
                   )}

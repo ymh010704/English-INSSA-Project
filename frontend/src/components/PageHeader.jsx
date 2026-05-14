@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import G from "../constants/colors";
 
-export default function PageHeader({ title, emoji, right, dark = false, noSeparator = false }) {
+export default function PageHeader({ title, emoji, icon: Icon, right, dark = false, noSeparator = false }) {
   const navigate = useNavigate();
   return (
     <div>
@@ -30,10 +30,13 @@ export default function PageHeader({ title, emoji, right, dark = false, noSepara
 
       <div style={{
         fontFamily: "'Unbounded', sans-serif",
-        fontSize: 15, fontWeight: 900,
+        fontSize: 20, fontWeight: 900,
         color: dark ? G.white : G.black,
+        display: "flex", alignItems: "center", gap: 8,
       }}>
-        {emoji && `${emoji} `}<span style={{ color: G.accent }}>{title}</span>
+        {Icon && <Icon size={20} color={G.accent} strokeWidth={2.5} />}
+        {!Icon && emoji && `${emoji} `}
+        <span style={{ color: G.accent }}>{title}</span>
       </div>
 
       <div style={{ minWidth: 80, display: "flex", justifyContent: "flex-end" }}>

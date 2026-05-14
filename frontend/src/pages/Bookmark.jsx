@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
+import { Bookmark as BookmarkIcon, Search, LayoutGrid, List } from "lucide-react";
 
-// 컴포넌트들
 import G from "../constants/colors";
 import PageHeader from "../components/PageHeader";
 import Button from "../components/Button";
@@ -92,7 +92,7 @@ export default function Bookmark() {
           
           Toast.fire({
             icon: 'success',
-            title: '북마크 해제 완료! 👋',
+            title: '북마크 해제 완료!',
             background: '#ffffff',
             iconColor: G.accent,
           });
@@ -127,18 +127,18 @@ export default function Bookmark() {
         flex: 1, height: "100vh", overflowY: "auto", 
         fontFamily: "'Noto Sans KR', sans-serif", 
         display: "flex", flexDirection: "column",
-        background: G.lightGray
+        background: G.pageBg
       }}>
     
         <PageHeader
-          title="북마크" emoji="⭐"
+          title="북마크" icon={BookmarkIcon}
           right={<Button onClick={() => navigate("/card-study")} size="sm">북마크로 학습 →</Button>}
         />
 
         <div style={{ padding: "36px 40px" }}>
           {/* 검색창 */}
           <div style={{ position: "relative", marginBottom: 20 }}>
-            <span style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)", fontSize: 16 }}>🔍</span>
+            <span style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)", display: "flex" }}><Search size={16} color={G.gray} strokeWidth={1.8} /></span>
             <input
               value={search}
               onChange={e => setSearch(e.target.value)}
@@ -156,7 +156,7 @@ export default function Bookmark() {
           {/* 북마크 내역 로딩(서버 느릴때 ..)*/}
           {loading ? (
             <div style={{ textAlign: "center", padding: "100px 0", color: G.gray }}>
-               <p>북마크를 불러오고 있어요... 📥</p>
+               <p>북마크를 불러오고 있어요...</p>
             </div>
           ) : (
             <>
@@ -174,13 +174,13 @@ export default function Bookmark() {
                   ))}
                 </div>
                 <div style={{ display: "flex", gap: 4, background: G.white, borderRadius: 10, padding: 4, boxShadow: "0 2px 6px rgba(0,0,0,0.06)" }}>
-                  {[{ mode: "grid", icon: "⊞" }, { mode: "list", icon: "☰" }].map(v => (
+                  {[{ mode: "grid", Icon: LayoutGrid }, { mode: "list", Icon: List }].map(v => (
                     <button key={v.mode} onClick={() => setViewMode(v.mode)} style={{
                       padding: "6px 12px", borderRadius: 8, border: "none", cursor: "pointer",
                       background: viewMode === v.mode ? G.accent : "transparent",
                       color: viewMode === v.mode ? G.white : G.gray,
-                      fontSize: 16, transition: "all 0.15s",
-                    }}>{v.icon}</button>
+                      display: "flex", alignItems: "center", transition: "all 0.15s",
+                    }}><v.Icon size={16} strokeWidth={1.8} /></button>
                   ))}
                 </div>
               </div>
@@ -205,7 +205,7 @@ export default function Bookmark() {
               {/* 데이터가 없을 때 처리 */}
               {filtered.length === 0 && (
                 <div style={{ textAlign: "center", padding: "80px 0", color: G.gray }}>
-                  <div style={{ fontSize: 48, marginBottom: 16 }}>🔍</div>
+                  <div style={{ marginBottom: 16, display: "flex", justifyContent: "center" }}><Search size={48} color={G.gray} strokeWidth={1.4} /></div>
                   <div style={{ fontSize: 16, fontWeight: 600 }}>아직 저장된 단어가 없어요!</div>
                   <Button onClick={() => navigate("/card-study")} style={{marginTop: 16}}>학습하러 가기</Button>
                 </div>

@@ -1,280 +1,461 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { RotateCcw, ClipboardList, Heart, BookOpen, Trophy, Flame, Dumbbell, Home, CheckCircle, XCircle, Puzzle, PenLine, ArrowLeftRight } from "lucide-react";
 import G from "../constants/colors";
+import Mascot from "../components/Mascot";
 import PageHeader from "../components/PageHeader";
 import Button from "../components/Button";
 
-// 임시 복습 데이터 (백엔드 연결 전)
-const REVIEW_CARDS = [
-  {
-    id: 1, source: "card",
-    word: "Vibe check",
-    category: "SNS / 일상",
-    meaning: "분위기 파악, 상태 확인",
-    korean: "분위기 보는 중",
-    exampleEn: ["Just doing a quick ", "vibe check", " — how is everyone?"],
-    exampleKr: "잠깐 분위기 좀 볼게요 — 다들 어때요?",
-    nuance: "상황이나 사람의 분위기를 체크할 때. 가볍고 유머러스한 맥락에서 써요.",
-    emoji: "📡",
-  },
-  {
-    id: 2, source: "practice",
-    word: "Lowkey",
-    category: "일상 / 강조",
-    meaning: "은근히, 살짝, 솔직히",
-    korean: "은근 ~",
-    exampleEn: ["I ", "lowkey", " love this song but don't tell anyone."],
-    exampleKr: "이 노래 은근 좋은데 아무한테도 말하지 마.",
-    nuance: "뭔가를 살짝 인정하거나 강조할 때. 공개적으로 말하기 애매한 감정에 써요.",
-    emoji: "🤫",
-    wrongAnswer: "크게, 대놓고",
-  },
-  {
-    id: 3, source: "card",
-    word: "No worries",
-    category: "일상",
-    meaning: "괜찮아, 신경 쓰지 마",
-    korean: "ㄱㅊ (괜찮아)",
-    exampleEn: ["\"Sorry I'm late!\" \"", "No worries", ", we just started.\""],
-    exampleKr: "\"늦어서 미안해!\" \"괜찮아, 방금 시작했어.\"",
-    nuance: "상대방의 사과나 걱정을 가볍게 받아줄 때. 매우 자주 쓰이는 표현이에요.",
-    emoji: "😌",
-  },
-  {
-    id: 4, source: "practice",
-    word: "It's giving",
-    category: "Gen Z / 유행어",
-    meaning: "~느낌이야, ~분위기다",
-    korean: "완전 ~ 느낌",
-    exampleEn: ["This café? ", "It's giving", " Paris vibes, honestly."],
-    exampleKr: "이 카페? 완전 파리 느낌인데, 진짜로.",
-    nuance: "뭔가의 분위기나 느낌을 묘사할 때. 긍정적인 맥락에서 주로 쓰여요.",
-    emoji: "✨",
-    wrongAnswer: "No cap",
-  },
-  {
-    id: 5, source: "card",
-    word: "Ghosted",
-    category: "연애 / SNS",
-    meaning: "갑자기 연락을 끊다",
-    korean: "잠수탔어",
-    exampleEn: ["We were texting every day, then he just ", "ghosted", " me."],
-    exampleKr: "매일 문자했는데 그가 갑자기 잠수탔어.",
-    nuance: "연애 또는 친구 사이에서 갑자기 연락이 없어질 때 사용. SNS에서도 자주 써요.",
-    emoji: "👻",
-  },
-];
+const TOTAL_QUESTIONS = 10;
+const MAX_HEARTS = 3;
+
+function shuffle(arr) {
+  return [...arr].sort(() => Math.random() - 0.5);
+}
+
+function pickWrong(all, correct, count = 3) {
+  return shuffle(all.filter(s => s.slang_id !== correct.slang_id)).slice(0, count);
+}
+
+/* ── 문제 생성 ── */
+function makeQuestions(slangs) {
+  const picked = shuffle(slangs).slice(0, TOTAL_QUESTIONS);
+  const types = ["meaning", "blank", "ko2en"];
+  return picked.map(card => {
+    const type = types[Math.floor(Math.random() * types.length)];
+    return { card, type };
+  });
+}
 
 /* ── 결과 화면 ── */
-function ResultScreen({ known, total, onRetry }) {
+function ResultScreen({ correct, total, onRetry }) {
   const navigate = useNavigate();
-  const pct = Math.round((known / total) * 100);
-  const msg = pct === 100 ? "완벽해요! 🏆" : pct >= 80 ? "거의 다 왔어요! 💪" : pct >= 60 ? "조금만 더! 🔥" : "다시 한번 해봐요 📚";
+  const pct = Math.round((correct / total) * 100);
+  const msg = pct === 100 ? "완벽해요!" : pct >= 80 ? "거의 다 알아요!" : pct >= 50 ? "조금만 더!" : "다시 해봐요!";
+  const ResultIcon = pct === 100 ? Trophy : pct >= 80 ? Flame : pct >= 50 ? Dumbbell : BookOpen;
+  const resultColor = pct === 100 ? G.accent : pct >= 80 ? "#f97316" : pct >= 50 ? "#94a3b8" : G.blue;
 
   return (
     <div style={{ minHeight: "100vh", background: G.navy, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontFamily: "'Noto Sans KR', sans-serif", padding: 40, textAlign: "center", position: "relative", overflow: "hidden" }}>
-      <div style={{ position: "absolute", top: "20%", left: "50%", transform: "translateX(-50%)", width: 500, height: 500, background: "radial-gradient(circle, rgba(255,77,0,0.12) 0%, transparent 70%)", pointerEvents: "none" }} />
+      <div style={{ position: "absolute", top: "15%", left: "50%", transform: "translateX(-50%)", width: 600, height: 600, background: "radial-gradient(circle, rgba(255,77,0,0.1) 0%, transparent 70%)", pointerEvents: "none" }} />
 
-      <div style={{ fontSize: 72, marginBottom: 16 }}>{pct === 100 ? "🏆" : pct >= 60 ? "🔥" : "📚"}</div>
-      <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 12 }}>복습 완료!</div>
-      <h1 style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 34, fontWeight: 900, color: G.white, lineHeight: 1.2, letterSpacing: -1, marginBottom: 8 }}>
-        {msg}
-      </h1>
-      <p style={{ fontSize: 15, color: "rgba(255,255,255,0.45)", marginBottom: 44, fontWeight: 300 }}>{total}개 중 {known}개 완벽히 기억했어요</p>
+      <div style={{ marginBottom: 12 }}><ResultIcon size={72} color={resultColor} strokeWidth={1.4} /></div>
+      <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 3, color: "rgba(255,255,255,0.3)", marginBottom: 10 }}>복습 완료</div>
+      <h1 style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 32, fontWeight: 900, color: G.white, marginBottom: 8 }}>{msg}</h1>
 
-      <div style={{ display: "flex", gap: 16, marginBottom: 44, flexWrap: "wrap", justifyContent: "center" }}>
+      <div style={{ display: "flex", gap: 14, margin: "36px 0", flexWrap: "wrap", justifyContent: "center" }}>
         {[
-          { label: "복습한 카드", value: `${total}개`, color: G.accent },
-          { label: "알겠어요", value: `${known}개`, color: G.green },
+          { label: "정답", value: `${correct}개`, color: G.green },
+          { label: "오답", value: `${total - correct}개`, color: "#f87171" },
           { label: "정확도", value: `${pct}%`, color: G.accent2 },
         ].map(s => (
-          <div key={s.label} style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: "22px 30px", minWidth: 120 }}>
-            <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 30, fontWeight: 900, color: s.color, lineHeight: 1, marginBottom: 8 }}>{s.value}</div>
+          <div key={s.label} style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: "20px 28px", minWidth: 110 }}>
+            <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 26, fontWeight: 900, color: s.color, marginBottom: 6 }}>{s.value}</div>
             <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)" }}>{s.label}</div>
           </div>
         ))}
       </div>
 
-      <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
-        {known < total && (
-          <Button onClick={onRetry}>🔁 틀린 것만 다시</Button>
-        )}
-        <Button variant="secondary" onClick={() => navigate("/dashboard")} style={{ color: G.white, border: "1.5px solid rgba(255,255,255,0.2)" }}>🏠 대시보드로</Button>
+      <div style={{ display: "flex", gap: 12 }}>
+        <button onClick={onRetry} style={{ padding: "14px 28px", borderRadius: 14, border: "none", background: G.accent, color: G.white, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif", boxShadow: "0 4px 16px rgba(255,77,0,0.35)", display: "inline-flex", alignItems: "center", gap: 6 }}><RotateCcw size={14} strokeWidth={2} /> 다시 풀기</button>
+        <button onClick={() => navigate("/dashboard")} style={{ padding: "14px 28px", borderRadius: 14, border: "1.5px solid rgba(255,255,255,0.15)", background: "transparent", color: "rgba(255,255,255,0.6)", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif", display: "inline-flex", alignItems: "center", gap: 6 }}><Home size={14} strokeWidth={2} /> 대시보드</button>
       </div>
     </div>
   );
 }
 
-/* ── 메인 복습 페이지 ── */
-export default function Review() {
-  const navigate = useNavigate();
-  const [index, setIndex] = useState(0);
-  const [flipped, setFlipped] = useState(false);
-  const [known, setKnown] = useState(0);
-  const [wrongList, setWrongList] = useState([]);
-  const [done, setDone] = useState(false);
-  const [leaving, setLeaving] = useState(null);
-  const [cards, setCards] = useState(REVIEW_CARDS);
+/* ── 정답/오답 피드백 바 ── */
+function FeedbackBar({ correct, explanation, onNext }) {
+  return (
+    <div style={{
+      position: "fixed", bottom: 0, left: 0, right: 0,
+      background: correct ? "#d1fae5" : "#fee2e2",
+      borderTop: `3px solid ${correct ? G.green : G.red}`,
+      padding: "20px 32px 28px",
+      display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16,
+      zIndex: 100, fontFamily: "'Noto Sans KR', sans-serif",
+      animation: "slideUp 0.2s ease",
+    }}>
+      <div>
+        <div style={{ fontSize: 15, fontWeight: 700, color: correct ? "#065f46" : "#991b1b", marginBottom: 4 }}>
+          <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            {correct ? <CheckCircle size={15} color="#065f46" strokeWidth={2.5} /> : <XCircle size={15} color="#991b1b" strokeWidth={2.5} />}
+            {correct ? "정답이에요!" : "틀렸어요"}
+          </span>
+        </div>
+        {explanation && <div style={{ fontSize: 13, color: correct ? "#047857" : "#b91c1c" }}>{explanation}</div>}
+      </div>
+      <button onClick={onNext} style={{
+        padding: "13px 28px", borderRadius: 14, border: "none", flexShrink: 0,
+        background: correct ? G.green : G.red, color: G.white,
+        fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif",
+      }}>
+        계속 →
+      </button>
+      <style>{`@keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: none; opacity: 1; } }`}</style>
+    </div>
+  );
+}
 
-  const card = cards[index];
-  const total = cards.length;
+/* ── 뜻 고르기 (영→한) ── */
+function MeaningQuestion({ card, allSlangs, onAnswer }) {
+  const [selected, setSelected] = useState(null);
+  const options = useRef(shuffle([card, ...pickWrong(allSlangs, card)])).current;
 
-  function next(isKnown) {
-    setLeaving(isKnown ? "right" : "left");
-    if (isKnown) {
-      setKnown(k => k + 1);
-    } else {
-      setWrongList(w => [...w, card]);
-    }
-    setTimeout(() => {
-      setLeaving(null);
-      setFlipped(false);
-      if (index + 1 >= total) setDone(true);
-      else setIndex(i => i + 1);
-    }, 350);
+  function select(opt) {
+    if (selected) return;
+    const ok = opt.slang_id === card.slang_id;
+    setSelected(opt.slang_id);
+    setTimeout(() => onAnswer(ok, `정답: ${card.definition_ko}`), 0);
   }
-
-  function retryWrong() {
-    setCards(wrongList);
-    setIndex(0);
-    setFlipped(false);
-    setKnown(0);
-    setWrongList([]);
-    setDone(false);
-    setLeaving(null);
-  }
-
-  if (done) return <ResultScreen known={known} total={total} onRetry={retryWrong} />;
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f0ede6", fontFamily: "'Noto Sans KR', sans-serif", display: "flex", flexDirection: "column" }}>
-
-      <PageHeader
-        title="복습" emoji="🔁"
-        right={<span style={{ fontSize: 13, fontWeight: 700, color: G.gray }}>{index + 1} / {total}</span>}
-        noSeparator
-      />
-
-      {/* 진행 바 */}
-      <div style={{ height: 5, background: "#e5e0d8", flexShrink: 0 }}>
-        <div style={{ height: "100%", width: `${(index / total) * 100}%`, background: G.accent, transition: "width 0.4s ease" }} />
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 20 }}>
+      <div style={{ background: `linear-gradient(145deg, ${G.navy}, #1e3a5f)`, borderRadius: 24, padding: "36px 32px", textAlign: "center", boxShadow: "0 12px 40px rgba(0,0,0,0.12)" }}>
+        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 3, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", marginBottom: 14 }}>이 단어의 뜻은?</div>
+        <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 42, fontWeight: 900, color: G.white, letterSpacing: -1 }}>{card.word}</div>
       </div>
-
-      {/* 카드 컨테이너 */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "28px 24px" }}>
-
-        {/* 출처 뱃지 */}
-        <div style={{ display: "flex", gap: 8, marginBottom: 18 }}>
-          <div style={{
-            background: card.source === "card" ? "rgba(255,77,0,0.1)" : "rgba(239,68,68,0.1)",
-            border: `1px solid ${card.source === "card" ? "rgba(255,77,0,0.25)" : "rgba(239,68,68,0.25)"}`,
-            color: card.source === "card" ? G.accent : G.red,
-            fontSize: 11, fontWeight: 700, letterSpacing: 1.5,
-            textTransform: "uppercase", padding: "6px 16px", borderRadius: 100,
-          }}>
-            {card.source === "card" ? "🔁 다시볼게요 카드" : "❌ 연습에서 틀린 문제"}
-          </div>
-          <div style={{ background: "rgba(0,0,0,0.06)", color: G.gray, fontSize: 11, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase", padding: "6px 16px", borderRadius: 100 }}>
-            {card.emoji} {card.category}
-          </div>
-        </div>
-
-        {/* 카드 */}
-        <div style={{
-          width: "100%", maxWidth: 640,
-          transform: leaving === "right" ? "translateX(130%) rotate(8deg)" : leaving === "left" ? "translateX(-130%) rotate(-8deg)" : "none",
-          opacity: leaving ? 0 : 1,
-          transition: leaving ? "transform 0.35s ease, opacity 0.3s ease" : "none",
-        }}>
-          {!flipped ? (
-            /* 앞면 */
-            <div onClick={() => setFlipped(true)} style={{
-              background: `linear-gradient(145deg, ${G.navy} 0%, #1e3a5f 100%)`,
-              borderRadius: 32, padding: "72px 48px",
-              textAlign: "center", cursor: "pointer",
-              boxShadow: "0 32px 80px rgba(0,0,0,0.18), 0 0 0 1px rgba(255,255,255,0.05)",
-              minHeight: 360, display: "flex", flexDirection: "column",
-              alignItems: "center", justifyContent: "center", gap: 20,
-              position: "relative", overflow: "hidden", userSelect: "none",
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {options.map((opt, i) => {
+          const isCorrect = opt.slang_id === card.slang_id;
+          const isSelected = selected === opt.slang_id;
+          let bg = G.white, border = "rgba(0,0,0,0.08)", color = G.black;
+          if (selected && isCorrect) { bg = "#d1fae5"; border = G.green; color = "#065f46"; }
+          else if (selected && isSelected) { bg = "#fee2e2"; border = G.red; color = "#991b1b"; }
+          return (
+            <button key={opt.slang_id} onClick={() => select(opt)} style={{
+              padding: "16px 20px", borderRadius: 14, border: `1.5px solid ${border}`, background: bg,
+              textAlign: "left", cursor: selected ? "default" : "pointer",
+              display: "flex", alignItems: "center", gap: 14, transition: "all 0.15s",
+              fontFamily: "'Noto Sans KR', sans-serif",
             }}>
-              <div style={{ position: "absolute", top: -60, right: -60, width: 240, height: 240, background: "radial-gradient(circle, rgba(255,77,0,0.18) 0%, transparent 70%)", pointerEvents: "none" }} />
-              <div style={{ position: "absolute", bottom: -40, left: -40, width: 180, height: 180, background: "radial-gradient(circle, rgba(255,204,0,0.1) 0%, transparent 70%)", pointerEvents: "none" }} />
-              <div style={{ position: "absolute", top: 24, left: 28, width: 40, height: 40, border: "2px solid rgba(255,255,255,0.07)", borderRadius: 12 }} />
-              <div style={{ position: "absolute", bottom: 24, right: 28, width: 40, height: 40, border: "2px solid rgba(255,255,255,0.07)", borderRadius: 12 }} />
-
-              {/* 연습에서 틀린 경우 오답 표시 */}
-              {card.source === "practice" && card.wrongAnswer && (
-                <div style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.25)", borderRadius: 12, padding: "8px 16px", display: "flex", alignItems: "center", gap: 6 }}>
-                  <span style={{ fontSize: 12 }}>❌</span>
-                  <span style={{ fontSize: 12, color: "#fca5a5", fontWeight: 600 }}>이전 오답: {card.wrongAnswer}</span>
-                </div>
-              )}
-
-              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", color: "rgba(255,255,255,0.25)" }}>복습 카드</div>
-              <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 56, fontWeight: 900, color: G.white, letterSpacing: -2, lineHeight: 1, textShadow: "0 0 60px rgba(255,77,0,0.4)" }}>
-                {card.word}
+              <div style={{ width: 28, height: 28, borderRadius: 8, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, background: selected && isCorrect ? G.green : selected && isSelected ? G.red : G.pageBg, color: selected && (isCorrect || isSelected) ? G.white : G.gray }}>
+                {selected && isCorrect ? "✓" : selected && isSelected ? "✗" : ["A","B","C","D"][i]}
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", padding: "8px 20px", borderRadius: 100, marginTop: 4 }}>
-                <span style={{ fontSize: 14 }}>👆</span>
-                <span style={{ fontSize: 12, color: "rgba(255,255,255,0.4)" }}>탭해서 뜻 확인</span>
+              <span style={{ fontSize: 14, fontWeight: 600, color }}>{opt.definition_ko}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ── 빈칸 채우기 ── */
+function BlankQuestion({ card, allSlangs, onAnswer }) {
+  const [selected, setSelected] = useState(null);
+  const options = useRef(shuffle([card, ...pickWrong(allSlangs, card)])).current;
+
+  const sentence = card.example_en || "";
+  const regex = new RegExp(`(${card.word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`, "i");
+  const parts = sentence.split(regex);
+  const hasBlank = parts.length > 1;
+
+  function select(opt) {
+    if (selected) return;
+    const ok = opt.slang_id === card.slang_id;
+    setSelected(opt.slang_id);
+    setTimeout(() => onAnswer(ok, `정답: ${card.word} — ${card.definition_ko}`), 0);
+  }
+
+  return (
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 20 }}>
+      <div style={{ background: G.white, borderRadius: 24, padding: "28px 32px", boxShadow: "0 4px 20px rgba(0,0,0,0.06)" }}>
+        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, color: "#bbb", textTransform: "uppercase", marginBottom: 14 }}>빈칸에 들어갈 단어는?</div>
+        <div style={{ fontSize: 17, lineHeight: 2, color: G.black }}>
+          {hasBlank ? parts.map((p, i) =>
+            regex.test(p)
+              ? <span key={i} style={{
+                  display: "inline-block", minWidth: 100, height: 30,
+                  background: selected ? (selected === card.slang_id ? "#d1fae5" : "#fee2e2") : G.pageBg,
+                  border: `2px dashed ${selected ? (selected === card.slang_id ? G.green : G.red) : "#d1d5db"}`,
+                  borderRadius: 8, textAlign: "center", lineHeight: "28px",
+                  fontSize: 14, fontWeight: 700, verticalAlign: "middle", margin: "0 4px",
+                  color: selected ? (selected === card.slang_id ? "#065f46" : "#991b1b") : "transparent",
+                }}>
+                  {selected ? card.word : ""}
+                </span>
+              : <span key={i}>{p}</span>
+          ) : <span>{sentence}</span>}
+        </div>
+        <div style={{ fontSize: 13, color: G.gray, marginTop: 10 }}>{card.example_ko}</div>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+        {options.map(opt => {
+          const isCorrect = opt.slang_id === card.slang_id;
+          const isSelected = selected === opt.slang_id;
+          let bg = G.white, border = "rgba(0,0,0,0.08)", color = G.black;
+          if (selected && isCorrect) { bg = "#d1fae5"; border = G.green; color = "#065f46"; }
+          else if (selected && isSelected) { bg = "#fee2e2"; border = G.red; color = "#991b1b"; }
+          return (
+            <button key={opt.slang_id} onClick={() => select(opt)} style={{
+              padding: "14px", borderRadius: 14, border: `1.5px solid ${border}`, background: bg,
+              cursor: selected ? "default" : "pointer", fontFamily: "'Noto Sans KR', sans-serif",
+              fontSize: 14, fontWeight: 700, color, transition: "all 0.15s",
+            }}>
+              {opt.word}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ── 한→영 고르기 ── */
+function Ko2EnQuestion({ card, allSlangs, onAnswer }) {
+  const [selected, setSelected] = useState(null);
+  const options = useRef(shuffle([card, ...pickWrong(allSlangs, card)])).current;
+
+  function select(opt) {
+    if (selected) return;
+    const ok = opt.slang_id === card.slang_id;
+    setSelected(opt.slang_id);
+    setTimeout(() => onAnswer(ok, `정답: ${card.word}`), 0);
+  }
+
+  return (
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 20 }}>
+      <div style={{ background: G.white, borderRadius: 24, padding: "32px", boxShadow: "0 4px 20px rgba(0,0,0,0.06)" }}>
+        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, color: "#bbb", textTransform: "uppercase", marginBottom: 14 }}>이 뜻에 맞는 슬랭은?</div>
+        <div style={{ fontSize: 22, fontWeight: 700, color: G.black, marginBottom: 8 }}>{card.definition_ko}</div>
+        <div style={{ fontSize: 13, color: G.gray }}>"{card.example_ko}"</div>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {options.map((opt, i) => {
+          const isCorrect = opt.slang_id === card.slang_id;
+          const isSelected = selected === opt.slang_id;
+          let bg = G.white, border = "rgba(0,0,0,0.08)", color = G.black;
+          if (selected && isCorrect) { bg = "#d1fae5"; border = G.green; color = "#065f46"; }
+          else if (selected && isSelected) { bg = "#fee2e2"; border = G.red; color = "#991b1b"; }
+          return (
+            <button key={opt.slang_id} onClick={() => select(opt)} style={{
+              padding: "16px 20px", borderRadius: 14, border: `1.5px solid ${border}`, background: bg,
+              textAlign: "left", cursor: selected ? "default" : "pointer",
+              display: "flex", alignItems: "center", gap: 14, transition: "all 0.15s",
+              fontFamily: "'Noto Sans KR', sans-serif",
+            }}>
+              <div style={{ width: 28, height: 28, borderRadius: 8, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, background: selected && isCorrect ? G.green : selected && isSelected ? G.red : G.pageBg, color: selected && (isCorrect || isSelected) ? G.white : G.gray }}>
+                {selected && isCorrect ? "✓" : selected && isSelected ? "✗" : ["A","B","C","D"][i]}
               </div>
-            </div>
-          ) : (
-            /* 뒷면 */
+              <span style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 15, fontWeight: 700, color }}>{opt.word}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ── 인트로 화면 ── */
+function IntroScreen({ total, onStart }) {
+  const items = [
+    { icon: Puzzle,          label: "뜻 고르기",  desc: "단어를 보고 뜻 맞히기" },
+    { icon: PenLine,         label: "빈칸 채우기", desc: "예문 빈칸에 단어 선택" },
+    { icon: ArrowLeftRight,  label: "한→영",       desc: "뜻을 보고 슬랭 찾기" },
+  ];
+
+  return (
+    <div style={{ minHeight: "100vh", fontFamily: "'Noto Sans KR', sans-serif", display: "flex", flexDirection: "column", background: G.pageBg }}>
+      <PageHeader title="슬랭 복습" icon={RotateCcw} />
+
+      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 20px" }}>
+        <div style={{ width: "100%", maxWidth: 560 }}>
+
+          {/* 캐릭터 + 배지 */}
+          <div style={{ textAlign: "center", marginBottom: 32 }}>
+            <Mascot size={140} mode="cheer" />
             <div style={{
-              background: G.white, borderRadius: 32, padding: "40px 44px",
-              boxShadow: "0 32px 80px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04)",
-              minHeight: 360, display: "flex", flexDirection: "column", gap: 20,
+              display: "inline-flex", alignItems: "center", gap: 8,
+              background: "rgba(255,77,0,0.08)", border: "1px solid rgba(255,77,0,0.2)",
+              borderRadius: 100, padding: "8px 20px", marginTop: 16,
             }}>
-              <div style={{ paddingBottom: 18, borderBottom: "2px solid #f0ece5" }}>
-                <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 32, fontWeight: 900, color: G.black, letterSpacing: -0.5 }}>{card.word}</div>
-              </div>
-
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 2.5, textTransform: "uppercase", color: "#bbb5a8" }}>한국어 뜻</div>
-                <div style={{ fontSize: 24, fontWeight: 700, color: G.black, lineHeight: 1.3 }}>{card.meaning}</div>
-                <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: G.black, color: "#63b3ed", fontSize: 12, fontWeight: 600, padding: "5px 14px", borderRadius: 100, width: "fit-content", marginTop: 2 }}>
-                  🇰🇷 한국어로: {card.korean}
-                </div>
-              </div>
-
-              <div style={{ background: "#f7f4ef", borderRadius: 18, padding: "16px 20px" }}>
-                <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 2.5, textTransform: "uppercase", color: "#bbb5a8", marginBottom: 10 }}>예문</div>
-                <div style={{ fontSize: 14, fontWeight: 600, color: G.black, lineHeight: 1.7, marginBottom: 6 }}>
-                  {card.exampleEn.map((t, i) =>
-                    i === 1
-                      ? <span key={i} style={{ color: G.accent, background: "rgba(255,77,0,0.08)", padding: "2px 6px", borderRadius: 6, fontWeight: 800 }}>{t}</span>
-                      : <span key={i}>{t}</span>
-                  )}
-                </div>
-                <div style={{ fontSize: 13, color: G.gray, lineHeight: 1.6 }}>{card.exampleKr}</div>
-              </div>
-
-              <div style={{ display: "flex", gap: 10, alignItems: "flex-start", background: "#fffbf0", border: "1px solid rgba(255,204,0,0.3)", borderRadius: 14, padding: "14px 16px" }}>
-                <span style={{ fontSize: 16, flexShrink: 0 }}>💡</span>
-                <div style={{ fontSize: 13, color: "#5a5750", lineHeight: 1.7 }}>{card.nuance}</div>
-              </div>
+              <RotateCcw size={18} color={G.accent} strokeWidth={2} />
+              <span style={{ fontSize: 14, fontWeight: 700, color: G.accent }}>랜덤 퀴즈로 복습해요!</span>
             </div>
-          )}
-        </div>
+          </div>
 
-        {/* 진행 점 */}
-        <div style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: 24 }}>
-          {cards.map((c, i) => (
-            <div key={i} style={{
-              width: i === index ? 28 : 8, height: 8, borderRadius: 4,
-              background: i < index ? "rgba(255,77,0,0.35)" : i === index ? G.accent : "#d6d0c8",
-              transition: "all 0.3s ease",
-            }} />
-          ))}
+          {/* 타이틀 */}
+          <div style={{ textAlign: "center", marginBottom: 32 }}>
+            <h1 style={{
+              fontFamily: "'Unbounded', sans-serif",
+              fontSize: "clamp(22px, 4vw, 32px)",
+              fontWeight: 900, color: G.black, letterSpacing: -1, marginBottom: 10,
+            }}>
+              슬랭 복습 <span style={{ color: G.accent }}>{TOTAL_QUESTIONS}문제</span>
+            </h1>
+            <p style={{ fontSize: 14, color: G.gray, lineHeight: 1.7 }}>
+              배운 슬랭을 다시 한번 확인해요.<br />
+              3가지 유형이 랜덤으로 출제돼요
+            </p>
+          </div>
+
+          {/* 출제 유형 리스트 */}
+          <div style={{
+            background: G.white, borderRadius: 20,
+            border: "1px solid rgba(0,0,0,0.06)",
+            overflow: "hidden", marginBottom: 24,
+            boxShadow: "0 4px 24px rgba(0,0,0,0.05)",
+          }}>
+            {items.map((m, i) => (
+              <div key={m.label} style={{
+                display: "flex", alignItems: "center", gap: 16,
+                padding: "16px 24px",
+                borderBottom: i < items.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none",
+              }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: `${G.accent}12`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  {(() => { const I = m.icon; return <I size={18} color={G.accent} strokeWidth={2} />; })()}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: G.black }}>{m.label}</div>
+                  <div style={{ fontSize: 12, color: G.gray, marginTop: 2 }}>{m.desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* 스탯 카드 */}
+          <div style={{ display: "flex", gap: 12, marginBottom: 28 }}>
+            {[
+              { icon: ClipboardList, label: "출제 문제", value: `${TOTAL_QUESTIONS}개` },
+              { icon: Heart,         label: "하트",      value: `${MAX_HEARTS}개`       },
+              { icon: BookOpen,      label: "슬랭 풀",   value: `${total}개`            },
+            ].map(item => {
+              const Icon = item.icon;
+              return (
+              <div key={item.label} style={{
+                flex: 1, background: G.white, borderRadius: 14,
+                padding: "14px 10px", textAlign: "center",
+                border: "1px solid rgba(0,0,0,0.06)",
+                boxShadow: "0 2px 12px rgba(0,0,0,0.04)",
+              }}>
+                <div style={{ display: "flex", justifyContent: "center", marginBottom: 4 }}><Icon size={20} color={G.accent} strokeWidth={1.8} /></div>
+                <div style={{ fontSize: 11, color: G.gray, marginBottom: 2 }}>{item.label}</div>
+                <div style={{ fontSize: 15, fontWeight: 800, color: G.black, fontFamily: "'Unbounded', sans-serif" }}>{item.value}</div>
+              </div>
+            );})}
+          </div>
+
+          {/* 시작 버튼 */}
+          <Button onClick={onStart} style={{ width: "100%", borderRadius: 16, padding: "18px", fontSize: 16, letterSpacing: 0.5 }}>
+            복습 시작하기 →
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── 메인 ── */
+export default function Review() {
+  const navigate = useNavigate();
+  const [slangs, setSlangs] = useState([]);
+  const [questions, setQuestions] = useState([]);
+  const [index, setIndex] = useState(0);
+  const [hearts, setHearts] = useState(MAX_HEARTS);
+  const [correct, setCorrect] = useState(0);
+  const [feedback, setFeedback] = useState(null);
+  const [done, setDone] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [started, setStarted] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/slangs")
+      .then(r => r.json())
+      .then(data => {
+        const list = Array.isArray(data) ? data : data.data || [];
+        setSlangs(list);
+        setQuestions(makeQuestions(list));
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  function handleAnswer(isCorrect, explanation) {
+    if (isCorrect) setCorrect(c => c + 1);
+    else {
+      const newHearts = hearts - 1;
+      setHearts(newHearts);
+      if (newHearts <= 0) {
+        setTimeout(() => setDone(true), 1200);
+        setFeedback({ correct: false, explanation });
+        return;
+      }
+    }
+    setFeedback({ correct: isCorrect, explanation });
+  }
+
+  function handleNext() {
+    setFeedback(null);
+    if (index + 1 >= questions.length || hearts <= 0) {
+      setDone(true);
+    } else {
+      setIndex(i => i + 1);
+    }
+  }
+
+  function handleRetry() {
+    setQuestions(makeQuestions(slangs));
+    setIndex(0);
+    setHearts(MAX_HEARTS);
+    setCorrect(0);
+    setFeedback(null);
+    setDone(false);
+    setStarted(false);
+  }
+
+  if (loading) return (
+    <div style={{ minHeight: "100vh", background: G.pageBg, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Noto Sans KR', sans-serif", color: G.gray, fontSize: 14 }}>
+      슬랭 불러오는 중...
+    </div>
+  );
+
+  if (!started) return <IntroScreen total={slangs.length} onStart={() => setStarted(true)} />;
+
+  if (done) return <ResultScreen correct={correct} total={index + (feedback && !feedback.correct && hearts <= 0 ? 1 : 0)} onRetry={handleRetry} />;
+
+  const q = questions[index];
+  if (!q) return null;
+
+  return (
+    <div style={{ minHeight: "100vh", background: G.pageBg, fontFamily: "'Noto Sans KR', sans-serif", display: "flex", flexDirection: "column" }}>
+      {/* 헤더 */}
+      <div style={{ padding: "20px 28px 16px", flexShrink: 0 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+          <button onClick={() => navigate("/dashboard")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 13, color: G.gray, fontFamily: "'Noto Sans KR', sans-serif", padding: 0 }}>✕</button>
+          {/* 하트 */}
+          <div style={{ display: "flex", gap: 4 }}>
+            {Array.from({ length: MAX_HEARTS }).map((_, i) => (
+              <span key={i} style={{ fontSize: 20, filter: i >= hearts ? "grayscale(1) opacity(0.3)" : "none", transition: "filter 0.3s" }}>❤️</span>
+            ))}
+          </div>
+        </div>
+        {/* 진행 바 */}
+        <div style={{ height: 8, background: "#e5e7eb", borderRadius: 100, overflow: "hidden" }}>
+          <div style={{ height: "100%", width: `${((index + 1) / questions.length) * 100}%`, background: G.accent, borderRadius: 100, transition: "width 0.4s ease" }} />
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6 }}>
+          <div style={{ fontSize: 11, color: G.gray }}>{index + 1} / {questions.length}</div>
+          <div style={{ fontSize: 11, color: G.gray }}>
+            {q.type === "meaning"
+              ? <span style={{ display: "flex", alignItems: "center", gap: 4 }}><Puzzle size={11} strokeWidth={2} /> 뜻 고르기</span>
+              : q.type === "blank"
+              ? <span style={{ display: "flex", alignItems: "center", gap: 4 }}><PenLine size={11} strokeWidth={2} /> 빈칸 채우기</span>
+              : <span style={{ display: "flex", alignItems: "center", gap: 4 }}><ArrowLeftRight size={11} strokeWidth={2} /> 한→영</span>
+            }
+          </div>
         </div>
       </div>
 
-      {/* 버튼 */}
-      <div style={{ padding: "0 32px 40px", display: "flex", gap: 14, flexShrink: 0 }}>
-        <Button variant="secondary" onClick={() => next(false)} style={{ flex: 1, borderRadius: 20, padding: "18px", fontSize: 15, border: "2px solid #e5dfd5" }}>🔁 아직 헷갈려요</Button>
-        <Button onClick={() => next(true)} style={{ flex: 1.4, borderRadius: 20, padding: "18px", fontSize: 15 }}>이제 알겠어요 ✅</Button>
+      {/* 문제 영역 */}
+      <div style={{ flex: 1, padding: "8px 28px", paddingBottom: feedback ? 130 : 28, display: "flex", flexDirection: "column" }}>
+        {q.type === "meaning" && <MeaningQuestion key={index} card={q.card} allSlangs={slangs} onAnswer={handleAnswer} />}
+        {q.type === "blank"   && <BlankQuestion   key={index} card={q.card} allSlangs={slangs} onAnswer={handleAnswer} />}
+        {q.type === "ko2en"   && <Ko2EnQuestion   key={index} card={q.card} allSlangs={slangs} onAnswer={handleAnswer} />}
       </div>
+
+      {/* 피드백 바 */}
+      {feedback && <FeedbackBar correct={feedback.correct} explanation={feedback.explanation} onNext={handleNext} />}
     </div>
   );
 }

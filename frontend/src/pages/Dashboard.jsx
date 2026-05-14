@@ -1,14 +1,14 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { BookOpen, CheckCircle, Target, Percent, Globe, Flame, Zap, Calendar, Bot, Smartphone, Bookmark as BookmarkIcon, PartyPopper, Sun } from "lucide-react";
 
-// 아래부터 컴포넌트
 import G from "../constants/colors";
 import Sidebar from "../components/Sidebar";
 import SearchBar from "../components/SearchBar";
 
 /* ── 1. 상단 통계 카드 ── */
-function StatCard({ icon, label, value, sub, color = G.accent, bg, onClick }) {
+function StatCard({ icon: Icon, label, value, sub, color = G.accent, bg, onClick }) {
   return (
     <div onClick={onClick} style={{
       background: bg || G.white, borderRadius: 20, padding: "24px 26px",
@@ -20,7 +20,9 @@ function StatCard({ icon, label, value, sub, color = G.accent, bg, onClick }) {
       onMouseLeave={e => (e.currentTarget.style.transform = "none")}
     >
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
-        <div style={{ width: 44, height: 44, borderRadius: 14, background: `${color}18`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>{icon}</div>
+        <div style={{ width: 44, height: 44, borderRadius: 14, background: `${color}18`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <Icon size={22} color={color} strokeWidth={1.8} />
+        </div>
         {sub && <div style={{ fontSize: 11, color: G.green, fontWeight: 700, background: "#d1fae5", padding: "3px 9px", borderRadius: 100 }}>{sub}</div>}
       </div>
       <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 28, fontWeight: 900, color: G.black, lineHeight: 1, marginBottom: 6 }}>{value}</div>
@@ -54,12 +56,12 @@ function TodayCard({ navigate }) {
   return (
     <div style={{
       background: "linear-gradient(135deg, #0d1b2a 0%, #1a2744 100%)",
-      borderRadius: 24, padding: 32, flex: 1.2, display: "flex", flexDirection: "column", gap: 20,
+      borderRadius: 24, padding: 32, flex: 1, display: "flex", flexDirection: "column", gap: 20,
       fontFamily: "'Noto Sans KR', sans-serif", position: "relative", overflow: "hidden",
     }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.35)" }}>🃏 오늘의 학습</div>
-        <div style={{ background: "rgba(255,77,0,0.15)", color: G.accent, fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 100 }}>🔥 Pick</div>
+        <div style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.35)" }}>오늘의 학습</div>
+        <div style={{ background: "rgba(255,77,0,0.15)", color: G.accent, fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 100, display: "flex", alignItems: "center", gap: 4 }}><Flame size={10} strokeWidth={2} /> Pick</div>
       </div>
 
       <div onClick={() => setFlipped(!flipped)} style={{ background: "rgba(255,255,255,0.05)", borderRadius: 16, padding: "28px 20px", textAlign: "center", cursor: "pointer", minHeight: 140, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
@@ -67,7 +69,7 @@ function TodayCard({ navigate }) {
           <>
             <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 38, fontWeight: 900, color: G.white, letterSpacing: -1 }}>{todayWord.word}</div>
             <div style={{ fontSize: 10, color: "rgba(255,204,0,0.7)", letterSpacing: 1, textTransform: "uppercase" }}>{todayWord.category || "SNS / 일상"}</div>
-            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.2)", marginTop: 8 }}>탭해서 뒤집기 👆</div>
+            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.2)", marginTop: 8 }}>탭해서 뒤집기</div>
           </>
         ) : (
           <>
@@ -100,7 +102,7 @@ function AIChatPreview({ navigate }) {
     }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
-          <div style={{ fontSize: 15, fontWeight: 700 }}>🤖 AI 회화 연습</div>
+          <div style={{ fontSize: 15, fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}><Bot size={14} color={G.black} strokeWidth={2} /> AI 회화 연습</div>
           <div style={{ fontSize: 12, color: G.gray, marginTop: 2 }}>원어민 친구와 대화 연습</div> 
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -136,11 +138,12 @@ function WeeklyProgress({ navigate }) {
       background: G.white, borderRadius: 24, padding: 28,
       border: "1px solid rgba(0,0,0,0.05)",
       fontFamily: "'Noto Sans KR', sans-serif",
+      flex: 1,
     }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 22 }}>
         <div>
-          <div style={{ fontSize: 15, fontWeight: 700, color: G.black }}>📅 이번 주 학습</div>
-          <div style={{ fontSize: 12, color: G.gray, marginTop: 2 }}>4일 연속 학습 중 🔥</div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: G.black, display: "flex", alignItems: "center", gap: 6 }}><Calendar size={14} color={G.black} strokeWidth={2} /> 이번 주 학습</div>
+          <div style={{ fontSize: 12, color: G.gray, marginTop: 2, display: "flex", alignItems: "center", gap: 4 }}>4일 연속 학습 중 <Flame size={11} color={G.accent} strokeWidth={2} /></div>
         </div>
         <div onClick={() => navigate("/progress")} style={{ fontSize: 12, color: G.accent, fontWeight: 700, cursor: "pointer" }}>전체 보기 →</div>
       </div>
@@ -163,27 +166,178 @@ function WeeklyProgress({ navigate }) {
   );
 }
 
-/* ── 5. 카테고리별 숙련도 ── */
-function CategoryProgress() {
-  const cats = [
-    { label: "SNS / 일상 표현", pct: 72, color: G.accent },
-    { label: "감탄 / 리액션", pct: 55, color: G.blue },
-    { label: "칭찬 / 긍정", pct: 88, color: G.green },
-  ];
+/* ── 5. AI 회화 한 마디 ── */
+const DAILY_SENTENCES = [
+  { kr: "야 그거 완전 레전드였어, 진심으로!", en: "Bro that was legendary, no cap!", slang: "no cap" },
+  { kr: "걔 완전 나 무시하고 연락 끊었어.", en: "She totally ghosted me.", slang: "ghosted" },
+  { kr: "오늘 코디 완전 찢었다!", en: "You totally slayed today's outfit!", slang: "slayed" },
+  { kr: "그 사람 매력이 넘쳐흘러.", en: "That person has so much rizz.", slang: "rizz" },
+  { kr: "나 요즘 그 노래에 완전 꽂혔어.", en: "I'm lowkey obsessed with that song.", slang: "lowkey" },
+  { kr: "솔직히 그 영화 별로였어.", en: "Ngl, that movie was mid.", slang: "ngl / mid" },
+  { kr: "완전 내 스타일이야, 딱이야!", en: "It's giving exactly my vibe!", slang: "it's giving" },
+  { kr: "알겠어, 그렇게 하자!", en: "Bet, let's do it!", slang: "bet" },
+];
+
+function AIChatChallenge({ navigate }) {
+  const [revealed, setRevealed] = useState(false);
+  const sentence = DAILY_SENTENCES[new Date().getDay() % DAILY_SENTENCES.length];
+
   return (
-    <div style={{ background: G.white, borderRadius: 24, padding: 28, border: "1px solid rgba(0,0,0,0.05)" }}>
-      <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 20 }}>🎯 카테고리별 숙련도</div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        {cats.map(c => (
-          <div key={c.label}>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 6 }}>
-              <span>{c.label}</span><span>{c.pct}%</span>
-            </div>
-            <div style={{ height: 7, background: G.lightGray, borderRadius: 100, overflow: "hidden" }}>
-              <div style={{ height: "100%", width: `${c.pct}%`, background: c.color }} />
-            </div>
+    <div style={{ background: G.white, borderRadius: 24, padding: 28, border: "1px solid rgba(0,0,0,0.05)", display: "flex", flexDirection: "column", height: "100%" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+        <div style={{ fontSize: 15, fontWeight: 700 }}>이 문장, 슬랭으로 말할 수 있나요?</div>
+        <div onClick={() => navigate("/ai-chat")} style={{ fontSize: 12, color: G.accent, fontWeight: 700, cursor: "pointer" }}>연습하기 →</div>
+      </div>
+
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 14 }}>
+        <div style={{
+          background: "linear-gradient(135deg, #0d1b2a, #1a2744)",
+          borderRadius: 16, padding: "24px 20px", flex: 1,
+          display: "flex", flexDirection: "column", justifyContent: "center", gap: 10,
+        }}>
+          <div style={{ fontSize: 11, color: "rgba(255,204,0,0.6)", fontWeight: 700, letterSpacing: 1 }}>한국어</div>
+          <div style={{ fontSize: 16, fontWeight: 700, color: G.white, lineHeight: 1.5 }}>{sentence.kr}</div>
+          {revealed && (
+            <>
+              <div style={{ height: 1, background: "rgba(255,255,255,0.1)", margin: "4px 0" }} />
+              <div style={{ fontSize: 11, color: "rgba(100,200,100,0.8)", fontWeight: 700, letterSpacing: 1 }}>슬랭 영어</div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: "#7ee8a2", lineHeight: 1.5 }}>{sentence.en}</div>
+              <div style={{ background: "rgba(255,77,0,0.15)", borderRadius: 8, padding: "6px 12px", width: "fit-content" }}>
+                <span style={{ fontSize: 11, color: G.accent, fontWeight: 700 }}>핵심 슬랭: {sentence.slang}</span>
+              </div>
+            </>
+          )}
+        </div>
+
+        {!revealed ? (
+          <button onClick={() => setRevealed(true)} style={{
+            padding: "12px", borderRadius: 12, border: `2px dashed ${G.accent}`,
+            background: "rgba(255,77,0,0.04)", color: G.accent, fontWeight: 700,
+            fontSize: 13, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif",
+          }}>
+            정답 보기
+          </button>
+        ) : (
+          <button onClick={() => navigate("/ai-chat")} style={{
+            padding: "12px", borderRadius: 12, border: "none",
+            background: G.accent, color: G.white, fontWeight: 700,
+            fontSize: 13, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif",
+            boxShadow: "0 4px 14px rgba(255,77,0,0.3)",
+          }}>
+            <span style={{ display: "flex", alignItems: "center", gap: 6 }}><Bot size={14} strokeWidth={2} /> AI랑 직접 연습하기 →</span>
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ── 5. 최근 북마크 미리보기 ── */
+function RecentBookmarks({ navigate }) {
+  const [bookmarks, setBookmarks] = useState([]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+    axios.get("/api/bookmarks/list", { headers: { Authorization: `Bearer ${token}` } })
+      .then(res => { if (res.data.success) setBookmarks(res.data.data.slice(0, 4)); })
+      .catch(() => {});
+  }, []);
+
+  if (bookmarks.length === 0) return null;
+
+  return (
+    <div style={{ background: G.white, borderRadius: 24, padding: 28, border: "1px solid rgba(0,0,0,0.05)", marginBottom: 20 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
+        <div>
+          <div style={{ fontSize: 15, fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}><BookmarkIcon size={14} color={G.black} strokeWidth={2} /> 최근 북마크</div>
+          <div style={{ fontSize: 12, color: G.gray, marginTop: 2 }}>저장한 표현 빠르게 복습</div>
+        </div>
+        <div onClick={() => navigate("/bookmark")} style={{ fontSize: 12, color: G.accent, fontWeight: 700, cursor: "pointer" }}>전체 보기 →</div>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
+        {bookmarks.map(b => (
+          <div key={b.slang_id} style={{ background: G.pageBg, borderRadius: 14, padding: "14px 16px" }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: G.black, marginBottom: 4 }}>{b.word}</div>
+            <div style={{ fontSize: 12, color: G.gray, lineHeight: 1.4 }}>{b.definition_ko}</div>
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+/* ── 6. 슬랭 쇼츠 미리보기 ── */
+function ShortsPreview({ navigate }) {
+  const [shorts, setShorts] = useState([]);
+
+  useEffect(() => {
+    fetch("/api/slangs/shorts")
+      .then(r => r.json())
+      .then(data => setShorts((data.data || []).slice(0, 3)))
+      .catch(() => {});
+  }, []);
+
+  if (shorts.length === 0) return null;
+
+  return (
+    <div style={{ background: G.white, borderRadius: 24, padding: 28, border: "1px solid rgba(0,0,0,0.05)", marginBottom: 20 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
+        <div>
+          <div style={{ fontSize: 15, fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}><Smartphone size={14} color={G.black} strokeWidth={2} /> 슬랭 쇼츠</div>
+          <div style={{ fontSize: 12, color: G.gray, marginTop: 2 }}>영상으로 배우는 슬랭</div>
+        </div>
+        <div onClick={() => navigate("/shorts")} style={{ fontSize: 12, color: G.accent, fontWeight: 700, cursor: "pointer" }}>더 보기 →</div>
+      </div>
+      <div style={{ display: "flex", gap: 14 }}>
+        {shorts.map(s => (
+          <div key={s.slang_id} onClick={() => navigate("/shorts")} style={{ flex: 1, borderRadius: 16, overflow: "hidden", position: "relative", cursor: "pointer", aspectRatio: "9/16", maxHeight: 200, background: "#000" }}>
+            <video src={s.shorts_url} style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.7 }} muted />
+            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "20px 12px 12px", background: "linear-gradient(to top, rgba(0,0,0,0.8), transparent)" }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#fff" }}>{s.word}</div>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", marginTop: 2 }}>{s.definition_ko}</div>
+            </div>
+            <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", fontSize: 24, opacity: 0.8 }}>▶</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ── 7. 오늘의 퀴즈 배너 ── */
+function QuizBanner({ navigate, todayCount }) {
+  const done = todayCount > 0;
+  return (
+    <div onClick={() => navigate("/practice")} style={{
+      background: done
+        ? "linear-gradient(135deg, #064e3b, #065f46)"
+        : "linear-gradient(135deg, #1e3a5f, #1e40af)",
+      borderRadius: 20, padding: "24px 28px", marginBottom: 20, cursor: "pointer",
+      display: "flex", alignItems: "center", justifyContent: "space-between",
+      boxShadow: "0 4px 20px rgba(0,0,0,0.08)", transition: "transform 0.2s",
+    }}
+      onMouseEnter={e => e.currentTarget.style.transform = "translateY(-2px)"}
+      onMouseLeave={e => e.currentTarget.style.transform = "none"}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 44, height: 44 }}>
+          {done ? <CheckCircle size={36} color="#6ee7b7" strokeWidth={1.6} /> : <Target size={36} color="rgba(255,255,255,0.7)" strokeWidth={1.6} />}
+        </div>
+        <div>
+          <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 14, fontWeight: 900, color: "#fff", marginBottom: 4 }}>
+            {done ? "오늘의 퀴즈 완료!" : "오늘의 퀴즈 아직 안 풀었어요!"}
+          </div>
+          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)" }}>
+            {done
+              ? <span style={{ display: "flex", alignItems: "center", gap: 5 }}>{todayCount}개 표현 학습 완료 <PartyPopper size={12} color="rgba(255,255,255,0.5)" strokeWidth={2} /></span>
+              : <span style={{ display: "flex", alignItems: "center", gap: 5 }}>지금 바로 풀고 스트릭 유지하세요 <Flame size={12} color="rgba(255,255,255,0.5)" strokeWidth={2} /></span>
+            }
+          </div>
+        </div>
+      </div>
+      <div style={{ background: "rgba(255,255,255,0.15)", color: "#fff", fontSize: 12, fontWeight: 700, padding: "8px 18px", borderRadius: 100, whiteSpace: "nowrap", border: "1px solid rgba(255,255,255,0.2)" }}>
+        {done ? "다시 풀기 →" : "퀴즈 풀기 →"}
       </div>
     </div>
   );
@@ -206,21 +360,21 @@ function MainContent({ stats }) {
   }, []);
 
   return (
-    <main style={{ flex: 1, padding: "36px 40px", overflowY: "auto", minHeight: "100vh", background: "#f0ede6" }}>
+    <main style={{ flex: 1, padding: "36px 40px", overflowY: "auto", minHeight: "100vh", background: G.pageBg }}>
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
         <div>
-          <div style={{ fontSize: 13, color: G.gray, marginBottom: 4 }}>좋은 하루에요 ☀️</div>
+          <div style={{ fontSize: 13, color: G.gray, marginBottom: 4, display: "flex", alignItems: "center", gap: 5 }}>좋은 하루에요 <Sun size={13} color={G.gray} strokeWidth={1.8} /></div>
           <h1 style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 26, fontWeight: 900, color: G.black }}>
             오늘도 한 표현씩, <span style={{ color: G.accent }}>{userName}님!</span>
           </h1>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ background: G.white, borderRadius: 14, padding: "10px 18px", fontSize: 14, fontWeight: 700, border: "1px solid rgba(0,0,0,0.05)" }}>
-            🔥 <span style={{ color: G.accent }}>{currentStats.streak}일</span> 연속
+            <Flame size={14} color={G.accent} strokeWidth={2} style={{ display: "inline" }} /> <span style={{ color: G.accent }}>{currentStats.streak}일</span> 연속
           </div>
-          <div style={{ background: G.white, borderRadius: 14, padding: "10px 18px", fontSize: 14, fontWeight: 700, border: "1px solid rgba(0,0,0,0.05)" }}>
-            ⚡ <span style={{ color: G.accent2 }}>{currentStats.xp.toLocaleString()}</span> XP
+          <div style={{ background: G.white, borderRadius: 14, padding: "10px 18px", fontSize: 14, fontWeight: 700, border: "1px solid rgba(0,0,0,0.05)", display: "flex", alignItems: "center", gap: 5 }}>
+            <Zap size={14} color={G.accent2} strokeWidth={2} /> <span style={{ color: G.accent2 }}>{currentStats.xp.toLocaleString()}</span> XP
           </div>
         </div>
       </div>
@@ -229,10 +383,10 @@ function MainContent({ stats }) {
 
       {/* 1. 상단 스탯 카드 */}
       <div style={{ display: "flex", gap: 16, marginBottom: 20 }}>
-        <StatCard icon="📚" label="오늘 학습한 표현" value={currentStats.todayCount} sub="+2 어제보다" color={G.accent} onClick={() => navigate("/learning-intro")} />
-        <StatCard icon="✅" label="완료한 카드" value={currentStats.masteredCount} sub="이번 달" color={G.blue} onClick={() => navigate("/progress")} />
-        <StatCard icon="🎯" label="AI 대화 횟수" value={currentStats.aiCount} sub="이번 주" color={G.purple} onClick={() => navigate("/ai-chat")} />
-        <StatCard icon="💪" label="평균 정확도" value={`${currentStats.accuracy}%`} sub="↑ 5%" color={G.green} onClick={() => navigate("/progress")} />
+        <StatCard icon={BookOpen}   label="오늘 학습한 표현" value={currentStats.todayCount}           sub="+2 어제보다" color={G.accent} onClick={() => navigate("/learning-intro")} />
+        <StatCard icon={CheckCircle} label="완료한 카드"      value={currentStats.masteredCount}         sub="이번 달"    color={G.blue}   onClick={() => navigate("/progress")} />
+        <StatCard icon={Target}      label="AI 대화 횟수"    value={currentStats.aiCount}               sub="이번 주"    color={G.purple} onClick={() => navigate("/ai-chat")} />
+        <StatCard icon={Percent}     label="평균 정확도"     value={`${currentStats.accuracy}%`}        sub="↑ 5%"      color={G.green}  onClick={() => navigate("/progress")} />
       </div>
 
       {/* 2. 중앙 카드 + AI 프리뷰  */}
@@ -241,32 +395,20 @@ function MainContent({ stats }) {
         <AIChatPreview navigate={navigate} />
       </div>
 
-      {/* 3. 주간 그래프 + 카테고리 숙련도  */}
-      <div style={{ display: "flex", gap: 20, marginBottom: 20 }}>
-        <div style={{ flex: 1 }}><WeeklyProgress /></div>
-        <div style={{ flex: 1 }}><CategoryProgress /></div>
+      {/* 3. 주간 그래프 + 슬랭 퀴즈 */}
+      <div style={{ display: "flex", gap: 20, marginBottom: 20, alignItems: "stretch" }}>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column" }}><WeeklyProgress /></div>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column" }}><AIChatChallenge navigate={navigate} /></div>
       </div>
 
-      {/* 회화 학습 배너 */}
-      <div onClick={() => navigate("/conversation")} style={{
-        background: `linear-gradient(135deg, #0d1b2a 0%, #1e3a5f 100%)`,
-        borderRadius: 20, padding: "24px 28px", marginBottom: 20, cursor: "pointer",
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-        border: "1px solid rgba(255,255,255,0.06)",
-        boxShadow: "0 4px 20px rgba(0,0,0,0.08)", transition: "transform 0.2s",
-      }}
-        onMouseEnter={e => e.currentTarget.style.transform = "translateY(-2px)"}
-        onMouseLeave={e => e.currentTarget.style.transform = "none"}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <div style={{ fontSize: 36 }}>💬</div>
-          <div>
-            <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 15, fontWeight: 900, color: "#ffffff", marginBottom: 4 }}>회화 학습</div>
-            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.5)" }}>상황별 패턴 · 핵심 표현 · 실전 대화문 · 문법 포인트</div>
-          </div>
-        </div>
-        <div style={{ background: "rgba(255,77,0,1)", color: "#ffffff", fontSize: 12, fontWeight: 700, padding: "8px 18px", borderRadius: 100, fontFamily: "'Noto Sans KR', sans-serif", whiteSpace: "nowrap", boxShadow: "0 4px 14px rgba(255,77,0,0.4)" }}>학습하기 →</div>
-      </div>
+      {/* 4. 슬랭 쇼츠 미리보기 */}
+      <ShortsPreview navigate={navigate} />
+
+      {/* 5. 오늘의 퀴즈 배너 */}
+      <QuizBanner navigate={navigate} todayCount={currentStats.todayCount} />
+
+      {/* 6. 최근 북마크 */}
+      <RecentBookmarks navigate={navigate} />
 
       {/* 커뮤니티 배너 */}
       <div onClick={() => navigate("/community")} style={{
@@ -279,7 +421,9 @@ function MainContent({ stats }) {
         onMouseLeave={e => e.currentTarget.style.transform = "none"}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <div style={{ fontSize: 36 }}>🌐</div>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 44, height: 44 }}>
+            <Globe size={36} color="rgba(255,255,255,0.8)" strokeWidth={1.5} />
+          </div>
           <div>
             <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 15, fontWeight: 900, color: "#ffffff", marginBottom: 4 }}>커뮤니티</div>
             <div style={{ fontSize: 13, color: "rgba(255,255,255,0.5)" }}>새 슬랭 제보 · 좋아요 · 댓글 · 이번 주 핫 랭킹</div>

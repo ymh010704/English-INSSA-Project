@@ -1122,7 +1122,7 @@ export default function Admin() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f0ede6", display: "flex" }}>
+    <div style={{ minHeight: "100vh", background: G.pageBg, display: "flex" }}>
       <aside style={{ background: G.white, width: 260, borderRight: "1px solid #eee", padding: 16, position: "fixed", height: "100vh", display: "flex", 
   flexDirection: "column"}}>
         <h2 style={{ padding: 20, fontSize: 18, fontWeight: 900 }}>관리자 페이지</h2>

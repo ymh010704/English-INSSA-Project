@@ -98,7 +98,7 @@ export default function CardStudy() {
   // ── 데이터가 로딩 중일 때 보여줄 화면 ──
   if (loading) {
     return (
-      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f0ede6" }}>
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: G.pageBg }}>
         <div style={{ textAlign: "center" }}>
           <div style={{ fontSize: 40, marginBottom: 16 }}>🚀</div>
           <p style={{ fontWeight: 700, color: G.accent }}>인싸 문제 가져오는 중...</p>
@@ -178,7 +178,7 @@ export default function CardStudy() {
 
   // 4. 메인 UI 렌더링
   return (
-    <div style={{ minHeight: "100vh", background: "#f0ede6", fontFamily: "'Noto Sans KR', sans-serif", display: "flex", flexDirection: "column" }}>
+    <div style={{ minHeight: "100vh", background: G.pageBg, fontFamily: "'Noto Sans KR', sans-serif", display: "flex", flexDirection: "column" }}>
 
       {/* 상단 헤더 */}
       <PageHeader

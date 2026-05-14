@@ -14,10 +14,10 @@ import Review from "./pages/Review";
 import Progress from "./pages/Progress";
 import Bookmark from "./pages/Bookmark";
 import Settings from "./pages/Settings";
-import ConversationLearn from "./pages/ConversationLearn";
 import Community from "./pages/Community";
 import SlangList from "./pages/SlangList";
 import Shorts from "./pages/Shorts";
+import MyPage from "./pages/MyPage";
 
 export default function App() {
   return (
@@ -37,10 +37,10 @@ export default function App() {
         <Route path="/progress" element={<Layout><Progress /></Layout>} />
         <Route path="/bookmark" element={<Layout><Bookmark /></Layout>} />
         <Route path="/settings" element={<Settings />} />
-        <Route path="/conversation" element={<Layout><ConversationLearn /></Layout>} />
         <Route path="/community" element={<Layout><Community /></Layout>} />
         <Route path="/slangs" element={<Layout><SlangList /></Layout>} />
         <Route path="/shorts" element={<Layout><Shorts /></Layout>} />
+        <Route path="/mypage" element={<Layout><MyPage /></Layout>} />
       </Routes>
     </BrowserRouter>
   );
