@@ -285,7 +285,7 @@ export default function Dashboard() {
           return;
         }
 
-        const res = await axios.get('http://localhost/api/dashboard/stats', {
+        const res = await axios.get('/api/dashboard/stats', {
           headers: { Authorization: `Bearer ${token}` }
         });
         // 서버 응답이 와야만 업데이트 하도록
