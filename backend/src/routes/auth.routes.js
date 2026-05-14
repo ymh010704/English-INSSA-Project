@@ -10,6 +10,8 @@ import passport from "../config/passport.js"; // passport 설정 가져오기
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'your_super_secret_key'; // JWT 환경변수
 
+const FRONT_URL = process.env.FRONTBACK_URL || "http://localhost"
+
 
 // 공통 (우선 토큰 생성 함수)
 const generateToken = (user) => {
@@ -110,8 +112,7 @@ router.get("/google/callback",
       provider: req.user.provider || 'google'
     }));
     // 프론트엔드 로그인 페이지로 토큰과 유저 정보를 들고 리다이렉트
-    const domainURL = process.env.FRONTBACK_URL || "http://localhost"
-    res.redirect(`${domainURL}/login?token=${token}&user=${user}`);
+    res.redirect(`${FRONT_URL}/login?token=${token}&user=${user}`);
   }
 );
 
@@ -138,12 +139,10 @@ router.get("/kakao/callback",
 
       console.log(`✅ 로그인 성공: ${req.user.nickname}`);
       // 프론트엔드로 최종 리다이렉트
-      const domainURL = process.env.FRONTBACK_URL || "http://localhost"
       res.redirect(`${domainURL}/login?token=${token}&user=${userData}`);
 
     } catch (err) {
       console.error("🚨 리다이렉트 처리 중 에러:", err.message);
-      const domainURL = process.env.FRONTBACK_URL || "http://localhost"
       res.redirect(`${domainURL}/login?error=server_error"`);
     }
   }
