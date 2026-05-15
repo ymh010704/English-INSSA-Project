@@ -7,6 +7,38 @@ import G from "../constants/colors";
 import Sidebar from "../components/Sidebar";
 import SearchBar from "../components/SearchBar";
 import useBreakpoint from "../hooks/useBreakpoint";
+import Skeleton from "../components/Skeleton";
+
+function DashboardSkeleton() {
+  const { isMobile } = useBreakpoint();
+  const pad = isMobile ? "16px" : "36px 40px";
+  return (
+    <main style={{ flex: 1, padding: pad, background: G.pageBg, overflowY: "auto" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <Skeleton width={80} height={12} />
+          <Skeleton width={isMobile ? 180 : 260} height={isMobile ? 24 : 32} />
+        </div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <Skeleton width={60} height={36} radius={12} />
+          <Skeleton width={60} height={36} radius={12} />
+        </div>
+      </div>
+      <Skeleton height={48} radius={14} style={{ marginBottom: 20 }} />
+      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(4, 1fr)", gap: isMobile ? 10 : 16, marginBottom: 16 }}>
+        {[0,1,2,3].map(i => <Skeleton key={i} height={isMobile ? 90 : 120} radius={16} />)}
+      </div>
+      <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? 12 : 20, marginBottom: 16 }}>
+        <Skeleton height={220} radius={24} style={{ flex: 1 }} />
+        <Skeleton height={220} radius={24} style={{ flex: 1 }} />
+      </div>
+      <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? 12 : 20 }}>
+        <Skeleton height={180} radius={24} style={{ flex: 1 }} />
+        <Skeleton height={180} radius={24} style={{ flex: 1 }} />
+      </div>
+    </main>
+  );
+}
 
 /* ── 1. 상단 통계 카드 ── */
 function StatCard({ icon: Icon, label, value, sub, color = G.accent, bg, onClick }) {
@@ -435,6 +467,10 @@ function MainContent({ stats }) {
         </div>
         <div style={{ background: "#7c3aed", color: "#ffffff", fontSize: 12, fontWeight: 700, padding: "8px 16px", borderRadius: 100, fontFamily: "'Noto Sans KR', sans-serif", whiteSpace: "nowrap", border: "1px solid rgba(255,255,255,0.2)" }}>참여하기 →</div>
       </div>
+
+      <div style={{ textAlign: "center", padding: "24px 0 8px", fontSize: 12, color: "#bcc0c6" }}>
+        영어인싸되기 v1.0.0
+      </div>
     </main>
   );
 }
@@ -442,6 +478,7 @@ function MainContent({ stats }) {
 /* ── 대시보드 메인 ── */
 export default function Dashboard() {
   const [active, setActive] = useState("home");
+  const [loading, setLoading] = useState(true);
 
   const [stats, setStats] = useState({
     todayCount: 0,
@@ -474,6 +511,8 @@ export default function Dashboard() {
         }
       } catch (err) {
         console.error("Stats 로딩 실패", err);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -492,13 +531,7 @@ export default function Dashboard() {
         
         {/* 2. MainContent는 아래처럼 "단 한 번만" 호출해야 합니다. */}
         {/* stats가 있으면 MainContent를 그리고, 없으면 로딩 화면을 보여줍니다. */}
-        {stats ? (
-          <MainContent stats={stats} />
-        ) : (
-          <div style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center", background: "#F3F4F6" }}>
-            <p>데이터를 불러오는 중입니다...</p>
-          </div>
-        )}
+        {loading ? <DashboardSkeleton /> : <MainContent stats={stats} />}
       </div>
     </>
   );

@@ -10,6 +10,7 @@ import OXQuiz from "../components/quiz/OXQuiz";
 import G from "../constants/colors";
 import PageHeader from "../components/PageHeader";
 import Button from "../components/Button";
+import Skeleton from "../components/Skeleton";
 
 /* ── 공부 완료 화면  ── */
 function CompletionScreen({ known, total, onRestart }) {
@@ -101,10 +102,20 @@ export default function CardStudy() {
   // ── 데이터가 로딩 중일 때 보여줄 화면 ──
   if (loading) {
     return (
-      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: G.pageBg }}>
-        <div style={{ textAlign: "center" }}>
-          <div style={{ fontSize: 40, marginBottom: 16 }}>🚀</div>
-          <p style={{ fontWeight: 700, color: G.accent }}>인싸 문제 가져오는 중...</p>
+      <div style={{ minHeight: "100vh", background: G.pageBg, fontFamily: "'Noto Sans KR', sans-serif", display: "flex", flexDirection: "column" }}>
+        <div style={{ height: 60, background: G.white, borderBottom: "1px solid rgba(0,0,0,0.06)", display: "flex", alignItems: "center", padding: "0 20px" }}>
+          <Skeleton width={120} height={20} />
+        </div>
+        <div style={{ height: 5, background: "#e5e0d8" }} />
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: isMobile ? "16px 12px" : "32px 24px", gap: 20 }}>
+          <Skeleton width={120} height={32} radius={100} />
+          <div style={{ width: "100%", maxWidth: 640, background: G.white, borderRadius: 24, padding: "36px 32px", display: "flex", flexDirection: "column", alignItems: "center", gap: 14, boxShadow: "0 4px 20px rgba(0,0,0,0.06)" }}>
+            <Skeleton width={80} height={12} />
+            <Skeleton width={200} height={48} />
+          </div>
+          <div style={{ width: "100%", maxWidth: 640, display: "flex", flexDirection: "column", gap: 10 }}>
+            {[0, 1, 2, 3].map(i => <Skeleton key={i} width="100%" height={56} radius={14} />)}
+          </div>
         </div>
       </div>
     );

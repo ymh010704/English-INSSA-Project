@@ -6,6 +6,7 @@ import G from "../constants/colors";
 import Mascot from "../components/Mascot";
 import PageHeader from "../components/PageHeader";
 import Button from "../components/Button";
+import Skeleton from "../components/Skeleton";
 
 const TOTAL_QUESTIONS = 10;
 const MAX_HEARTS = 3;
@@ -410,8 +411,38 @@ export default function Review() {
   }
 
   if (loading) return (
-    <div style={{ minHeight: "100vh", background: G.pageBg, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Noto Sans KR', sans-serif", color: G.gray, fontSize: 14 }}>
-      슬랭 불러오는 중...
+    <div style={{ minHeight: "100vh", background: G.pageBg, fontFamily: "'Noto Sans KR', sans-serif", display: "flex", flexDirection: "column" }}>
+      <div style={{ height: 60, background: G.white, borderBottom: "1px solid rgba(0,0,0,0.06)", display: "flex", alignItems: "center", padding: "0 20px" }}>
+        <Skeleton width={100} height={20} />
+      </div>
+      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: isMobile ? "20px 16px" : "40px 20px" }}>
+        <div style={{ width: "100%", maxWidth: 560, display: "flex", flexDirection: "column", gap: 20 }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, marginBottom: 12 }}>
+            <Skeleton width={140} height={140} radius={70} />
+            <Skeleton width={180} height={32} radius={100} />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, marginBottom: 8 }}>
+            <Skeleton width={220} height={28} />
+            <Skeleton width={180} height={14} />
+            <Skeleton width={160} height={14} />
+          </div>
+          <div style={{ background: G.white, borderRadius: 20, overflow: "hidden", border: "1px solid rgba(0,0,0,0.06)" }}>
+            {[0, 1, 2].map(i => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 16, padding: "16px 24px", borderBottom: i < 2 ? "1px solid rgba(0,0,0,0.05)" : "none" }}>
+                <Skeleton width={36} height={36} radius={10} />
+                <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 6 }}>
+                  <Skeleton width={80} height={14} />
+                  <Skeleton width={140} height={12} />
+                </div>
+              </div>
+            ))}
+          </div>
+          <div style={{ display: "flex", gap: 12 }}>
+            {[0, 1, 2].map(i => <Skeleton key={i} height={80} radius={14} style={{ flex: 1 }} />)}
+          </div>
+          <Skeleton height={56} radius={16} />
+        </div>
+      </div>
     </div>
   );
 

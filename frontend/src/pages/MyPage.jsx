@@ -5,6 +5,7 @@ import useBreakpoint from "../hooks/useBreakpoint";
 import { Flame, BookOpen, Zap, Moon, Trophy, Crown, Star, Gem, Bot, Sprout, TrendingUp, Award, CircleUser, BarChart2, Bookmark as BookmarkIcon, RotateCcw, Cog, Link2, Lock } from "lucide-react";
 import G from "../constants/colors";
 import PageHeader from "../components/PageHeader";
+import Skeleton from "../components/Skeleton";
 
 const TIERS = [
   { name: "입문",     min: 0,    color: "#94a3b8", icon: Sprout     },
@@ -68,6 +69,7 @@ export default function MyPage() {
   const [user, setUser] = useState({ nickname: "인싸", email: "", provider: "local" });
   const [avatar, setAvatar] = useState(null);
   const [stats, setStats] = useState({ streak: 0, totalSlangs: 0, bookmarks: 0 });
+  const [loading, setLoading] = useState(true);
 
   const XP = 1240;
   const tier = getTier(XP);
@@ -88,19 +90,37 @@ export default function MyPage() {
     if (storedAvatar) setAvatar(storedAvatar);
 
     const token = localStorage.getItem("token");
-    if (!token) return;
+    if (!token) { setLoading(false); return; }
 
-    axios.get("/api/dashboard/stats", { headers: { Authorization: `Bearer ${token}` } })
-      .then(r => setStats(p => ({ ...p, streak: r.data.streak || 0, totalSlangs: r.data.totalSlangs || 0 })))
-      .catch(() => {});
-
-    axios.get("/api/slangs/bookmarks", { headers: { Authorization: `Bearer ${token}` } })
-      .then(r => {
-        const list = Array.isArray(r.data) ? r.data : r.data.data || [];
-        setStats(p => ({ ...p, bookmarks: list.length }));
-      })
-      .catch(() => {});
+    Promise.allSettled([
+      axios.get("/api/dashboard/stats", { headers: { Authorization: `Bearer ${token}` } })
+        .then(r => setStats(p => ({ ...p, streak: r.data.streak || 0, totalSlangs: r.data.totalSlangs || 0 }))),
+      axios.get("/api/slangs/bookmarks", { headers: { Authorization: `Bearer ${token}` } })
+        .then(r => {
+          const list = Array.isArray(r.data) ? r.data : r.data.data || [];
+          setStats(p => ({ ...p, bookmarks: list.length }));
+        }),
+    ]).finally(() => setLoading(false));
   }, []);
+
+  if (loading) return (
+    <div style={{ minHeight: "100vh", fontFamily: "'Noto Sans KR', sans-serif", background: G.pageBg }}>
+      <div style={{ height: 60, background: G.white, borderBottom: "1px solid rgba(0,0,0,0.06)", display: "flex", alignItems: "center", padding: "0 20px" }}>
+        <Skeleton width={100} height={20} />
+      </div>
+      <div style={{ maxWidth: 900, margin: "0 auto", padding: isMobile ? "16px 12px" : "32px 24px", display: "flex", flexDirection: "column", gap: 20 }}>
+        <Skeleton width="100%" height={isMobile ? 260 : 220} radius={28} />
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 20 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+            <Skeleton width="100%" height={140} radius={20} />
+            <Skeleton width="100%" height={160} radius={20} />
+            <Skeleton width="100%" height={200} radius={20} />
+          </div>
+          <Skeleton width="100%" height={isMobile ? 300 : 440} radius={20} />
+        </div>
+      </div>
+    </div>
+  );
 
   function handleAvatarChange(e) {
     const file = e.target.files[0];
@@ -407,7 +427,7 @@ export default function MyPage() {
         </div>
 
         <div style={{ textAlign: "center", fontSize: 12, color: "#bcc0c6", padding: "4px 0 8px" }}>
-          영어인싸되기 v1.0.0 · Made with 🧡 by Engssa Team
+          영어인싸되기 v1.0.0
         </div>
       </div>
     </div>

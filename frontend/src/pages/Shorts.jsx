@@ -1,16 +1,8 @@
 import { useEffect, useRef, useState } from "react";
+import { Volume2, Volume1, VolumeX } from "lucide-react";
 
-function ShortsItem({ s, isActive }) {
+function ShortsItem({ s, isActive, volume, muted, onVolumeChange, onToggleMute }) {
   const videoRef = useRef(null);
-  const savedVol = parseFloat(localStorage.getItem("shorts_volume") ?? "1");
-  const [volume, setVolume] = useState(savedVol);
-  const [muted, setMuted] = useState(false);
-  const prevVolume = useRef(savedVol);
-
-  const updateVolume = (v) => {
-    setVolume(v);
-    localStorage.setItem("shorts_volume", v);
-  };
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const progressRef = useRef(null);
@@ -27,10 +19,7 @@ function ShortsItem({ s, isActive }) {
     if (videoRef.current) videoRef.current.volume = muted ? 0 : volume;
   }, [volume, muted]);
 
-  const toggleMute = () => {
-    if (!muted) { prevVolume.current = volume; setMuted(true); }
-    else { setMuted(false); updateVolume(prevVolume.current || 1); }
-  };
+  const toggleMute = onToggleMute;
 
   const handleTimeUpdate = () => {
     const video = videoRef.current;
@@ -144,18 +133,19 @@ function ShortsItem({ s, isActive }) {
         position: "absolute", bottom: 50, right: 16,
         display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
       }}>
-        <span onClick={toggleMute} style={{ fontSize: 18, cursor: "pointer", color: "#fff" }}>
-          {muted || volume === 0 ? "🔇" : volume < 0.5 ? "🔉" : "🔊"}
-        </span>
+        <button onClick={toggleMute} style={{ background: "none", border: "none", cursor: "pointer", padding: 4, color: "#fff", display: "flex" }}>
+          {muted || volume === 0
+            ? <VolumeX size={20} strokeWidth={1.8} />
+            : volume < 0.5
+            ? <Volume1 size={20} strokeWidth={1.8} />
+            : <Volume2 size={20} strokeWidth={1.8} />}
+        </button>
         <input
           type="range" min={0} max={1} step={0.05}
           value={muted ? 0 : volume}
-          onChange={(e) => { const v = parseFloat(e.target.value); updateVolume(v); if (muted) setMuted(false); }}
+          onChange={(e) => { const v = parseFloat(e.target.value); onVolumeChange(v); }}
           style={{ writingMode: "vertical-lr", direction: "rtl", width: 4, height: 80, cursor: "pointer", accentColor: "#ff4d00" }}
         />
-        <span style={{ color: "rgba(255,255,255,0.7)", fontSize: 10 }}>
-          {muted ? 0 : Math.round(volume * 100)}
-        </span>
       </div>
     </div>
   );
@@ -164,12 +154,30 @@ function ShortsItem({ s, isActive }) {
 export default function Shorts() {
   const [shorts, setShorts] = useState([]);
   const [current, setCurrent] = useState(0);
+  const [loading, setLoading] = useState(true);
   const containerRef = useRef(null);
+
+  const savedVol = parseFloat(localStorage.getItem("shorts_volume") ?? "1");
+  const [volume, setVolume] = useState(savedVol);
+  const [muted, setMuted] = useState(false);
+  const prevVolume = useRef(savedVol);
+
+  const updateVolume = (v) => {
+    setVolume(v);
+    if (muted) setMuted(false);
+    localStorage.setItem("shorts_volume", v);
+  };
+
+  const toggleMute = () => {
+    if (!muted) { prevVolume.current = volume; setMuted(true); }
+    else { setMuted(false); updateVolume(prevVolume.current || 1); }
+  };
 
   useEffect(() => {
     fetch("/api/slangs/shorts")
       .then((r) => r.json())
-      .then((data) => setShorts(data.data || []));
+      .then((data) => setShorts(data.data || []))
+      .finally(() => setLoading(false));
   }, []);
 
   const handleScroll = () => {
@@ -177,6 +185,16 @@ export default function Shorts() {
     const index = Math.round(containerRef.current.scrollTop / containerRef.current.clientHeight);
     setCurrent(index);
   };
+
+  if (loading) return (
+    <div style={{ height: "100%", backgroundColor: "#000", display: "flex", flexDirection: "column", justifyContent: "flex-end", padding: "0 20px 80px" }}>
+      <div style={{ marginBottom: 20 }}>
+        <div style={{ width: 140, height: 22, borderRadius: 6, background: "rgba(255,255,255,0.12)", marginBottom: 10, animation: "shimmer 1.4s infinite linear", backgroundImage: "linear-gradient(90deg,rgba(255,255,255,0.06) 25%,rgba(255,255,255,0.14) 50%,rgba(255,255,255,0.06) 75%)", backgroundSize: "200% 100%" }} />
+        <div style={{ width: "90%", height: 14, borderRadius: 6, background: "rgba(255,255,255,0.08)", marginBottom: 6, animation: "shimmer 1.4s infinite linear", backgroundImage: "linear-gradient(90deg,rgba(255,255,255,0.04) 25%,rgba(255,255,255,0.1) 50%,rgba(255,255,255,0.04) 75%)", backgroundSize: "200% 100%" }} />
+        <div style={{ width: "70%", height: 14, borderRadius: 6, background: "rgba(255,255,255,0.08)", animation: "shimmer 1.4s infinite linear", backgroundImage: "linear-gradient(90deg,rgba(255,255,255,0.04) 25%,rgba(255,255,255,0.1) 50%,rgba(255,255,255,0.04) 75%)", backgroundSize: "200% 100%" }} />
+      </div>
+    </div>
+  );
 
   return (
     <div
@@ -188,7 +206,15 @@ export default function Shorts() {
         <div style={{ color: "#fff", textAlign: "center", paddingTop: "40vh", fontSize: 18 }}>쇼츠가 없어요</div>
       )}
       {shorts.map((s, i) => (
-        <ShortsItem key={s.slang_id} s={s} isActive={i === current} />
+        <ShortsItem
+          key={s.slang_id}
+          s={s}
+          isActive={i === current}
+          volume={volume}
+          muted={muted}
+          onVolumeChange={updateVolume}
+          onToggleMute={toggleMute}
+        />
       ))}
     </div>
   );

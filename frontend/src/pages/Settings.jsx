@@ -167,85 +167,98 @@ export default function Settings() {
   return (
     <div style={{ minHeight: "100vh", fontFamily: "'Noto Sans KR', sans-serif", background: G.pageBg }}>
 
-      {/* 헤더 */}
       <PageHeader title="설정" icon={Cog} />
 
-      <div style={{ maxWidth: 600, margin: "0 auto", padding: isMobile ? "16px" : "32px 24px" }}>
+      <div style={{ maxWidth: 960, margin: "0 auto", padding: isMobile ? "16px" : "32px 40px" }}>
 
-        {/* 프로필 카드 */}
-        <div style={{ background: `linear-gradient(145deg, ${G.navy}, #1e3a5f)`, borderRadius: 24, padding: isMobile ? "20px" : "28px 32px", marginBottom: 16, display: "flex", alignItems: "center", flexDirection: isMobile ? "column" : "row", gap: 20, position: "relative", overflow: "hidden", textAlign: isMobile ? "center" : "left" }}>
-          <div style={{ position: "absolute", top: -40, right: -40, width: 160, height: 160, background: "radial-gradient(circle, rgba(255,77,0,0.2) 0%, transparent 70%)", pointerEvents: "none" }} />
-          <div style={{ position: "relative" }}>
-            <div style={{ width: 72, height: 72, borderRadius: "50%", background: avatar ? "transparent" : G.accent, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, fontFamily: "'Unbounded', sans-serif", fontWeight: 900, color: G.white, overflow: "hidden", border: "3px solid rgba(255,255,255,0.2)" }}>
+        {/* 프로필 카드 — 풀 너비 */}
+        <div style={{
+          background: `linear-gradient(145deg, ${G.navy}, #1e3a5f)`,
+          borderRadius: 24, padding: isMobile ? "20px" : "28px 36px",
+          marginBottom: 24, display: "flex", alignItems: "center",
+          flexDirection: isMobile ? "column" : "row",
+          gap: isMobile ? 16 : 28, position: "relative", overflow: "hidden",
+          textAlign: isMobile ? "center" : "left",
+        }}>
+          <div style={{ position: "absolute", top: -40, right: -40, width: 200, height: 200, background: "radial-gradient(circle, rgba(255,77,0,0.18) 0%, transparent 70%)", pointerEvents: "none" }} />
+          <div style={{ position: "relative", flexShrink: 0 }}>
+            <div style={{ width: 80, height: 80, borderRadius: "50%", background: avatar ? "transparent" : G.accent, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32, fontFamily: "'Unbounded', sans-serif", fontWeight: 900, color: G.white, overflow: "hidden", border: "3px solid rgba(255,255,255,0.2)" }}>
               {avatar ? <img src={avatar} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : user.nickname[0]}
             </div>
-            <button onClick={() => fileRef.current.click()} style={{ position: "absolute", bottom: 0, right: 0, width: 24, height: 24, borderRadius: "50%", background: G.accent2, border: "2px solid #1e3a5f", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}><Pencil size={11} color="#fff" strokeWidth={2.5} /></button>
+            <button onClick={() => fileRef.current.click()} style={{ position: "absolute", bottom: 0, right: 0, width: 26, height: 26, borderRadius: "50%", background: G.accent2, border: "2px solid #1e3a5f", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}><Pencil size={12} color="#fff" strokeWidth={2.5} /></button>
             <input ref={fileRef} type="file" accept="image/*" onChange={handleAvatarChange} style={{ display: "none" }} />
           </div>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 18, fontWeight: 900, color: G.white, marginBottom: 4 }}>{user.nickname}</div>
-            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>{user.email}</div>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(255,255,255,0.1)", borderRadius: 100, padding: "4px 12px" }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 20, fontWeight: 900, color: G.white, marginBottom: 4 }}>{user.nickname}</div>
+            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", marginBottom: 10 }}>{user.email}</div>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(255,255,255,0.1)", borderRadius: 100, padding: "5px 14px" }}>
               <Zap size={11} color="rgba(255,255,255,0.7)" strokeWidth={2} />
-              <span style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", fontWeight: 600 }}>중급 · 1,240 XP</span>
+              <span style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", fontWeight: 600 }}>중급 · 1,240 XP</span>
             </div>
           </div>
-          <button onClick={() => setModal("profile")} style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 12, padding: "8px 16px", cursor: "pointer", fontSize: 12, fontWeight: 600, color: G.white, fontFamily: "'Noto Sans KR', sans-serif", flexShrink: 0 }}>
-            수정
-          </button>
+          <div style={{ display: "flex", gap: 10, flexShrink: 0 }}>
+            <button onClick={handleLogout} style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 12, padding: "10px 20px", cursor: "pointer", fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.55)", fontFamily: "'Noto Sans KR', sans-serif" }}>
+              로그아웃
+            </button>
+            <button onClick={() => setModal("profile")} style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 12, padding: "10px 20px", cursor: "pointer", fontSize: 13, fontWeight: 700, color: G.white, fontFamily: "'Noto Sans KR', sans-serif" }}>
+              프로필 수정
+            </button>
+          </div>
         </div>
 
-        {/* 학습 목표 */}
-        <Section icon={Target} title="학습 목표">
-          <div style={{ padding: "20px 28px" }}>
-            <div style={{ fontSize: 14, fontWeight: 600, color: G.black, marginBottom: 16 }}>
-              하루 목표: <span style={{ color: G.accent, fontFamily: "'Unbounded', sans-serif", fontWeight: 900 }}>{dailyGoal}개</span>
-            </div>
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              {[3, 5, 10, 15, 20].map(n => (
-                <button key={n} onClick={() => setDailyGoal(n)} style={{
-                  flex: 1, padding: "10px 0", borderRadius: 12,
-                  border: `2px solid ${dailyGoal === n ? G.accent : G.border}`,
-                  background: dailyGoal === n ? "rgba(255,77,0,0.06)" : G.white,
-                  color: dailyGoal === n ? G.accent : G.gray,
-                  fontSize: 14, fontWeight: 700, cursor: "pointer",
-                  fontFamily: "'Noto Sans KR', sans-serif", transition: "all 0.15s",
-                }}>{n}개</button>
-              ))}
+        {/* 2열 그리드 */}
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 24, alignItems: "start" }}>
+
+          {/* 왼쪽: 학습 목표 + 알림 */}
+          <div>
+            <Section icon={Target} title="학습 목표">
+              <div style={{ padding: "20px 28px" }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: G.black, marginBottom: 16 }}>
+                  하루 목표: <span style={{ color: G.accent, fontFamily: "'Unbounded', sans-serif", fontWeight: 900 }}>{dailyGoal}개</span>
+                </div>
+                <div style={{ display: "flex", gap: 8 }}>
+                  {[3, 5, 10, 15, 20].map(n => (
+                    <button key={n} onClick={() => setDailyGoal(n)} style={{
+                      flex: 1, padding: "10px 0", borderRadius: 12,
+                      border: `2px solid ${dailyGoal === n ? G.accent : G.border}`,
+                      background: dailyGoal === n ? "rgba(255,77,0,0.06)" : G.white,
+                      color: dailyGoal === n ? G.accent : G.gray,
+                      fontSize: 14, fontWeight: 700, cursor: "pointer",
+                      fontFamily: "'Noto Sans KR', sans-serif", transition: "all 0.15s",
+                    }}>{n}개</button>
+                  ))}
+                </div>
+              </div>
+            </Section>
+
+            <Section icon={Bell} title="알림 설정">
+              <Row icon={Calendar} label="매일 학습 알림" sub="오전 9시에 알려드려요" right={<Toggle value={notiDaily} onChange={setNotiDaily} />} />
+              <Row icon={Flame} label="스트릭 알림" sub="연속 학습을 놓치지 않도록" right={<Toggle value={notiStreak} onChange={setNotiStreak} />} />
+              <Row icon={RotateCcw} label="복습 알림" sub="복습할 카드가 있을 때" right={<Toggle value={notiReview} onChange={setNotiReview} />} />
+            </Section>
+          </div>
+
+          {/* 오른쪽: 계정 + 위험 구역 */}
+          <div>
+            <Section icon={Lock} title="계정">
+              {user.provider === 'local' ? (
+                <Row icon={Key} label="비밀번호 변경" sub="정기적으로 변경을 권장해요" right={<span style={{ fontSize: 16, color: G.gray }}>›</span>} onClick={() => setModal("password")} />
+              ) : (
+                <Row icon={Smartphone} label="소셜 로그인 이용 중" sub={`${user.provider || "SNS"} 계정으로 연결되어 있습니다`} />
+              )}
+            </Section>
+
+            <Section icon={AlertTriangle} title="위험 구역">
+              <Row icon={BarChart2} label="학습 데이터 초기화" sub="북마크, 검색 기록이 삭제돼요" right={<span style={{ fontSize: 16, color: G.gray }}>›</span>} onClick={() => setModal("reset")} danger />
+              <Row icon={Trash2} label="계정 탈퇴" sub="계정과 모든 데이터가 삭제돼요" right={<span style={{ fontSize: 16, color: G.gray }}>›</span>} onClick={() => setModal("delete")} danger />
+            </Section>
+
+            <div style={{ textAlign: "center", padding: "4px 0 8px", fontSize: 12, color: G.gray }}>
+              영어인싸되기 v1.0.0
             </div>
           </div>
-        </Section>
-
-        {/* 알림 설정 */}
-        <Section icon={Bell} title="알림 설정">
-          <Row icon={Calendar} label="매일 학습 알림" sub="오전 9시에 알려드려요" right={<Toggle value={notiDaily} onChange={setNotiDaily} />} />
-          <Row icon={Flame} label="스트릭 알림" sub="연속 학습을 놓치지 않도록" right={<Toggle value={notiStreak} onChange={setNotiStreak} />} />
-          <Row icon={RotateCcw} label="복습 알림" sub="복습할 카드가 있을 때" right={<Toggle value={notiReview} onChange={setNotiReview} />} />
-        </Section>
-
-        {/* 계정 설정 (소셜 로그인 시 비밀번호 변경 숨김) */}
-        <Section icon={Lock} title="계정">
-          {user.provider === 'local' ? (
-            <Row icon={Key} label="비밀번호 변경" sub="정기적으로 변경을 권장해요" right={<span style={{ fontSize: 16, color: G.gray }}>›</span>} onClick={() => setModal("password")} />
-          ) : (
-            <Row
-              icon={Smartphone}
-              label="소셜 로그인 이용 중"
-              sub={`${user.provider || "SNS"} 계정으로 연결되어 있습니다`}
-            />
-          )}
-        </Section>
-
-        {/* 위험 구역 */}
-        <Section icon={AlertTriangle} title="위험 구역">
-          <Row icon={BarChart2} label="학습 데이터 초기화" sub="북마크, 검색 기록이 삭제돼요" right={<span style={{ fontSize: 16, color: G.gray }}>›</span>} onClick={() => setModal("reset")} danger />
-          <Row icon={Trash2} label="계정 탈퇴" sub="계정과 모든 데이터가 삭제돼요" right={<span style={{ fontSize: 16, color: G.gray }}>›</span>} onClick={() => setModal("delete")} danger />
-        </Section>
-
-        {/* 앱 정보 */}
-        <div style={{ textAlign: "center", padding: "8px 0 24px", fontSize: 12, color: G.gray }}>
-          영어인싸되기 v1.0.0 · Made with 🧡 by Engssa Team
         </div>
+
       </div>
 
       {/* ── 모달들 ── */}

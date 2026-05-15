@@ -10,6 +10,7 @@ import Button from "../components/Button";
 import BookmarkItem from "../components/BookmarkCard";
 import Sidebar from "../components/Sidebar";
 import useBreakpoint from "../hooks/useBreakpoint";
+import Skeleton from "../components/Skeleton";
 
 const CATEGORIES = ["전체", "칭찬 / 긍정", "연애 / SNS", "일상 / 강조", "음식 / 긍정", "SNS / 일상", "연애"];
 
@@ -157,8 +158,21 @@ export default function Bookmark() {
 
           {/* 북마크 내역 로딩(서버 느릴때 ..)*/}
           {loading ? (
-            <div style={{ textAlign: "center", padding: "100px 0", color: G.gray }}>
-               <p>북마크를 불러오고 있어요...</p>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 16 }}>
+              {[0,1,2,3,4,5].map(i => (
+                <div key={i} style={{ background: G.white, borderRadius: 20, padding: 20, display: "flex", flexDirection: "column", gap: 10, border: "1px solid rgba(0,0,0,0.05)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <Skeleton width={100} height={18} />
+                    <Skeleton width={50} height={22} radius={100} />
+                  </div>
+                  <Skeleton width="90%" height={13} />
+                  <Skeleton width="70%" height={13} />
+                  <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+                    <Skeleton width={80} height={32} radius={10} />
+                    <Skeleton width={80} height={32} radius={10} />
+                  </div>
+                </div>
+              ))}
             </div>
           ) : (
             <>

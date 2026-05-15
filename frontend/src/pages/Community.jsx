@@ -438,14 +438,25 @@ export default function Community() {
   const [boardPosts, setBoardPosts] = useState(INITIAL_BOARD);
   const [showWrite, setShowWrite] = useState(false);
 
+  const currentUser = (() => {
+    try {
+      const saved = localStorage.getItem("user");
+      if (saved) {
+        const u = JSON.parse(saved);
+        return u.nickname || u.name || "익명";
+      }
+    } catch {}
+    return "게스트";
+  })();
+
   function handleBoardLike(id) {
     setBoardPosts(prev => prev.map(p => p.id === id ? { ...p, liked: !p.liked, likes: p.liked ? p.likes - 1 : p.likes + 1 } : p));
   }
   function handleBoardComment(id, text) {
-    setBoardPosts(prev => prev.map(p => p.id === id ? { ...p, comments: [...p.comments, { id: Date.now(), user: "이경현", avatar: null, text, likes: 0 }] } : p));
+    setBoardPosts(prev => prev.map(p => p.id === id ? { ...p, comments: [...p.comments, { id: Date.now(), user: currentUser, avatar: null, text, likes: 0 }] } : p));
   }
   function handleBoardWrite(data) {
-    const newPost = { id: Date.now(), user: "이경현", avatar: null, time: "방금", ...data, likes: 0, liked: false, comments: [] };
+    const newPost = { id: Date.now(), user: currentUser, avatar: null, time: "방금", ...data, likes: 0, liked: false, comments: [] };
     setBoardPosts(prev => [newPost, ...prev]);
   }
 
@@ -462,13 +473,13 @@ export default function Community() {
   function handleComment(id, text) {
     setPosts(prev => prev.map(p => p.id === id ? {
       ...p,
-      comments: [...p.comments, { id: Date.now(), user: "이경현", avatar: null, text, likes: 0 }]
+      comments: [...p.comments, { id: Date.now(), user: currentUser, avatar: null, text, likes: 0 }]
     } : p));
   }
 
   function handleSubmit(data) {
     const newPost = {
-      id: Date.now(), user: "이경현", avatar: null, time: "방금",
+      id: Date.now(), user: currentUser, avatar: null, time: "방금",
       ...data, likes: 0, liked: false,
       correct: 0, wrong: 0, comments: [], status: "pending",
     };

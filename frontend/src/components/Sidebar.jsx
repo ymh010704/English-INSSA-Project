@@ -22,18 +22,26 @@ const menus = [
   { id: "mypage",    icon: CircleUser,      label: "마이페이지",  path: "/mypage"        },
 ];
 
+const PUBLIC_PATHS = ["/community"];
+
 export default function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
   const [user, setUser] = useState({ name: "인싸", nickname: "인" });
   const [displayMenus, setDisplayMenus] = useState(menus);
+  const [isGuest, setIsGuest] = useState(false);
 
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
     if (!savedUser) {
+      if (PUBLIC_PATHS.includes(location.pathname)) {
+        setIsGuest(true);
+        return;
+      }
       navigate("/login");
       return;
     }
+    setIsGuest(false);
     try {
       const parsedUser = JSON.parse(savedUser);
       setUser({
@@ -50,6 +58,8 @@ export default function Sidebar() {
       console.error("유저 정보 파싱 에러:", e);
     }
   }, [navigate]);
+
+  if (isGuest) return null;
 
   const active = displayMenus.find(m => location.pathname === m.path)?.id ?? "";
 

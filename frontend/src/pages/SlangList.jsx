@@ -4,6 +4,7 @@ import { Search, X, BookMarked, ChevronDown, ChevronUp, Play, Hash } from 'lucid
 import G from "../constants/colors";
 import PageHeader from "../components/PageHeader";
 import useBreakpoint from "../hooks/useBreakpoint";
+import Skeleton from "../components/Skeleton";
 
 const CATEGORIES = ["전체", "칭찬 / 긍정", "연애 / SNS", "일상 / 강조", "음식 / 긍정", "SNS / 일상", "연애"];
 const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ#".split("");
@@ -29,9 +30,12 @@ export default function SlangList() {
         if (response.success && Array.isArray(response.data)) {
           setSlangs(response.data);
         }
+        setSlangLoading(false);
       })
-      .catch(err => console.error("데이터 로딩 실패:", err));
+      .catch(err => { console.error("데이터 로딩 실패:", err); setSlangLoading(false); });
   }, []);
+
+  const [slangLoading, setSlangLoading] = useState(true);
 
   const filtered = slangs.filter(item => {
     const matchSearch = !query ||
@@ -165,7 +169,19 @@ export default function SlangList() {
             </div>
 
             {/* Dictionary entries list */}
-            {filtered.length > 0 ? (
+            {slangLoading ? (
+              <div style={{ background: G.white, borderRadius: 16, overflow: "hidden", border: "1px solid rgba(0,0,0,0.06)" }}>
+                {[0,1,2,3,4,5,6,7].map(i => (
+                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 14, padding: "12px 20px", borderBottom: i < 7 ? "1px solid rgba(0,0,0,0.05)" : "none" }}>
+                    <Skeleton width={30} height={30} radius={8} />
+                    <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 6 }}>
+                      <Skeleton width={`${60 + (i % 3) * 20}px`} height={14} />
+                      <Skeleton width={`${80 + (i % 4) * 15}%`} height={12} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : filtered.length > 0 ? (
               <div style={{
                 background: G.white,
                 borderRadius: 16,

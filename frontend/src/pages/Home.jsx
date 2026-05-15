@@ -43,9 +43,15 @@ function Reveal({ children, delay = 0, style = {} }) {
   );
 }
 
-function Nav({ scrolled }) {
+function Nav({ scrolled, onLearningClick }) {
   const navigate = useNavigate();
   const { isMobile } = useBreakpoint();
+
+  const NAV_LINKS = [
+    { label: "학습", action: () => onLearningClick?.() },
+    { label: "커뮤니티", action: () => navigate("/community") },
+  ];
+
   return (
     <nav style={{
       position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
@@ -61,11 +67,19 @@ function Nav({ scrolled }) {
           영어<span style={{ color: G.accent }}>인싸</span>되기
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
-          {!isMobile && <div style={{ display: "flex", gap: 32 }}>
-            {["학습", "커뮤니티", "랭킹"].map(t => (
-              <span key={t} style={{ color: "#9ca3af", fontSize: 13, fontWeight: 500, cursor: "pointer" }}>{t}</span>
-            ))}
-          </div>}
+          {!isMobile && (
+            <div style={{ display: "flex", gap: 32 }}>
+              {NAV_LINKS.map(({ label, action }) => (
+                <span
+                  key={label}
+                  onClick={action}
+                  style={{ color: "#9ca3af", fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "color 0.15s" }}
+                  onMouseEnter={e => e.currentTarget.style.color = G.black}
+                  onMouseLeave={e => e.currentTarget.style.color = "#9ca3af"}
+                >{label}</span>
+              ))}
+            </div>
+          )}
           <button onClick={() => navigate("/login")} style={{
             background: "transparent", border: "1px solid rgba(0,0,0,0.15)", color: G.gray,
             padding: "9px 22px", borderRadius: 100, fontSize: 13, cursor: "pointer",
@@ -327,6 +341,149 @@ function ReviewSection() {
   );
 }
 
+const DEMO_QUIZ = [
+  {
+    word: "No cap", emoji: "🔥", category: "SNS / 일상",
+    options: ["완전히 실패하다", "거짓말 아님, 진심으로", "무시하다, 차단하다", "엄청 피곤하다"],
+    answer: 1,
+  },
+  {
+    word: "Slay", emoji: "👑", category: "칭찬 / 긍정",
+    options: ["겁쟁이가 되다", "숨겨두다", "완벽하게 잘하다", "조용히 있다"],
+    answer: 2,
+  },
+  {
+    word: "Rizz", emoji: "✨", category: "연애",
+    options: ["이성을 끄는 매력", "거짓말을 하다", "화가 많이 나다", "완전히 지쳐있다"],
+    answer: 0,
+  },
+];
+
+function LearningPreview({ sectionRef }) {
+  const navigate = useNavigate();
+  const { isMobile } = useBreakpoint();
+  const [qIdx, setQIdx] = useState(0);
+  const [selected, setSelected] = useState(null);
+  const [score, setScore] = useState(0);
+  const [done, setDone] = useState(false);
+
+  const q = DEMO_QUIZ[qIdx];
+
+  function select(i) {
+    if (selected !== null) return;
+    setSelected(i);
+    if (i === q.answer) setScore(s => s + 1);
+  }
+
+  function handleNext() {
+    if (qIdx + 1 >= DEMO_QUIZ.length) setDone(true);
+    else { setQIdx(i => i + 1); setSelected(null); }
+  }
+
+  return (
+    <section ref={sectionRef} style={{ background: G.navy, padding: "120px 0", fontFamily: "'Noto Sans KR', sans-serif" }}>
+      <div style={containerStyle}>
+        <Reveal>
+          <div style={{ textAlign: "center", marginBottom: 48 }}>
+            <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 11, fontWeight: 700, color: G.accent, letterSpacing: 3, textTransform: "uppercase", marginBottom: 16 }}>LEARNING PREVIEW</div>
+            <h2 style={{ fontFamily: "'Unbounded', sans-serif", fontSize: "clamp(28px, 3vw, 44px)", fontWeight: 900, color: G.white, letterSpacing: -1.5, marginBottom: 12 }}>직접 체험해보세요</h2>
+            <p style={{ color: "rgba(255,255,255,0.35)", fontSize: 14 }}>실제 앱과 똑같은 방식으로 배워요</p>
+          </div>
+        </Reveal>
+
+        {done ? (
+          <Reveal>
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 72, marginBottom: 24 }}>🎉</div>
+              <h3 style={{ fontFamily: "'Unbounded', sans-serif", fontSize: "clamp(22px, 3vw, 36px)", fontWeight: 900, color: G.white, marginBottom: 12 }}>
+                {score}/{DEMO_QUIZ.length} <span style={{ color: G.accent }}>맞혔어요!</span>
+              </h3>
+              <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 15, marginBottom: 40 }}>
+                500개 이상의 슬랭이 기다려요. 지금 시작해보세요!
+              </p>
+              <button onClick={() => navigate("/login")} style={{
+                background: G.accent, color: G.white, border: "none",
+                padding: "18px 48px", borderRadius: 100, fontSize: 16, fontWeight: 700,
+                cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif",
+                boxShadow: "0 0 48px rgba(255,77,0,0.45)", transition: "all 0.2s",
+              }}
+                onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = "0 0 64px rgba(255,77,0,0.6)"; }}
+                onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "0 0 48px rgba(255,77,0,0.45)"; }}
+              >학습 시작하기 →</button>
+            </div>
+          </Reveal>
+        ) : (
+          <div style={{ maxWidth: 560, margin: "0 auto" }}>
+            {/* 진행 도트 */}
+            <div style={{ display: "flex", justifyContent: "center", gap: 8, marginBottom: 36 }}>
+              {DEMO_QUIZ.map((_, i) => (
+                <div key={i} style={{ width: i === qIdx ? 28 : 8, height: 8, borderRadius: 4, background: i < qIdx ? "rgba(255,77,0,0.5)" : i === qIdx ? G.accent : "rgba(255,255,255,0.15)", transition: "all 0.3s" }} />
+              ))}
+            </div>
+
+            {/* 단어 카드 */}
+            <div style={{ background: "linear-gradient(145deg, #1e3a5f, #0f2244)", borderRadius: 28, padding: isMobile ? "32px 24px" : "40px 40px", textAlign: "center", marginBottom: 20, boxShadow: "0 20px 56px rgba(0,0,0,0.35)" }}>
+              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 3, color: "rgba(255,255,255,0.28)", textTransform: "uppercase", marginBottom: 14 }}>이 단어의 뜻은?</div>
+              <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: isMobile ? 38 : 52, fontWeight: 900, color: G.white, letterSpacing: -2, marginBottom: 14 }}>{q.word} {q.emoji}</div>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(255,77,0,0.12)", border: "1px solid rgba(255,77,0,0.25)", borderRadius: 100, padding: "5px 16px" }}>
+                <span style={{ fontSize: 11, color: G.accent, fontWeight: 700 }}>{q.category}</span>
+              </div>
+            </div>
+
+            {/* 선택지 */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 24 }}>
+              {q.options.map((opt, i) => {
+                const isCorrectOpt = i === q.answer;
+                const isSelectedOpt = selected === i;
+                let bg = "rgba(255,255,255,0.05)", border = "rgba(255,255,255,0.1)", color = "rgba(255,255,255,0.85)";
+                if (selected !== null) {
+                  if (isCorrectOpt) { bg = "rgba(16,185,129,0.15)"; border = "#10b981"; color = "#6ee7b7"; }
+                  else if (isSelectedOpt) { bg = "rgba(239,68,68,0.15)"; border = "#ef4444"; color = "#fca5a5"; }
+                }
+                return (
+                  <button key={i} onClick={() => select(i)} style={{
+                    padding: "15px 20px", borderRadius: 16,
+                    background: bg, border: `1.5px solid ${border}`, color,
+                    cursor: selected !== null ? "default" : "pointer",
+                    fontSize: 14, fontWeight: 600, textAlign: "left",
+                    display: "flex", alignItems: "center", gap: 14,
+                    fontFamily: "'Noto Sans KR', sans-serif", transition: "all 0.15s",
+                  }}>
+                    <span style={{ width: 28, height: 28, borderRadius: 8, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, background: selected !== null && isCorrectOpt ? "#10b981" : selected !== null && isSelectedOpt ? "#ef4444" : "rgba(255,255,255,0.1)" }}>
+                      {selected !== null && isCorrectOpt ? "✓" : selected !== null && isSelectedOpt ? "✗" : ["A","B","C","D"][i]}
+                    </span>
+                    {opt}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* 피드백 + 다음 버튼 */}
+            {selected !== null && (
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontSize: 15, fontWeight: 700, color: selected === q.answer ? "#6ee7b7" : "#fca5a5", marginBottom: 16 }}>
+                  {selected === q.answer ? "🎉 정답이에요!" : `😅 아쉬워요! 정답: "${q.options[q.answer]}"`}
+                </div>
+                <button onClick={handleNext} style={{
+                  background: G.accent, color: G.white, border: "none",
+                  padding: "14px 36px", borderRadius: 100, fontSize: 14, fontWeight: 700,
+                  cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif",
+                  boxShadow: "0 4px 24px rgba(255,77,0,0.4)", transition: "all 0.2s",
+                }}
+                  onMouseEnter={e => e.currentTarget.style.transform = "translateY(-2px)"}
+                  onMouseLeave={e => e.currentTarget.style.transform = "none"}
+                >
+                  {qIdx + 1 >= DEMO_QUIZ.length ? "결과 보기 →" : "다음 문제 →"}
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
 function CTASection() {
   const navigate = useNavigate();
   return (
@@ -371,6 +528,8 @@ function Footer() {
 
 export default function Home() {
   const [scrolled, setScrolled] = useState(false);
+  const learningRef = useRef(null);
+
   useEffect(() => {
     const h = () => setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", h);
@@ -379,8 +538,9 @@ export default function Home() {
 
   return (
     <div style={{ background: G.bg }}>
-      <Nav scrolled={scrolled} />
+      <Nav scrolled={scrolled} onLearningClick={() => learningRef.current?.scrollIntoView({ behavior: "smooth" })} />
       <Hero />
+      <LearningPreview sectionRef={learningRef} />
       <Features />
       <SlangPreview />
       <ReviewSection />

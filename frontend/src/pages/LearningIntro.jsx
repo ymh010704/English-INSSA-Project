@@ -8,6 +8,7 @@ import G from "../constants/colors";
 import PageHeader from "../components/PageHeader";
 import Button from "../components/Button";
 import useBreakpoint from "../hooks/useBreakpoint";
+import Skeleton from "../components/Skeleton";
 
 export default function LearningIntro() {
   const navigate = useNavigate();
@@ -44,7 +45,33 @@ export default function LearningIntro() {
     fetchLearningData();
   }, []);
 
-  if (loading) return <div style={{ padding: 40, textAlign: "center" }}>학습 데이터를 준비 중입니다...</div>;
+  if (loading) return (
+    <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: isMobile ? "20px 16px" : "40px 20px", background: G.pageBg, minHeight: "100vh" }}>
+      <div style={{ width: "100%", maxWidth: 560, display: "flex", flexDirection: "column", gap: 20 }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, marginBottom: 12 }}>
+          <Skeleton width={isMobile ? 100 : 140} height={isMobile ? 100 : 140} radius={70} />
+          <Skeleton width={160} height={32} />
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, marginBottom: 8 }}>
+          <Skeleton width={220} height={28} />
+          <Skeleton width={180} height={16} />
+          <Skeleton width={160} height={16} />
+        </div>
+        <div style={{ background: G.white, borderRadius: 20, overflow: "hidden", border: "1px solid rgba(0,0,0,0.06)" }}>
+          {[0,1,2,3,4].map(i => (
+            <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 24px", borderBottom: i < 4 ? "1px solid rgba(0,0,0,0.05)" : "none" }}>
+              <Skeleton width={80} height={14} />
+              <Skeleton width={140} height={13} />
+            </div>
+          ))}
+        </div>
+        <div style={{ display: "flex", gap: 12 }}>
+          {[0,1,2].map(i => <Skeleton key={i} height={80} radius={14} style={{ flex: 1 }} />)}
+        </div>
+        <Skeleton height={56} radius={16} />
+      </div>
+    </div>
+  );
 
   return (
     <div style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
