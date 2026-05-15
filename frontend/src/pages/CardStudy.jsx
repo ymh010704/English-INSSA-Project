@@ -63,7 +63,6 @@ export default function CardStudy() {
 
   // ── API 데이터 호출 로직 ──
   const fetchQuizzes = async () => {
-    console.log("전송할 토큰:", localStorage.getItem('token'))
     try {
       // 로컬 스토리지에서 토큰 가져오기 (F12로 확인 가능)
       const token = localStorage.getItem('token');

@@ -1,58 +1,60 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
+
 import G from "../constants/colors";
 import PageHeader from "../components/PageHeader";
 import Button from "../components/Button";
 
-const QUESTIONS = [
-  // 유형 1: 빈칸 채우기
-  {
-    type: "fill",
-    question: "예문에서 알맞은 표현을 고르세요",
-    sentence: ["That outfit is amazing. She totally ", "____", " tonight!"],
-    answer: "slayed",
-    options: ["slayed", "vibed", "capped", "ghosted"],
-    meaning: "완전 잘해냈어, 멋지다",
-    explanation: "'Slay'는 누군가 굉장히 멋지거나 잘해냈을 때 쓰는 칭찬 표현이에요.",
-  },
-  // 유형 2: 보기 4개 중 정답
-  {
-    type: "choice",
-    question: "'Lowkey'의 뜻으로 올바른 것은?",
-    answer: "은근히, 살짝",
-    options: ["크게, 대놓고", "은근히, 살짝", "완전히, 확실히", "아마도, 어쩌면"],
-    word: "Lowkey",
-    explanation: "'Lowkey'는 뭔가를 살짝 인정하거나 강조할 때 써요. 한국어로 '은근 ~'과 비슷해요.",
-  },
-  // 유형 3: 뜻 보고 영어 단어 맞추기 (보기)
-  {
-    type: "choice",
-    question: "'진심으로, 거짓말 아님'을 뜻하는 표현은?",
-    answer: "No cap",
-    options: ["No cap", "No way", "For real", "Deadass"],
-    word: "No cap",
-    explanation: "'No cap'은 한국어 'ㄹㅇ'처럼 자신이 한 말이 진심임을 강조할 때 써요.",
-  },
-  // 유형 4: 한국어 보고 영어 입력
-  {
-    type: "input",
-    question: "한국어 뜻을 보고 영어 표현을 입력하세요",
-    meaning: "분위기 파악, 상태 확인",
-    answer: "vibe check",
-    hint: "V_ _ _   C_ _ _ _",
-    explanation: "'Vibe check'는 상황이나 사람의 분위기를 체크할 때 써요.",
-  },
-  // 유형 5: 빈칸 채우기
-  {
-    type: "fill",
-    question: "예문에서 알맞은 표현을 고르세요",
-    sentence: ["This café? ", "____", " Paris vibes, honestly."],
-    answer: "It's giving",
-    options: ["It's giving", "No cap", "Lowkey", "Slay"],
-    meaning: "~느낌이야, ~분위기다",
-    explanation: "'It's giving'은 뭔가의 분위기나 느낌을 묘사할 때 사용해요.",
-  },
-];
+// const QUESTIONS = [
+//   // 유형 1: 빈칸 채우기
+//   {
+//     type: "fill",
+//     question: "예문에서 알맞은 표현을 고르세요",
+//     sentence: ["That outfit is amazing. She totally ", "____", " tonight!"],
+//     answer: "slayed",
+//     options: ["slayed", "vibed", "capped", "ghosted"],
+//     meaning: "완전 잘해냈어, 멋지다",
+//     explanation: "'Slay'는 누군가 굉장히 멋지거나 잘해냈을 때 쓰는 칭찬 표현이에요.",
+//   },
+//   // 유형 2: 보기 4개 중 정답
+//   {
+//     type: "choice",
+//     question: "'Lowkey'의 뜻으로 올바른 것은?",
+//     answer: "은근히, 살짝",
+//     options: ["크게, 대놓고", "은근히, 살짝", "완전히, 확실히", "아마도, 어쩌면"],
+//     word: "Lowkey",
+//     explanation: "'Lowkey'는 뭔가를 살짝 인정하거나 강조할 때 써요. 한국어로 '은근 ~'과 비슷해요.",
+//   },
+//   // 유형 3: 뜻 보고 영어 단어 맞추기 (보기)
+//   {
+//     type: "choice",
+//     question: "'진심으로, 거짓말 아님'을 뜻하는 표현은?",
+//     answer: "No cap",
+//     options: ["No cap", "No way", "For real", "Deadass"],
+//     word: "No cap",
+//     explanation: "'No cap'은 한국어 'ㄹㅇ'처럼 자신이 한 말이 진심임을 강조할 때 써요.",
+//   },
+//   // 유형 4: 한국어 보고 영어 입력
+//   {
+//     type: "input",
+//     question: "한국어 뜻을 보고 영어 표현을 입력하세요",
+//     meaning: "분위기 파악, 상태 확인",
+//     answer: "vibe check",
+//     hint: "V_ _ _   C_ _ _ _",
+//     explanation: "'Vibe check'는 상황이나 사람의 분위기를 체크할 때 써요.",
+//   },
+//   // 유형 5: 빈칸 채우기
+//   {
+//     type: "fill",
+//     question: "예문에서 알맞은 표현을 고르세요",
+//     sentence: ["This café? ", "____", " Paris vibes, honestly."],
+//     answer: "It's giving",
+//     options: ["It's giving", "No cap", "Lowkey", "Slay"],
+//     meaning: "~느낌이야, ~분위기다",
+//     explanation: "'It's giving'은 뭔가의 분위기나 느낌을 묘사할 때 사용해요.",
+//   },
+// ];
 
 /* ── 결과 화면 ── */
 function ResultScreen({ score, total, onRetry }) {
@@ -94,17 +96,60 @@ function ResultScreen({ score, total, onRetry }) {
 
 /* ── 메인 연습 페이지 ── */
 export default function Practice() {
-  const navigate = useNavigate();
+  const [questions, setQuestions] = useState([]); // 서버에서 받을 문제들
+  const [loading, setLoading] = useState(true);   // 로딩 상태
   const [index, setIndex] = useState(0);
+  const [score, setScore] = useState(0);
+  const [done, setDone] = useState(false);
+
+  const navigate = useNavigate();
   const [selected, setSelected] = useState(null);
   const [inputVal, setInputVal] = useState("");
   const [checked, setChecked] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
-  const [score, setScore] = useState(0);
-  const [done, setDone] = useState(false);
 
-  const q = QUESTIONS[index];
-  const total = QUESTIONS.length;
+  // 페이지 접속하면 퀴즈 가져오는 코드
+  const fetchQuiz = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get("/api/practice/questions", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setQuestions(res.data);
+      setIndex(0); // 데이터 로드 시 인덱스 초기화
+      setScore(0);
+      setDone(false);
+    } catch (err) {
+      console.error("퀴즈 로드 실패:", err);
+      alert("문제를 불러오지 못했습니다.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchQuiz();
+  }, []); // 위에꺼 별도로 실행
+
+  //  퀴즈 완료하면 서버에 점수 전송 (XP 업데이트)
+  // 근데 아직 설정 안 함 -> XP 추가해주는 API를 따로 안 만들었음
+  const handleFinish = async (finalScore) => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.post("/api/dashboard/update-xp", // 이거 바꿔주기
+        { score: finalScore }, // 백엔드 설계에 따라 필드명 수정 가능
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setDone(true);
+    } catch (err) {
+      console.error("점수 저장 실패:", err);
+      setDone(true); // 에러가 나도 결과 화면은 보여줌
+    }
+  };
+
+  const q = questions[index];
+  const total = questions.length;
 
   function check() {
     if (checked) return;
@@ -117,8 +162,8 @@ export default function Practice() {
   }
 
   function next() {
-    if (index + 1 >= total) {
-      setDone(true);
+    if (index + 1 >= questions.length) {
+      handleFinish(score); // 마지막 문제면 점수 저장 함수 호출
     } else {
       setIndex(i => i + 1);
       setSelected(null);
@@ -127,11 +172,15 @@ export default function Practice() {
       setIsCorrect(false);
     }
   }
-
+  // 얘는 다시 풀기 로직 > 서버에서 다시 문제 받아와라~
   function retry() {
-    setIndex(0); setSelected(null); setInputVal("");
-    setChecked(false); setIsCorrect(false); setScore(0); setDone(false);
+    setSelected(null); setInputVal(""); setChecked(false); 
+    setIsCorrect(false); setScore(0); setDone(false);
+    fetchQuiz(); 
   }
+
+  if (loading) return <div style={{ color: G.navy, padding: 40 }}>문제를 만들고 있어요... ✍️</div>;
+  if (!questions.length) return <div style={{ color: G.navy, padding: 40 }}>문제가 없습니다.</div>;
 
   if (done) return <ResultScreen score={score} total={total} onRetry={retry} />;
 
@@ -267,7 +316,7 @@ export default function Practice() {
 
           {/* 진행 점 */}
           <div style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: 28 }}>
-            {QUESTIONS.map((_, i) => (
+            {questions.map((_, i) => (
               <div key={i} style={{ width: i === index ? 28 : 8, height: 8, borderRadius: 4, background: i < index ? "rgba(255,77,0,0.35)" : i === index ? G.accent : "#d6d0c8", transition: "all 0.3s ease" }} />
             ))}
           </div>
