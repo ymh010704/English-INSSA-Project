@@ -31,6 +31,7 @@ CREATE TABLE slangs (
     example_ko TEXT,
     category VARCHAR(50) DEFAULT 'Etc',
     emoji varchar(50) DEFAULT '👍',
+    shorts_url VARCHAR(512) DEFAULT NULL, /* [slang-shorts] 자동생성 쇼츠 영상 GCS URL */
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (slang_id)
 );

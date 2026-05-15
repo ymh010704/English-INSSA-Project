@@ -13,6 +13,11 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
       - ./mysql/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   # 프론트엔드 서비스 추가
   frontend:
@@ -55,6 +60,33 @@ services:
     depends_on:
       - backend
       - frontend
+
+  # [slang-shorts 추가] 슬랭 쇼츠 자동 제작 파이프라인 서비스
+  # 실행: docker compose --profile shorts up slang-shorts
+  # 조건: .env에 GCP_PROJECT_ID, GCS_BUCKET_NAME, GCP_KEY_PATH 필요
+  slang-shorts:
+    build:
+      context: ./slang-shorts
+      dockerfile: Dockerfile
+    env_file: .env
+    environment:
+      DB_HOST: mysql
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      GCP_PROJECT_ID: ${GCP_PROJECT_ID}
+      GCP_LOCATION: ${GCP_LOCATION:-us-central1}
+      GCS_BUCKET_NAME: ${GCS_BUCKET_NAME}
+      BATCH_SIZE: ${SHORTS_BATCH_SIZE:-3}
+      GOOGLE_APPLICATION_CREDENTIALS: /app/gcp-key.json
+    volumes:
+      - ./gcp-key.json:/app/gcp-key.json:ro
+    depends_on:
+      mysql:
+        condition: service_healthy
+    profiles:
+      - shorts  # 기본 up 시 자동 시작 안 됨, --profile shorts 로만 실행
 
 volumes:
   mysql_data:
