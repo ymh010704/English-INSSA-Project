@@ -1,6 +1,10 @@
 import Sidebar from "./Sidebar";
+import BottomNav from "./BottomNav";
+import useBreakpoint from "../hooks/useBreakpoint";
 
 export default function Layout({ children }) {
+  const { isMobile } = useBreakpoint();
+
   return (
     <>
       <style>{`
@@ -9,11 +13,17 @@ export default function Layout({ children }) {
         body { overflow-x: hidden; }
       `}</style>
       <div style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
-        <Sidebar />
-        <div style={{ flex: 1, overflowY: "auto", background: "#f3f4f6" }}>
+        {!isMobile && <Sidebar />}
+        <div style={{
+          flex: 1,
+          overflowY: "auto",
+          background: "#f3f4f6",
+          paddingBottom: isMobile ? 60 : 0,
+        }}>
           {children}
         </div>
       </div>
+      {isMobile && <BottomNav />}
     </>
   );
 }

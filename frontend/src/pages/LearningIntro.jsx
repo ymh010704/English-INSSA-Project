@@ -7,10 +7,11 @@ import Mascot from "../components/Mascot";
 import G from "../constants/colors";
 import PageHeader from "../components/PageHeader";
 import Button from "../components/Button";
-import Sidebar from "../components/Sidebar";
+import useBreakpoint from "../hooks/useBreakpoint";
 
 export default function LearningIntro() {
   const navigate = useNavigate();
+  const { isMobile } = useBreakpoint();
   const [streak, setStreak] = useState(0);
   const [todayWords, setTodayWords] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -62,12 +63,12 @@ export default function LearningIntro() {
 
         <PageHeader title="오늘의 학습" icon={GraduationCap} />
 
-        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 20px" }}>
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: isMobile ? "20px 16px" : "40px 20px" }}>
           <div style={{ width: "100%", maxWidth: 560 }}>
 
             {/* 캐릭터 + 스트릭 */}
             <div style={{ textAlign: "center", marginBottom: 32 }}>
-              <Mascot size={140} mode="cheer" />
+              <Mascot size={isMobile ? 100 : 140} mode="cheer" />
               <div style={{
                 display: "inline-flex", alignItems: "center", gap: 8,
                 background: "rgba(255,77,0,0.08)", border: "1px solid rgba(255,77,0,0.2)",

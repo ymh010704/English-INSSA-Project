@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import useBreakpoint from "../hooks/useBreakpoint";
 import { RotateCcw, ClipboardList, Heart, BookOpen, Trophy, Flame, Dumbbell, Home, CheckCircle, XCircle, Puzzle, PenLine, ArrowLeftRight } from "lucide-react";
 import G from "../constants/colors";
 import Mascot from "../components/Mascot";
@@ -30,13 +31,14 @@ function makeQuestions(slangs) {
 /* ── 결과 화면 ── */
 function ResultScreen({ correct, total, onRetry }) {
   const navigate = useNavigate();
+  const { isMobile } = useBreakpoint();
   const pct = Math.round((correct / total) * 100);
   const msg = pct === 100 ? "완벽해요!" : pct >= 80 ? "거의 다 알아요!" : pct >= 50 ? "조금만 더!" : "다시 해봐요!";
   const ResultIcon = pct === 100 ? Trophy : pct >= 80 ? Flame : pct >= 50 ? Dumbbell : BookOpen;
   const resultColor = pct === 100 ? G.accent : pct >= 80 ? "#f97316" : pct >= 50 ? "#94a3b8" : G.blue;
 
   return (
-    <div style={{ minHeight: "100vh", background: G.navy, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontFamily: "'Noto Sans KR', sans-serif", padding: 40, textAlign: "center", position: "relative", overflow: "hidden" }}>
+    <div style={{ minHeight: "100vh", background: G.navy, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontFamily: "'Noto Sans KR', sans-serif", padding: isMobile ? "24px 16px" : 40, textAlign: "center", position: "relative", overflow: "hidden" }}>
       <div style={{ position: "absolute", top: "15%", left: "50%", transform: "translateX(-50%)", width: 600, height: 600, background: "radial-gradient(circle, rgba(255,77,0,0.1) 0%, transparent 70%)", pointerEvents: "none" }} />
 
       <div style={{ marginBottom: 12 }}><ResultIcon size={72} color={resultColor} strokeWidth={1.4} /></div>
@@ -143,6 +145,7 @@ function MeaningQuestion({ card, allSlangs, onAnswer }) {
 
 /* ── 빈칸 채우기 ── */
 function BlankQuestion({ card, allSlangs, onAnswer }) {
+  const { isMobile } = useBreakpoint();
   const [selected, setSelected] = useState(null);
   const options = useRef(shuffle([card, ...pickWrong(allSlangs, card)])).current;
 
@@ -180,7 +183,7 @@ function BlankQuestion({ card, allSlangs, onAnswer }) {
         </div>
         <div style={{ fontSize: 13, color: G.gray, marginTop: 10 }}>{card.example_ko}</div>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 10 }}>
         {options.map(opt => {
           const isCorrect = opt.slang_id === card.slang_id;
           const isSelected = selected === opt.slang_id;
@@ -249,6 +252,7 @@ function Ko2EnQuestion({ card, allSlangs, onAnswer }) {
 
 /* ── 인트로 화면 ── */
 function IntroScreen({ total, onStart }) {
+  const { isMobile } = useBreakpoint();
   const items = [
     { icon: Puzzle,          label: "뜻 고르기",  desc: "단어를 보고 뜻 맞히기" },
     { icon: PenLine,         label: "빈칸 채우기", desc: "예문 빈칸에 단어 선택" },
@@ -259,7 +263,7 @@ function IntroScreen({ total, onStart }) {
     <div style={{ minHeight: "100vh", fontFamily: "'Noto Sans KR', sans-serif", display: "flex", flexDirection: "column", background: G.pageBg }}>
       <PageHeader title="슬랭 복습" icon={RotateCcw} />
 
-      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 20px" }}>
+      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: isMobile ? "20px 16px" : "40px 20px" }}>
         <div style={{ width: "100%", maxWidth: 560 }}>
 
           {/* 캐릭터 + 배지 */}
@@ -349,6 +353,7 @@ function IntroScreen({ total, onStart }) {
 /* ── 메인 ── */
 export default function Review() {
   const navigate = useNavigate();
+  const { isMobile } = useBreakpoint();
   const [slangs, setSlangs] = useState([]);
   const [questions, setQuestions] = useState([]);
   const [index, setIndex] = useState(0);
@@ -420,7 +425,7 @@ export default function Review() {
   return (
     <div style={{ minHeight: "100vh", background: G.pageBg, fontFamily: "'Noto Sans KR', sans-serif", display: "flex", flexDirection: "column" }}>
       {/* 헤더 */}
-      <div style={{ padding: "20px 28px 16px", flexShrink: 0 }}>
+      <div style={{ padding: isMobile ? "16px 16px 12px" : "20px 28px 16px", flexShrink: 0 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
           <button onClick={() => navigate("/dashboard")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 13, color: G.gray, fontFamily: "'Noto Sans KR', sans-serif", padding: 0 }}>✕</button>
           {/* 하트 */}
@@ -448,7 +453,7 @@ export default function Review() {
       </div>
 
       {/* 문제 영역 */}
-      <div style={{ flex: 1, padding: "8px 28px", paddingBottom: feedback ? 130 : 28, display: "flex", flexDirection: "column" }}>
+      <div style={{ flex: 1, padding: isMobile ? "8px 16px" : "8px 28px", paddingBottom: feedback ? 130 : 28, display: "flex", flexDirection: "column" }}>
         {q.type === "meaning" && <MeaningQuestion key={index} card={q.card} allSlangs={slangs} onAnswer={handleAnswer} />}
         {q.type === "blank"   && <BlankQuestion   key={index} card={q.card} allSlangs={slangs} onAnswer={handleAnswer} />}
         {q.type === "ko2en"   && <Ko2EnQuestion   key={index} card={q.card} allSlangs={slangs} onAnswer={handleAnswer} />}

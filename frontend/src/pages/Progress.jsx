@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import useBreakpoint from "../hooks/useBreakpoint";
 import { Flame, BookOpen, Zap, Moon, Trophy, Crown, Star, Gem, Bot, Sprout, TrendingUp, Award, Smartphone, MessageSquare, ThumbsUp, MinusCircle, Sparkles, Heart, CheckCircle, Timer, BarChart2, Calendar, Lock } from "lucide-react";
 import G from "../constants/colors";
 import PageHeader from "../components/PageHeader";
@@ -278,6 +279,7 @@ function BadgeGrid() {
 /* ── 메인 ── */
 export default function Progress() {
   const navigate = useNavigate();
+  const { isMobile } = useBreakpoint();
 
   return (
     <div style={{ minHeight: "100vh", fontFamily: "'Noto Sans KR', sans-serif", background: G.pageBg }}>
@@ -285,10 +287,10 @@ export default function Progress() {
       <PageHeader title="진도 관리" icon={BarChart2} />
 
       {/* 메인 그리드 */}
-      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 24px", display: "flex", flexDirection: "column", gap: 20 }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto", padding: isMobile ? "16px 12px" : "32px 24px", display: "flex", flexDirection: "column", gap: 20 }}>
 
         {/* 상단 요약 */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(4, 1fr)", gap: 16 }}>
           {[
             { icon: BookOpen,     label: "총 학습 표현", value: "48개",  color: G.accent },
             { icon: CheckCircle,  label: "완료한 카드", value: "36개",  color: G.green  },
@@ -308,19 +310,19 @@ export default function Progress() {
         </div>
 
         {/* 스트릭 + XP */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 20 }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 2fr", gap: 20 }}>
           <StreakCard />
           <XpTier />
         </div>
 
         {/* 주간 차트 + 카테고리 */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 20 }}>
           <WeeklyChart />
           <CategoryChart />
         </div>
 
         {/* 캘린더 + 뱃지 */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 20 }}>
           <MonthlyCalendar />
           <BadgeGrid />
         </div>

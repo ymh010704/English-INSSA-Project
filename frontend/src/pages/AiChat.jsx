@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Bot, Coffee, PartyPopper, Smartphone, Users, Briefcase, Heart, RotateCcw, Home, Lightbulb } from "lucide-react";
+import useBreakpoint from "../hooks/useBreakpoint";
 import G from "../constants/colors";
 import PageHeader from "../components/PageHeader";
 import Button from "../components/Button";
@@ -63,16 +64,17 @@ function Avatar({ speaking, scenario }) {
 
 /* ── 시나리오 선택 화면 ── */
 function ScenarioSelect({ onSelect }) {
+  const { isMobile } = useBreakpoint();
   return (
     <div style={{ minHeight: "100vh", background: G.navy, display: "flex", flexDirection: "column", fontFamily: "'Noto Sans KR', sans-serif" }}>
       <PageHeader title="AI 회화" icon={Bot} dark />
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "48px 24px" }}>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: isMobile ? "24px 16px" : "48px 24px" }}>
         <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 14 }}>상황 선택</div>
-        <h1 style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 32, fontWeight: 900, color: G.white, letterSpacing: -1, marginBottom: 10, textAlign: "center", lineHeight: 1.2 }}>
+        <h1 style={{ fontFamily: "'Unbounded', sans-serif", fontSize: isMobile ? 24 : 32, fontWeight: 900, color: G.white, letterSpacing: -1, marginBottom: 10, textAlign: "center", lineHeight: 1.2 }}>
           어떤 상황에서<br /><span style={{ color: G.accent }}>대화할까요?</span>
         </h1>
-        <p style={{ fontSize: 15, color: "rgba(255,255,255,0.4)", marginBottom: 48, fontWeight: 300 }}>상황에 맞는 슬랭을 자연스럽게 연습해요</p>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14, width: "100%", maxWidth: 640 }}>
+        <p style={{ fontSize: 14, color: "rgba(255,255,255,0.4)", marginBottom: 32, fontWeight: 300, textAlign: "center" }}>상황에 맞는 슬랭을 자연스럽게 연습해요</p>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(3, 1fr)", gap: 12, width: "100%", maxWidth: 640 }}>
           {SCENARIOS.map(s => (
             <button key={s.id} onClick={() => onSelect(s)} style={{
               background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
@@ -204,6 +206,7 @@ function extractSpeakText(text) {
 
 /* ── 메인 채팅 화면 ── */
 export default function AiChat() {
+  const { isMobile } = useBreakpoint();
   const [scenario, setScenario] = useState(null);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -331,15 +334,17 @@ export default function AiChat() {
       </div>
 
       <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
-        <div style={{ width: 540, flexShrink: 0, background: "rgba(0,0,0,0.2)", borderRight: "1px solid rgba(255,255,255,0.06)", display: "flex", flexDirection: "column" }}>
-          <div style={{ flex: 1, position: "relative" }}>
-            <RemyAvatar speaking={loading || isSpeaking} accentColor={scenario.color} />
+        {!isMobile && (
+          <div style={{ width: 540, flexShrink: 0, background: "rgba(0,0,0,0.2)", borderRight: "1px solid rgba(255,255,255,0.06)", display: "flex", flexDirection: "column" }}>
+            <div style={{ flex: 1, position: "relative" }}>
+              <RemyAvatar speaking={loading || isSpeaking} accentColor={scenario.color} />
+            </div>
+            <div style={{ padding: "16px 20px", background: "rgba(0,0,0,0.2)", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", color: "rgba(255,255,255,0.3)", marginBottom: 6 }}>현재 상황</div>
+              <div style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", lineHeight: 1.6 }}>{scenario.desc}</div>
+            </div>
           </div>
-          <div style={{ padding: "16px 20px", background: "rgba(0,0,0,0.2)", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", color: "rgba(255,255,255,0.3)", marginBottom: 6 }}>현재 상황</div>
-            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", lineHeight: 1.6 }}>{scenario.desc}</div>
-          </div>
-        </div>
+        )}
 
         <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
           <div style={{ flex: 1, overflowY: "auto", padding: "24px 28px", display: "flex", flexDirection: "column", gap: 16 }}>

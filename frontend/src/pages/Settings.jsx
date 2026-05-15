@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import useBreakpoint from "../hooks/useBreakpoint";
 import { Cog, Calendar, Bell, Lock, Target, AlertTriangle, Key, Smartphone, BarChart2, Trash2, Pencil, Zap, CircleUser, Camera, CheckCircle, Flame, RotateCcw } from "lucide-react";
 
 import G from "../constants/colors";
@@ -78,6 +79,7 @@ function Modal({ title, children, onClose, icon: Icon }) {
 
 export default function Settings() {
   const navigate = useNavigate();
+  const { isMobile } = useBreakpoint();
   const fileRef = useRef(null);
 
   // 유저 데이터 로드 (이름 등)
@@ -168,10 +170,10 @@ export default function Settings() {
       {/* 헤더 */}
       <PageHeader title="설정" icon={Cog} />
 
-      <div style={{ maxWidth: 600, margin: "0 auto", padding: "32px 24px" }}>
+      <div style={{ maxWidth: 600, margin: "0 auto", padding: isMobile ? "16px" : "32px 24px" }}>
 
         {/* 프로필 카드 */}
-        <div style={{ background: `linear-gradient(145deg, ${G.navy}, #1e3a5f)`, borderRadius: 24, padding: "28px 32px", marginBottom: 16, display: "flex", alignItems: "center", gap: 20, position: "relative", overflow: "hidden" }}>
+        <div style={{ background: `linear-gradient(145deg, ${G.navy}, #1e3a5f)`, borderRadius: 24, padding: isMobile ? "20px" : "28px 32px", marginBottom: 16, display: "flex", alignItems: "center", flexDirection: isMobile ? "column" : "row", gap: 20, position: "relative", overflow: "hidden", textAlign: isMobile ? "center" : "left" }}>
           <div style={{ position: "absolute", top: -40, right: -40, width: 160, height: 160, background: "radial-gradient(circle, rgba(255,77,0,0.2) 0%, transparent 70%)", pointerEvents: "none" }} />
           <div style={{ position: "relative" }}>
             <div style={{ width: 72, height: 72, borderRadius: "50%", background: avatar ? "transparent" : G.accent, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, fontFamily: "'Unbounded', sans-serif", fontWeight: 900, color: G.white, overflow: "hidden", border: "3px solid rgba(255,255,255,0.2)" }}>
@@ -199,7 +201,7 @@ export default function Settings() {
             <div style={{ fontSize: 14, fontWeight: 600, color: G.black, marginBottom: 16 }}>
               하루 목표: <span style={{ color: G.accent, fontFamily: "'Unbounded', sans-serif", fontWeight: 900 }}>{dailyGoal}개</span>
             </div>
-            <div style={{ display: "flex", gap: 10 }}>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               {[3, 5, 10, 15, 20].map(n => (
                 <button key={n} onClick={() => setDailyGoal(n)} style={{
                   flex: 1, padding: "10px 0", borderRadius: 12,

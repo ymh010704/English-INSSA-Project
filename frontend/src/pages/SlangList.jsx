@@ -3,11 +3,13 @@ import { useSearchParams } from 'react-router-dom';
 import { Search, X, BookMarked, ChevronDown, ChevronUp, Play, Hash } from 'lucide-react';
 import G from "../constants/colors";
 import PageHeader from "../components/PageHeader";
+import useBreakpoint from "../hooks/useBreakpoint";
 
 const CATEGORIES = ["전체", "칭찬 / 긍정", "연애 / SNS", "일상 / 강조", "음식 / 긍정", "SNS / 일상", "연애"];
 const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ#".split("");
 
 export default function SlangList() {
+  const { isMobile } = useBreakpoint();
   const [slangs, setSlangs] = useState([]);
   const [query, setQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('전체');
@@ -58,7 +60,7 @@ export default function SlangList() {
         <PageHeader title="슬랭 사전" icon={BookMarked} />
 
         {/* Search hero */}
-        <div style={{ background: G.white, borderBottom: "1px solid rgba(0,0,0,0.07)", padding: "16px 40px" }}>
+        <div style={{ background: G.white, borderBottom: "1px solid rgba(0,0,0,0.07)", padding: isMobile ? "12px 16px" : "16px 40px" }}>
           <div style={{ maxWidth: 680, margin: "0 auto" }}>
             <div style={{ position: "relative" }}>
               <Search
@@ -99,7 +101,7 @@ export default function SlangList() {
         {/* Alphabet quick-jump */}
         <div style={{
           background: G.white, borderBottom: "1px solid rgba(0,0,0,0.06)",
-          padding: "10px 40px", display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap",
+          padding: isMobile ? "8px 16px" : "10px 40px", display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap",
         }}>
           <span style={{ fontSize: 11, fontWeight: 700, color: G.gray, letterSpacing: 0.5, textTransform: "uppercase" }}>Quick</span>
           <div style={{ width: 1, height: 16, background: "rgba(0,0,0,0.12)", marginLeft: 10, marginRight: 8, flexShrink: 0 }} />
@@ -123,7 +125,7 @@ export default function SlangList() {
         {/* Category filters */}
         <div style={{
           background: G.white, borderBottom: "1px solid rgba(0,0,0,0.06)",
-          padding: "10px 40px", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap",
+          padding: isMobile ? "8px 16px" : "10px 40px", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap",
         }}>
           <span style={{ fontSize: 11, fontWeight: 700, color: G.gray, letterSpacing: 0.5, textTransform: "uppercase" }}>Category</span>
           <div style={{ width: 1, height: 16, background: "rgba(0,0,0,0.12)", marginLeft: 10, marginRight: 4, flexShrink: 0 }} />
@@ -145,7 +147,7 @@ export default function SlangList() {
         </div>
 
         {/* Main content - scrollable */}
-        <div style={{ padding: "16px 20px 32px", flex: 1, overflowY: "auto" }}>
+        <div style={{ padding: isMobile ? "12px 12px 32px" : "16px 20px 32px", flex: 1, overflowY: "auto" }}>
           <div>
 
             {/* Result count */}

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import useBreakpoint from "../hooks/useBreakpoint";
 
 // 퀴즈에 사용할 컴포넌트들 임포트
 import MultipleChoice from "../components/quiz/MultipleChoice";
@@ -13,12 +14,13 @@ import Button from "../components/Button";
 /* ── 공부 완료 화면  ── */
 function CompletionScreen({ known, total, onRestart }) {
   const navigate = useNavigate();
+  const { isMobile } = useBreakpoint();
   const pct = Math.round((known / total) * 100);
   return (
     <div style={{
       minHeight: "100vh", background: G.navy,
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-      fontFamily: "'Noto Sans KR', sans-serif", padding: 40, textAlign: "center",
+      fontFamily: "'Noto Sans KR', sans-serif", padding: isMobile ? "24px 16px" : 40, textAlign: "center",
       position: "relative", overflow: "hidden",
     }}>
       <div style={{ position: "absolute", top: "20%", left: "50%", transform: "translateX(-50%)", width: 600, height: 600, background: "radial-gradient(circle, rgba(255,77,0,0.12) 0%, transparent 70%)", pointerEvents: "none" }} />
@@ -34,7 +36,7 @@ function CompletionScreen({ known, total, onRestart }) {
           { label: "맞혔어요", value: `${known}개`, color: G.green }, // '알겠어요' -> '맞혔어요'로 변경
           { label: "정확도", value: `${pct}%`, color: G.accent2 },
         ].map(s => (
-          <div key={s.label} style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: "24px 32px", minWidth: 130 }}>
+          <div key={s.label} style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: isMobile ? "16px 20px" : "24px 32px", minWidth: isMobile ? 80 : 130 }}>
             <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 32, fontWeight: 900, color: s.color, lineHeight: 1, marginBottom: 8 }}>{s.value}</div>
             <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)" }}>{s.label}</div>
           </div>
@@ -51,7 +53,8 @@ function CompletionScreen({ known, total, onRestart }) {
 /* ── 메인 퀴즈 학습 (컴포넌트들 불러와서 랜덤값 입힐 예정) ── */
 export default function CardStudy() {
   const navigate = useNavigate();
-  
+  const { isMobile } = useBreakpoint();
+
   // 1. 모든 상태(State) 선언
   const [quizzes, setQuizzes] = useState([]); // 데이터를 담을 공간
   const [loading, setLoading] = useState(true); // 로딩 중인지 확인
@@ -192,7 +195,7 @@ export default function CardStudy() {
       </div>
 
       {/* 퀴즈 컨테이너 */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "32px 24px" }}>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: isMobile ? "16px 12px" : "32px 24px" }}>
         
         {/* 뱃지 */}
         <div style={{ marginBottom: 20 }}>

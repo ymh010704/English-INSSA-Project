@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import useBreakpoint from "../hooks/useBreakpoint";
 import Swal from "sweetalert2"; // alert가 너무 딱딱해보여서 추가한 라이브러리
 
 import G from "../constants/colors";  // 컬러 컴포넌트? 연결
@@ -26,6 +27,7 @@ const inputStyle = {
 
 export default function Login() {
   const navigate = useNavigate();
+  const { isMobile } = useBreakpoint();
   const [mode, setMode] = useState("login"); // "login" | "signup" | "forgot"
   const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
@@ -161,8 +163,8 @@ export default function Login() {
       <div style={{ position: "fixed", bottom: -80, left: "10%", width: 400, height: 400, background: "radial-gradient(circle, rgba(255,204,0,0.08) 0%, transparent 65%)", pointerEvents: "none" }} />
 
       {/* 네비 */}
-      <nav style={{ padding: "20px 48px", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
-        <div onClick={() => navigate("/")} style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 20, fontWeight: 900, cursor: "pointer", color: G.black }}>
+      <nav style={{ padding: isMobile ? "16px 20px" : "20px 48px", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
+        <div onClick={() => navigate("/")} style={{ fontFamily: "'Unbounded', sans-serif", fontSize: isMobile ? 16 : 20, fontWeight: 900, cursor: "pointer", color: G.black }}>
           영어<span style={{ color: G.accent }}>인싸</span>되기
         </div>
         <button onClick={() => navigate("/")} style={{ background: "transparent", border: "none", fontSize: 13, color: G.gray, cursor: "pointer", fontFamily: "'Noto Sans KR', sans-serif", fontWeight: 500 }}>
@@ -184,7 +186,7 @@ export default function Login() {
           </div>
 
           {/* 카드 */}
-          <div style={{ background: G.white, borderRadius: 28, padding: "36px 36px 32px", boxShadow: "0 20px 60px rgba(0,0,0,0.08)", border: "1px solid rgba(0,0,0,0.04)" }}>
+          <div style={{ background: G.white, borderRadius: 28, padding: isMobile ? "24px 20px 20px" : "36px 36px 32px", boxShadow: "0 20px 60px rgba(0,0,0,0.08)", border: "1px solid rgba(0,0,0,0.04)" }}>
 
             {/* 소셜 로그인 */}
             {mode !== "forgot" && (

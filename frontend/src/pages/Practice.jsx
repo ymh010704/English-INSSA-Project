@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import useBreakpoint from "../hooks/useBreakpoint";
 import { PenLine, Trophy, ThumbsUp, Dumbbell, RotateCcw, Home, CheckCircle, XCircle } from "lucide-react";
 import G from "../constants/colors";
 import PageHeader from "../components/PageHeader";
@@ -58,11 +59,12 @@ const QUESTIONS = [
 /* ── 결과 화면 ── */
 function ResultScreen({ score, total, onRetry }) {
   const navigate = useNavigate();
+  const { isMobile } = useBreakpoint();
   const pct = Math.round((score / total) * 100);
   const grade = pct >= 80 ? "완벽해요!" : pct >= 60 ? "잘했어요!" : "조금 더 연습해요";
 
   return (
-    <div style={{ minHeight: "100vh", background: G.navy, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontFamily: "'Noto Sans KR', sans-serif", padding: 40, textAlign: "center", position: "relative", overflow: "hidden" }}>
+    <div style={{ minHeight: "100vh", background: G.navy, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontFamily: "'Noto Sans KR', sans-serif", padding: isMobile ? "24px 16px" : 40, textAlign: "center", position: "relative", overflow: "hidden" }}>
       <div style={{ position: "absolute", top: "20%", left: "50%", transform: "translateX(-50%)", width: 500, height: 500, background: "radial-gradient(circle, rgba(255,77,0,0.12) 0%, transparent 70%)", pointerEvents: "none" }} />
 
       <div style={{ marginBottom: 20 }}>
@@ -80,7 +82,7 @@ function ResultScreen({ score, total, onRetry }) {
           { label: "정답", value: `${score}개`, color: G.green },
           { label: "정확도", value: `${pct}%`, color: G.accent2 },
         ].map(s => (
-          <div key={s.label} style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: "22px 28px", minWidth: 110 }}>
+          <div key={s.label} style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: isMobile ? "14px 18px" : "22px 28px", minWidth: isMobile ? 80 : 110 }}>
             <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 28, fontWeight: 900, color: s.color, lineHeight: 1, marginBottom: 8 }}>{s.value}</div>
             <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)" }}>{s.label}</div>
           </div>
@@ -98,6 +100,7 @@ function ResultScreen({ score, total, onRetry }) {
 /* ── 메인 연습 페이지 ── */
 export default function Practice() {
   const navigate = useNavigate();
+  const { isMobile } = useBreakpoint();
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState(null);
   const [inputVal, setInputVal] = useState("");
@@ -155,7 +158,7 @@ export default function Practice() {
       </div>
 
       {/* 메인 콘텐츠 */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", padding: "36px 24px 24px", overflowY: "auto" }}>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", padding: isMobile ? "16px 12px 16px" : "36px 24px 24px", overflowY: "auto" }}>
         <div style={{ width: "100%", maxWidth: 620 }}>
 
           {/* 문제 유형 뱃지 */}
@@ -166,7 +169,7 @@ export default function Practice() {
           </div>
 
           {/* 문제 카드 */}
-          <div style={{ background: G.white, borderRadius: 28, padding: "36px 36px 28px", boxShadow: "0 16px 48px rgba(0,0,0,0.08)", marginBottom: 20, border: "1px solid rgba(0,0,0,0.04)" }}>
+          <div style={{ background: G.white, borderRadius: 28, padding: isMobile ? "20px 20px 16px" : "36px 36px 28px", boxShadow: "0 16px 48px rgba(0,0,0,0.08)", marginBottom: 20, border: "1px solid rgba(0,0,0,0.04)" }}>
 
             {/* 문제 */}
             <div style={{ fontSize: 17, fontWeight: 700, color: G.black, marginBottom: 24, lineHeight: 1.5 }}>{q.question}</div>
@@ -224,7 +227,7 @@ export default function Practice() {
 
           {/* 보기 (빈칸/객관식) */}
           {(q.type === "fill" || q.type === "choice") && (
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 10, marginBottom: 20 }}>
               {q.options.map(opt => {
                 let bg = G.white, border = "2px solid #e5e0d8", color = G.black;
                 if (!checked && selected === opt) { bg = "rgba(255,77,0,0.06)"; border = `2px solid ${G.accent}`; color = G.accent; }

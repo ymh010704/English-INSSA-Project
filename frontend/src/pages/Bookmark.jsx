@@ -9,12 +9,14 @@ import PageHeader from "../components/PageHeader";
 import Button from "../components/Button";
 import BookmarkItem from "../components/BookmarkCard";
 import Sidebar from "../components/Sidebar";
+import useBreakpoint from "../hooks/useBreakpoint";
 
 const CATEGORIES = ["전체", "칭찬 / 긍정", "연애 / SNS", "일상 / 강조", "음식 / 긍정", "SNS / 일상", "연애"];
 
 /* ── MAIN BOOKMARK PAGE ── */
 export default function Bookmark() {
-  const [active, setActive] = useState("bookmark"); 
+  const [active, setActive] = useState("bookmark");
+  const { isMobile } = useBreakpoint();
   const navigate = useNavigate();
 
   // 상태 관리
@@ -135,7 +137,7 @@ export default function Bookmark() {
           right={<Button onClick={() => navigate("/card-study")} size="sm">북마크로 학습 →</Button>}
         />
 
-        <div style={{ padding: "36px 40px" }}>
+        <div style={{ padding: isMobile ? "16px" : "36px 40px" }}>
           {/* 검색창 */}
           <div style={{ position: "relative", marginBottom: 20 }}>
             <span style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)", display: "flex" }}><Search size={16} color={G.gray} strokeWidth={1.8} /></span>

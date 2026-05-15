@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import useBreakpoint from "../hooks/useBreakpoint";
 import Mascot from "../components/Mascot";
 
 import G from "../constants/colors";
@@ -44,6 +45,7 @@ function Reveal({ children, delay = 0, style = {} }) {
 
 function Nav({ scrolled }) {
   const navigate = useNavigate();
+  const { isMobile } = useBreakpoint();
   return (
     <nav style={{
       position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
@@ -54,16 +56,16 @@ function Nav({ scrolled }) {
       transition: "all 0.3s",
       fontFamily: "'Noto Sans KR', sans-serif",
     }}>
-      <div style={{ ...containerStyle, display: "flex", alignItems: "center", justifyContent: "space-between", height: scrolled ? 64 : 80 }}>
+      <div style={{ ...containerStyle, display: "flex", alignItems: "center", justifyContent: "space-between", height: isMobile ? 56 : scrolled ? 64 : 80 }}>
         <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 17, fontWeight: 900, color: G.black, cursor: "pointer" }} onClick={() => navigate("/")}>
           영어<span style={{ color: G.accent }}>인싸</span>되기
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
-          <div style={{ display: "flex", gap: 32 }}>
+          {!isMobile && <div style={{ display: "flex", gap: 32 }}>
             {["학습", "커뮤니티", "랭킹"].map(t => (
               <span key={t} style={{ color: "#9ca3af", fontSize: 13, fontWeight: 500, cursor: "pointer" }}>{t}</span>
             ))}
-          </div>
+          </div>}
           <button onClick={() => navigate("/login")} style={{
             background: "transparent", border: "1px solid rgba(0,0,0,0.15)", color: G.gray,
             padding: "9px 22px", borderRadius: 100, fontSize: 13, cursor: "pointer",
@@ -88,10 +90,11 @@ const SLANG_CHIPS = [
 
 function Hero() {
   const navigate = useNavigate();
+  const { isMobile } = useBreakpoint();
   return (
     <section style={{
       minHeight: "100vh", background: G.bg, position: "relative",
-      overflow: "hidden", padding: "140px 0 80px",
+      overflow: "hidden", padding: isMobile ? "100px 0 60px" : "140px 0 80px",
       fontFamily: "'Noto Sans KR', sans-serif",
       display: "flex", alignItems: "center",
     }}>
@@ -99,7 +102,7 @@ function Hero() {
       <div style={{ position: "absolute", top: -100, left: -100, width: 600, height: 600, background: "radial-gradient(circle, rgba(255,77,0,0.06) 0%, transparent 70%)", pointerEvents: "none" }} />
       <div style={{ position: "absolute", bottom: -100, right: -100, width: 600, height: 600, background: "radial-gradient(circle, rgba(255,204,0,0.08) 0%, transparent 70%)", pointerEvents: "none" }} />
 
-      <div style={{ ...containerStyle, display: "flex", alignItems: "center", justifyContent: "space-between", position: "relative", zIndex: 1 }}>
+      <div style={{ ...containerStyle, display: "flex", alignItems: "center", justifyContent: isMobile ? "center" : "space-between", flexDirection: isMobile ? "column-reverse" : "row", position: "relative", zIndex: 1, textAlign: isMobile ? "center" : "left" }}>
         {/* 왼쪽 텍스트 */}
         <div style={{ flex: 1, maxWidth: 600 }}>
           <Reveal delay={0}>
@@ -138,7 +141,7 @@ function Hero() {
           </Reveal>
 
           <Reveal delay={0.3}>
-            <div style={{ display: "flex", gap: 12, marginBottom: 52 }}>
+            <div style={{ display: "flex", gap: 12, marginBottom: 52, flexWrap: "wrap", justifyContent: isMobile ? "center" : "flex-start" }}>
               <button onClick={() => navigate("/login")} style={{
                 background: G.accent, color: G.white, border: "none",
                 padding: "16px 36px", borderRadius: 100, fontSize: 15, fontWeight: 700,
@@ -175,8 +178,8 @@ function Hero() {
         </div>
 
         {/* 오른쪽 캐릭터 */}
-        <div style={{ flex: "0 0 auto", paddingLeft: 60, display: "flex", justifyContent: "center" }}>
-          <Mascot size={400} mode="home" /> {/* 사이즈를 살짝 키움 */}
+        <div style={{ flex: "0 0 auto", paddingLeft: isMobile ? 0 : 60, paddingTop: isMobile ? 24 : 0, display: "flex", justifyContent: "center" }}>
+          <Mascot size={isMobile ? 200 : 400} mode="home" />
         </div>
       </div>
 

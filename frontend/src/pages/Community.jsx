@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Globe, PlusCircle, MessageSquare, Flame, Trophy, Medal, CircleUser, PenLine, PartyPopper, CheckCircle, Clock, XCircle, Search } from "lucide-react";
+import useBreakpoint from "../hooks/useBreakpoint";
 import G from "../constants/colors";
 import PageHeader from "../components/PageHeader";
 import Button from "../components/Button";
@@ -429,6 +430,7 @@ const TABS = [
 
 export default function Community() {
   const navigate = useNavigate();
+  const { isMobile } = useBreakpoint();
   const [tab, setTab] = useState("feed");
   const [posts, setPosts] = useState(INITIAL_POSTS);
   const [category, setCategory] = useState("전체");
@@ -486,7 +488,7 @@ export default function Community() {
       />
 
       {/* 탭 */}
-      <div style={{ background: G.white, borderBottom: "1px solid rgba(0,0,0,0.06)", padding: "0 40px", display: "flex", gap: 4 }}>
+      <div style={{ background: G.white, borderBottom: "1px solid rgba(0,0,0,0.06)", padding: isMobile ? "0 8px" : "0 40px", display: "flex", gap: 4 }}>
         {TABS.map(t => (
           <button key={t.id} onClick={() => setTab(t.id)} style={{
             padding: "14px 20px", border: "none", background: "transparent", cursor: "pointer",
@@ -498,7 +500,7 @@ export default function Community() {
         ))}
       </div>
 
-      <div style={{ flex: 1, overflowY: "auto", padding: "20px 20px 40px" }}>
+      <div style={{ flex: 1, overflowY: "auto", padding: isMobile ? "12px 12px 40px" : "20px 20px 40px" }}>
 
         {/* 🔥 핫 랭킹 */}
         {tab === "hot" && (

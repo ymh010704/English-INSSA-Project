@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import useBreakpoint from "../hooks/useBreakpoint";
 import { Flame, BookOpen, Zap, Moon, Trophy, Crown, Star, Gem, Bot, Sprout, TrendingUp, Award, CircleUser, BarChart2, Bookmark as BookmarkIcon, RotateCcw, Cog, Link2, Lock } from "lucide-react";
 import G from "../constants/colors";
 import PageHeader from "../components/PageHeader";
@@ -61,6 +62,7 @@ function SectionTitle({ children, sub, extra, icon: Icon }) {
 
 export default function MyPage() {
   const navigate = useNavigate();
+  const { isMobile } = useBreakpoint();
   const fileRef = useRef(null);
 
   const [user, setUser] = useState({ nickname: "인싸", email: "", provider: "local" });
@@ -112,18 +114,18 @@ export default function MyPage() {
     <div style={{ minHeight: "100vh", fontFamily: "'Noto Sans KR', sans-serif", background: G.pageBg }}>
       <PageHeader title="마이페이지" icon={CircleUser} />
 
-      <div style={{ maxWidth: 900, margin: "0 auto", padding: "32px 24px", display: "flex", flexDirection: "column", gap: 20 }}>
+      <div style={{ maxWidth: 900, margin: "0 auto", padding: isMobile ? "16px 12px" : "32px 24px", display: "flex", flexDirection: "column", gap: 20 }}>
 
         {/* ── 프로필 히어로 ── */}
         <div style={{
           background: `linear-gradient(145deg, ${G.navy}, #1a2f50)`,
-          borderRadius: 28, padding: "36px 40px",
+          borderRadius: 28, padding: isMobile ? "24px 20px" : "36px 40px",
           position: "relative", overflow: "hidden",
         }}>
           <div style={{ position: "absolute", top: -80, right: -60, width: 320, height: 320, background: "radial-gradient(circle, rgba(255,77,0,0.13) 0%, transparent 65%)", pointerEvents: "none" }} />
           <div style={{ position: "absolute", bottom: -60, left: -20, width: 220, height: 220, background: "radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%)", pointerEvents: "none" }} />
 
-          <div style={{ display: "flex", alignItems: "center", gap: 28, position: "relative" }}>
+          <div style={{ display: "flex", alignItems: "center", flexDirection: isMobile ? "column" : "row", gap: isMobile ? 16 : 28, position: "relative" }}>
             {/* 아바타 */}
             <div style={{ position: "relative", flexShrink: 0 }}>
               <div
@@ -211,7 +213,7 @@ export default function MyPage() {
           </div>
 
           {/* 스탯 4개 */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", marginTop: 28, paddingTop: 24, borderTop: "1px solid rgba(255,255,255,0.07)" }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)", marginTop: 28, paddingTop: 24, borderTop: "1px solid rgba(255,255,255,0.07)" }}>
             {[
               { icon: Flame,    label: "연속 학습", value: `${stats.streak}일`          },
               { icon: BookOpen, label: "배운 슬랭", value: `${stats.totalSlangs}개`     },
@@ -232,7 +234,7 @@ export default function MyPage() {
         </div>
 
         {/* ── 2칼럼 ── */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 20 }}>
 
           {/* 왼쪽 */}
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>

@@ -6,27 +6,29 @@ import { BookOpen, CheckCircle, Target, Percent, Globe, Flame, Zap, Calendar, Bo
 import G from "../constants/colors";
 import Sidebar from "../components/Sidebar";
 import SearchBar from "../components/SearchBar";
+import useBreakpoint from "../hooks/useBreakpoint";
 
 /* ── 1. 상단 통계 카드 ── */
 function StatCard({ icon: Icon, label, value, sub, color = G.accent, bg, onClick }) {
+  const { isMobile } = useBreakpoint();
   return (
     <div onClick={onClick} style={{
-      background: bg || G.white, borderRadius: 20, padding: "24px 26px",
-      border: "1px solid rgba(0,0,0,0.05)", flex: 1, minWidth: 0,
+      background: bg || G.white, borderRadius: 16, padding: isMobile ? "16px" : "24px 26px",
+      border: "1px solid rgba(0,0,0,0.05)", minWidth: 0,
       fontFamily: "'Noto Sans KR', sans-serif",
       cursor: onClick ? "pointer" : "default", transition: "transform 0.15s",
     }}
       onMouseEnter={e => onClick && (e.currentTarget.style.transform = "translateY(-2px)")}
       onMouseLeave={e => (e.currentTarget.style.transform = "none")}
     >
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
-        <div style={{ width: 44, height: 44, borderRadius: 14, background: `${color}18`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <Icon size={22} color={color} strokeWidth={1.8} />
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: isMobile ? 8 : 14 }}>
+        <div style={{ width: isMobile ? 34 : 44, height: isMobile ? 34 : 44, borderRadius: 12, background: `${color}18`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <Icon size={isMobile ? 17 : 22} color={color} strokeWidth={1.8} />
         </div>
-        {sub && <div style={{ fontSize: 11, color: G.green, fontWeight: 700, background: "#d1fae5", padding: "3px 9px", borderRadius: 100 }}>{sub}</div>}
+        {sub && !isMobile && <div style={{ fontSize: 11, color: G.green, fontWeight: 700, background: "#d1fae5", padding: "3px 9px", borderRadius: 100 }}>{sub}</div>}
       </div>
-      <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 28, fontWeight: 900, color: G.black, lineHeight: 1, marginBottom: 6 }}>{value}</div>
-      <div style={{ fontSize: 13, color: G.gray }}>{label}</div>
+      <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: isMobile ? 20 : 28, fontWeight: 900, color: G.black, lineHeight: 1, marginBottom: 4 }}>{value}</div>
+      <div style={{ fontSize: isMobile ? 11 : 13, color: G.gray }}>{label}</div>
     </div>
   );
 }
@@ -234,6 +236,7 @@ function AIChatChallenge({ navigate }) {
 
 /* ── 5. 최근 북마크 미리보기 ── */
 function RecentBookmarks({ navigate }) {
+  const { isMobile } = useBreakpoint();
   const [bookmarks, setBookmarks] = useState([]);
 
   useEffect(() => {
@@ -255,7 +258,7 @@ function RecentBookmarks({ navigate }) {
         </div>
         <div onClick={() => navigate("/bookmark")} style={{ fontSize: 12, color: G.accent, fontWeight: 700, cursor: "pointer" }}>전체 보기 →</div>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
+      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: 10 }}>
         {bookmarks.map(b => (
           <div key={b.slang_id} style={{ background: G.pageBg, borderRadius: 14, padding: "14px 16px" }}>
             <div style={{ fontSize: 14, fontWeight: 700, color: G.black, marginBottom: 4 }}>{b.word}</div>
@@ -346,6 +349,7 @@ function QuizBanner({ navigate, todayCount }) {
 /* ── 메인 콘텐츠── */
 function MainContent({ stats }) {
   const navigate = useNavigate();
+  const { isMobile } = useBreakpoint();
   const [userName, setUserName] = useState("인싸");
   const currentStats = stats || { todayCount: 0, masteredCount: 0, aiCount: 0, streak: 0, xp: 0, accuracy: 0 };
 
@@ -359,44 +363,46 @@ function MainContent({ stats }) {
     }
   }, []);
 
+  const pad = isMobile ? "16px" : "36px 40px";
+
   return (
-    <main style={{ flex: 1, padding: "36px 40px", overflowY: "auto", minHeight: "100vh", background: G.pageBg }}>
+    <main style={{ flex: 1, padding: pad, overflowY: "auto", minHeight: "100vh", background: G.pageBg }}>
       {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
         <div>
-          <div style={{ fontSize: 13, color: G.gray, marginBottom: 4, display: "flex", alignItems: "center", gap: 5 }}>좋은 하루에요 <Sun size={13} color={G.gray} strokeWidth={1.8} /></div>
-          <h1 style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 26, fontWeight: 900, color: G.black }}>
-            오늘도 한 표현씩, <span style={{ color: G.accent }}>{userName}님!</span>
+          <div style={{ fontSize: 12, color: G.gray, marginBottom: 4, display: "flex", alignItems: "center", gap: 5 }}>좋은 하루에요 <Sun size={12} color={G.gray} strokeWidth={1.8} /></div>
+          <h1 style={{ fontFamily: "'Unbounded', sans-serif", fontSize: isMobile ? 18 : 26, fontWeight: 900, color: G.black, lineHeight: 1.3 }}>
+            오늘도 한 표현씩,<br /><span style={{ color: G.accent }}>{userName}님!</span>
           </h1>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ background: G.white, borderRadius: 14, padding: "10px 18px", fontSize: 14, fontWeight: 700, border: "1px solid rgba(0,0,0,0.05)" }}>
-            <Flame size={14} color={G.accent} strokeWidth={2} style={{ display: "inline" }} /> <span style={{ color: G.accent }}>{currentStats.streak}일</span> 연속
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ background: G.white, borderRadius: 12, padding: isMobile ? "7px 12px" : "10px 18px", fontSize: isMobile ? 12 : 14, fontWeight: 700, border: "1px solid rgba(0,0,0,0.05)", display: "flex", alignItems: "center", gap: 4 }}>
+            <Flame size={12} color={G.accent} strokeWidth={2} /> <span style={{ color: G.accent }}>{currentStats.streak}일</span>
           </div>
-          <div style={{ background: G.white, borderRadius: 14, padding: "10px 18px", fontSize: 14, fontWeight: 700, border: "1px solid rgba(0,0,0,0.05)", display: "flex", alignItems: "center", gap: 5 }}>
-            <Zap size={14} color={G.accent2} strokeWidth={2} /> <span style={{ color: G.accent2 }}>{currentStats.xp.toLocaleString()}</span> XP
+          <div style={{ background: G.white, borderRadius: 12, padding: isMobile ? "7px 12px" : "10px 18px", fontSize: isMobile ? 12 : 14, fontWeight: 700, border: "1px solid rgba(0,0,0,0.05)", display: "flex", alignItems: "center", gap: 4 }}>
+            <Zap size={12} color={G.accent2} strokeWidth={2} /> <span style={{ color: G.accent2 }}>{currentStats.xp.toLocaleString()}</span>
           </div>
         </div>
       </div>
 
-      <div style={{ marginBottom: 28 }}><SearchBar /></div>
+      <div style={{ marginBottom: 20 }}><SearchBar /></div>
 
       {/* 1. 상단 스탯 카드 */}
-      <div style={{ display: "flex", gap: 16, marginBottom: 20 }}>
-        <StatCard icon={BookOpen}   label="오늘 학습한 표현" value={currentStats.todayCount}           sub="+2 어제보다" color={G.accent} onClick={() => navigate("/learning-intro")} />
-        <StatCard icon={CheckCircle} label="완료한 카드"      value={currentStats.masteredCount}         sub="이번 달"    color={G.blue}   onClick={() => navigate("/progress")} />
-        <StatCard icon={Target}      label="AI 대화 횟수"    value={currentStats.aiCount}               sub="이번 주"    color={G.purple} onClick={() => navigate("/ai-chat")} />
-        <StatCard icon={Percent}     label="평균 정확도"     value={`${currentStats.accuracy}%`}        sub="↑ 5%"      color={G.green}  onClick={() => navigate("/progress")} />
+      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(4, 1fr)", gap: isMobile ? 10 : 16, marginBottom: 16 }}>
+        <StatCard icon={BookOpen}    label="오늘 학습" value={currentStats.todayCount}        sub="+2 어제보다" color={G.accent} onClick={() => navigate("/learning-intro")} />
+        <StatCard icon={CheckCircle} label="완료 카드" value={currentStats.masteredCount}      sub="이번 달"    color={G.blue}   onClick={() => navigate("/progress")} />
+        <StatCard icon={Target}      label="AI 대화"  value={currentStats.aiCount}            sub="이번 주"    color={G.purple} onClick={() => navigate("/ai-chat")} />
+        <StatCard icon={Percent}     label="정확도"   value={`${currentStats.accuracy}%`}     sub="↑ 5%"      color={G.green}  onClick={() => navigate("/progress")} />
       </div>
 
-      {/* 2. 중앙 카드 + AI 프리뷰  */}
-      <div style={{ display: "flex", gap: 20, marginBottom: 20 }}>
+      {/* 2. 오늘의 학습 카드 + AI 프리뷰 */}
+      <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? 12 : 20, marginBottom: 16 }}>
         <TodayCard navigate={navigate} />
         <AIChatPreview navigate={navigate} />
       </div>
 
       {/* 3. 주간 그래프 + 슬랭 퀴즈 */}
-      <div style={{ display: "flex", gap: 20, marginBottom: 20, alignItems: "stretch" }}>
+      <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? 12 : 20, marginBottom: 16, alignItems: "stretch" }}>
         <div style={{ flex: 1, display: "flex", flexDirection: "column" }}><WeeklyProgress /></div>
         <div style={{ flex: 1, display: "flex", flexDirection: "column" }}><AIChatChallenge navigate={navigate} /></div>
       </div>
@@ -413,23 +419,21 @@ function MainContent({ stats }) {
       {/* 커뮤니티 배너 */}
       <div onClick={() => navigate("/community")} style={{
         background: `linear-gradient(135deg, #4c1d95, #7c3aed)`,
-        borderRadius: 20, padding: "24px 28px", marginBottom: 20, cursor: "pointer",
+        borderRadius: 20, padding: isMobile ? "18px 20px" : "24px 28px", marginBottom: 20, cursor: "pointer",
         display: "flex", alignItems: "center", justifyContent: "space-between",
         boxShadow: "0 4px 20px rgba(124,58,237,0.2)", transition: "transform 0.2s",
       }}
         onMouseEnter={e => e.currentTarget.style.transform = "translateY(-2px)"}
         onMouseLeave={e => e.currentTarget.style.transform = "none"}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 44, height: 44 }}>
-            <Globe size={36} color="rgba(255,255,255,0.8)" strokeWidth={1.5} />
-          </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <Globe size={isMobile ? 28 : 36} color="rgba(255,255,255,0.8)" strokeWidth={1.5} />
           <div>
-            <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 15, fontWeight: 900, color: "#ffffff", marginBottom: 4 }}>커뮤니티</div>
-            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.5)" }}>새 슬랭 제보 · 좋아요 · 댓글 · 이번 주 핫 랭킹</div>
+            <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: isMobile ? 13 : 15, fontWeight: 900, color: "#ffffff", marginBottom: 2 }}>커뮤니티</div>
+            {!isMobile && <div style={{ fontSize: 13, color: "rgba(255,255,255,0.5)" }}>새 슬랭 제보 · 좋아요 · 댓글 · 이번 주 핫 랭킹</div>}
           </div>
         </div>
-        <div style={{ background: "#7c3aed", color: "#ffffff", fontSize: 12, fontWeight: 700, padding: "8px 18px", borderRadius: 100, fontFamily: "'Noto Sans KR', sans-serif", whiteSpace: "nowrap", border: "1px solid rgba(255,255,255,0.2)" }}>참여하기 →</div>
+        <div style={{ background: "#7c3aed", color: "#ffffff", fontSize: 12, fontWeight: 700, padding: "8px 16px", borderRadius: 100, fontFamily: "'Noto Sans KR', sans-serif", whiteSpace: "nowrap", border: "1px solid rgba(255,255,255,0.2)" }}>참여하기 →</div>
       </div>
     </main>
   );
