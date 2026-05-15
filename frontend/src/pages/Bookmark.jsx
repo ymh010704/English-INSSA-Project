@@ -2,19 +2,22 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
+import { Bookmark as BookmarkIcon, Search, LayoutGrid, List } from "lucide-react";
 
-// 컴포넌트들
 import G from "../constants/colors";
 import PageHeader from "../components/PageHeader";
 import Button from "../components/Button";
 import BookmarkItem from "../components/BookmarkCard";
 import Sidebar from "../components/Sidebar";
+import useBreakpoint from "../hooks/useBreakpoint";
+import Skeleton from "../components/Skeleton";
 
 const CATEGORIES = ["전체", "칭찬 / 긍정", "연애 / SNS", "일상 / 강조", "음식 / 긍정", "SNS / 일상", "연애"];
 
 /* ── MAIN BOOKMARK PAGE ── */
 export default function Bookmark() {
-  const [active, setActive] = useState("bookmark"); 
+  const [active, setActive] = useState("bookmark");
+  const { isMobile } = useBreakpoint();
   const navigate = useNavigate();
 
   // 상태 관리
@@ -92,7 +95,7 @@ export default function Bookmark() {
           
           Toast.fire({
             icon: 'success',
-            title: '북마크 해제 완료! 👋',
+            title: '북마크 해제 완료!',
             background: '#ffffff',
             iconColor: G.accent,
           });
@@ -127,18 +130,18 @@ export default function Bookmark() {
         flex: 1, height: "100vh", overflowY: "auto", 
         fontFamily: "'Noto Sans KR', sans-serif", 
         display: "flex", flexDirection: "column",
-        background: G.lightGray
+        background: G.pageBg
       }}>
     
         <PageHeader
-          title="북마크" emoji="⭐"
+          title="북마크" icon={BookmarkIcon}
           right={<Button onClick={() => navigate("/card-study")} size="sm">북마크로 학습 →</Button>}
         />
 
-        <div style={{ padding: "36px 40px" }}>
+        <div style={{ padding: isMobile ? "16px" : "36px 40px" }}>
           {/* 검색창 */}
           <div style={{ position: "relative", marginBottom: 20 }}>
-            <span style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)", fontSize: 16 }}>🔍</span>
+            <span style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)", display: "flex" }}><Search size={16} color={G.gray} strokeWidth={1.8} /></span>
             <input
               value={search}
               onChange={e => setSearch(e.target.value)}
@@ -155,8 +158,21 @@ export default function Bookmark() {
 
           {/* 북마크 내역 로딩(서버 느릴때 ..)*/}
           {loading ? (
-            <div style={{ textAlign: "center", padding: "100px 0", color: G.gray }}>
-               <p>북마크를 불러오고 있어요... 📥</p>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 16 }}>
+              {[0,1,2,3,4,5].map(i => (
+                <div key={i} style={{ background: G.white, borderRadius: 20, padding: 20, display: "flex", flexDirection: "column", gap: 10, border: "1px solid rgba(0,0,0,0.05)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <Skeleton width={100} height={18} />
+                    <Skeleton width={50} height={22} radius={100} />
+                  </div>
+                  <Skeleton width="90%" height={13} />
+                  <Skeleton width="70%" height={13} />
+                  <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+                    <Skeleton width={80} height={32} radius={10} />
+                    <Skeleton width={80} height={32} radius={10} />
+                  </div>
+                </div>
+              ))}
             </div>
           ) : (
             <>
@@ -174,13 +190,13 @@ export default function Bookmark() {
                   ))}
                 </div>
                 <div style={{ display: "flex", gap: 4, background: G.white, borderRadius: 10, padding: 4, boxShadow: "0 2px 6px rgba(0,0,0,0.06)" }}>
-                  {[{ mode: "grid", icon: "⊞" }, { mode: "list", icon: "☰" }].map(v => (
+                  {[{ mode: "grid", Icon: LayoutGrid }, { mode: "list", Icon: List }].map(v => (
                     <button key={v.mode} onClick={() => setViewMode(v.mode)} style={{
                       padding: "6px 12px", borderRadius: 8, border: "none", cursor: "pointer",
                       background: viewMode === v.mode ? G.accent : "transparent",
                       color: viewMode === v.mode ? G.white : G.gray,
-                      fontSize: 16, transition: "all 0.15s",
-                    }}>{v.icon}</button>
+                      display: "flex", alignItems: "center", transition: "all 0.15s",
+                    }}><v.Icon size={16} strokeWidth={1.8} /></button>
                   ))}
                 </div>
               </div>
@@ -205,7 +221,7 @@ export default function Bookmark() {
               {/* 데이터가 없을 때 처리 */}
               {filtered.length === 0 && (
                 <div style={{ textAlign: "center", padding: "80px 0", color: G.gray }}>
-                  <div style={{ fontSize: 48, marginBottom: 16 }}>🔍</div>
+                  <div style={{ marginBottom: 16, display: "flex", justifyContent: "center" }}><Search size={48} color={G.gray} strokeWidth={1.4} /></div>
                   <div style={{ fontSize: 16, fontWeight: 600 }}>아직 저장된 단어가 없어요!</div>
                   <Button onClick={() => navigate("/card-study")} style={{marginTop: 16}}>학습하러 가기</Button>
                 </div>

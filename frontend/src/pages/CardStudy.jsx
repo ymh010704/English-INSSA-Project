@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import useBreakpoint from "../hooks/useBreakpoint";
 
 // 퀴즈에 사용할 컴포넌트들 임포트
 import MultipleChoice from "../components/quiz/MultipleChoice";
@@ -9,16 +10,18 @@ import OXQuiz from "../components/quiz/OXQuiz";
 import G from "../constants/colors";
 import PageHeader from "../components/PageHeader";
 import Button from "../components/Button";
+import Skeleton from "../components/Skeleton";
 
 /* ── 공부 완료 화면  ── */
 function CompletionScreen({ known, total, onRestart }) {
   const navigate = useNavigate();
+  const { isMobile } = useBreakpoint();
   const pct = Math.round((known / total) * 100);
   return (
     <div style={{
       minHeight: "100vh", background: G.navy,
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-      fontFamily: "'Noto Sans KR', sans-serif", padding: 40, textAlign: "center",
+      fontFamily: "'Noto Sans KR', sans-serif", padding: isMobile ? "24px 16px" : 40, textAlign: "center",
       position: "relative", overflow: "hidden",
     }}>
       <div style={{ position: "absolute", top: "20%", left: "50%", transform: "translateX(-50%)", width: 600, height: 600, background: "radial-gradient(circle, rgba(255,77,0,0.12) 0%, transparent 70%)", pointerEvents: "none" }} />
@@ -34,7 +37,7 @@ function CompletionScreen({ known, total, onRestart }) {
           { label: "맞혔어요", value: `${known}개`, color: G.green }, // '알겠어요' -> '맞혔어요'로 변경
           { label: "정확도", value: `${pct}%`, color: G.accent2 },
         ].map(s => (
-          <div key={s.label} style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: "24px 32px", minWidth: 130 }}>
+          <div key={s.label} style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: isMobile ? "16px 20px" : "24px 32px", minWidth: isMobile ? 80 : 130 }}>
             <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 32, fontWeight: 900, color: s.color, lineHeight: 1, marginBottom: 8 }}>{s.value}</div>
             <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)" }}>{s.label}</div>
           </div>
@@ -51,7 +54,8 @@ function CompletionScreen({ known, total, onRestart }) {
 /* ── 메인 퀴즈 학습 (컴포넌트들 불러와서 랜덤값 입힐 예정) ── */
 export default function CardStudy() {
   const navigate = useNavigate();
-  
+  const { isMobile } = useBreakpoint();
+
   // 1. 모든 상태(State) 선언
   const [quizzes, setQuizzes] = useState([]); // 데이터를 담을 공간
   const [loading, setLoading] = useState(true); // 로딩 중인지 확인
@@ -63,6 +67,7 @@ export default function CardStudy() {
 
   // ── API 데이터 호출 로직 ──
   const fetchQuizzes = async () => {
+    console.log("전송할 토큰:", localStorage.getItem('token'))
     try {
       // 로컬 스토리지에서 토큰 가져오기 (F12로 확인 가능)
       const token = localStorage.getItem('token');
@@ -97,10 +102,20 @@ export default function CardStudy() {
   // ── 데이터가 로딩 중일 때 보여줄 화면 ──
   if (loading) {
     return (
-      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f0ede6" }}>
-        <div style={{ textAlign: "center" }}>
-          <div style={{ fontSize: 40, marginBottom: 16 }}>🚀</div>
-          <p style={{ fontWeight: 700, color: G.accent }}>인싸 문제 가져오는 중...</p>
+      <div style={{ minHeight: "100vh", background: G.pageBg, fontFamily: "'Noto Sans KR', sans-serif", display: "flex", flexDirection: "column" }}>
+        <div style={{ height: 60, background: G.white, borderBottom: "1px solid rgba(0,0,0,0.06)", display: "flex", alignItems: "center", padding: "0 20px" }}>
+          <Skeleton width={120} height={20} />
+        </div>
+        <div style={{ height: 5, background: "#e5e0d8" }} />
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: isMobile ? "16px 12px" : "32px 24px", gap: 20 }}>
+          <Skeleton width={120} height={32} radius={100} />
+          <div style={{ width: "100%", maxWidth: 640, background: G.white, borderRadius: 24, padding: "36px 32px", display: "flex", flexDirection: "column", alignItems: "center", gap: 14, boxShadow: "0 4px 20px rgba(0,0,0,0.06)" }}>
+            <Skeleton width={80} height={12} />
+            <Skeleton width={200} height={48} />
+          </div>
+          <div style={{ width: "100%", maxWidth: 640, display: "flex", flexDirection: "column", gap: 10 }}>
+            {[0, 1, 2, 3].map(i => <Skeleton key={i} width="100%" height={56} radius={14} />)}
+          </div>
         </div>
       </div>
     );
@@ -177,7 +192,7 @@ export default function CardStudy() {
 
   // 4. 메인 UI 렌더링
   return (
-    <div style={{ minHeight: "100vh", background: "#f0ede6", fontFamily: "'Noto Sans KR', sans-serif", display: "flex", flexDirection: "column" }}>
+    <div style={{ minHeight: "100vh", background: G.pageBg, fontFamily: "'Noto Sans KR', sans-serif", display: "flex", flexDirection: "column" }}>
 
       {/* 상단 헤더 */}
       <PageHeader
@@ -191,7 +206,7 @@ export default function CardStudy() {
       </div>
 
       {/* 퀴즈 컨테이너 */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "32px 24px" }}>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: isMobile ? "16px 12px" : "32px 24px" }}>
         
         {/* 뱃지 */}
         <div style={{ marginBottom: 20 }}>

@@ -7,6 +7,7 @@ const G = {
   gray: "#6b7280",
   light: "#f9f8f5",
   lightGray: "#f3f4f6",
+  pageBg: "#f3f4f6",
   bg: "#fffdf9",
   cream: "#f5f2eb",
   green: "#10b981",

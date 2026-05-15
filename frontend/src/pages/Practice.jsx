@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { PenLine, Trophy, ThumbsUp, Dumbbell, RotateCcw, Home, CheckCircle, XCircle } from "lucide-react";
 
 import G from "../constants/colors";
 import PageHeader from "../components/PageHeader";
@@ -59,14 +60,17 @@ import Button from "../components/Button";
 /* ── 결과 화면 ── */
 function ResultScreen({ score, total, onRetry }) {
   const navigate = useNavigate();
+  const { isMobile } = useBreakpoint();
   const pct = Math.round((score / total) * 100);
-  const grade = pct >= 80 ? "완벽해요! 🏆" : pct >= 60 ? "잘했어요! 👍" : "조금 더 연습해요 💪";
+  const grade = pct >= 80 ? "완벽해요!" : pct >= 60 ? "잘했어요!" : "조금 더 연습해요";
 
   return (
-    <div style={{ minHeight: "100vh", background: G.navy, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontFamily: "'Noto Sans KR', sans-serif", padding: 40, textAlign: "center", position: "relative", overflow: "hidden" }}>
+    <div style={{ minHeight: "100vh", background: G.navy, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontFamily: "'Noto Sans KR', sans-serif", padding: isMobile ? "24px 16px" : 40, textAlign: "center", position: "relative", overflow: "hidden" }}>
       <div style={{ position: "absolute", top: "20%", left: "50%", transform: "translateX(-50%)", width: 500, height: 500, background: "radial-gradient(circle, rgba(255,77,0,0.12) 0%, transparent 70%)", pointerEvents: "none" }} />
 
-      <div style={{ fontSize: 72, marginBottom: 20 }}>{pct >= 80 ? "🏆" : pct >= 60 ? "👍" : "💪"}</div>
+      <div style={{ marginBottom: 20 }}>
+        {pct >= 80 ? <Trophy size={72} color={G.accent} strokeWidth={1.4} /> : pct >= 60 ? <ThumbsUp size={72} color={G.green} strokeWidth={1.4} /> : <Dumbbell size={72} color="#94a3b8" strokeWidth={1.4} />}
+      </div>
       <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 12 }}>연습 완료!</div>
       <h1 style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 36, fontWeight: 900, color: G.white, lineHeight: 1.2, letterSpacing: -1, marginBottom: 8 }}>
         {grade}
@@ -79,7 +83,7 @@ function ResultScreen({ score, total, onRetry }) {
           { label: "정답", value: `${score}개`, color: G.green },
           { label: "정확도", value: `${pct}%`, color: G.accent2 },
         ].map(s => (
-          <div key={s.label} style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: "22px 28px", minWidth: 110 }}>
+          <div key={s.label} style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: isMobile ? "14px 18px" : "22px 28px", minWidth: isMobile ? 80 : 110 }}>
             <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 28, fontWeight: 900, color: s.color, lineHeight: 1, marginBottom: 8 }}>{s.value}</div>
             <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)" }}>{s.label}</div>
           </div>
@@ -87,12 +91,13 @@ function ResultScreen({ score, total, onRetry }) {
       </div>
 
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
-        <Button onClick={onRetry} style={{ padding: "14px 32px" }}>🔁 다시 풀기</Button>
-        <Button variant="secondary" onClick={() => navigate("/dashboard")} style={{ padding: "14px 32px", color: G.white, border: "1.5px solid rgba(255,255,255,0.2)" }}>🏠 대시보드로</Button>
+        <Button onClick={onRetry} style={{ padding: "14px 32px", display: "inline-flex", alignItems: "center", gap: 6 }}><RotateCcw size={14} strokeWidth={2} /> 다시 풀기</Button>
+        <Button variant="secondary" onClick={() => navigate("/dashboard")} style={{ padding: "14px 32px", color: G.white, border: "1.5px solid rgba(255,255,255,0.2)", display: "inline-flex", alignItems: "center", gap: 6 }}><Home size={14} strokeWidth={2} /> 대시보드로</Button>
       </div>
     </div>
   );
 }
+
 
 /* ── 메인 연습 페이지 ── */
 export default function Practice() {
@@ -103,6 +108,7 @@ export default function Practice() {
   const [done, setDone] = useState(false);
 
   const navigate = useNavigate();
+  const { isMobile } = useBreakpoint();
   const [selected, setSelected] = useState(null);
   const [inputVal, setInputVal] = useState("");
   const [checked, setChecked] = useState(false);
@@ -187,10 +193,10 @@ export default function Practice() {
   const canCheck = q.type === "input" ? inputVal.trim().length > 0 : selected !== null;
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f0ede6", fontFamily: "'Noto Sans KR', sans-serif", display: "flex", flexDirection: "column" }}>
+    <div style={{ minHeight: "100vh", background: G.pageBg, fontFamily: "'Noto Sans KR', sans-serif", display: "flex", flexDirection: "column" }}>
 
       <PageHeader
-        title="연습" emoji="✍️"
+        title="연습" icon={PenLine}
         right={<span style={{ fontSize: 13, fontWeight: 700, color: G.gray }}>{index + 1} / {total}</span>}
         noSeparator
       />
@@ -201,18 +207,18 @@ export default function Practice() {
       </div>
 
       {/* 메인 콘텐츠 */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", padding: "36px 24px 24px", overflowY: "auto" }}>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", padding: isMobile ? "16px 12px 16px" : "36px 24px 24px", overflowY: "auto" }}>
         <div style={{ width: "100%", maxWidth: 620 }}>
 
           {/* 문제 유형 뱃지 */}
           <div style={{ marginBottom: 16 }}>
             <span style={{ background: "rgba(255,77,0,0.1)", border: "1px solid rgba(255,77,0,0.2)", color: G.accent, fontSize: 11, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase", padding: "6px 16px", borderRadius: 100 }}>
-              {q.type === "fill" ? "🔤 빈칸 채우기" : q.type === "input" ? "⌨️ 직접 입력" : "🎯 객관식"}
+              {q.type === "fill" ? "빈칸 채우기" : q.type === "input" ? "직접 입력" : "객관식"}
             </span>
           </div>
 
           {/* 문제 카드 */}
-          <div style={{ background: G.white, borderRadius: 28, padding: "36px 36px 28px", boxShadow: "0 16px 48px rgba(0,0,0,0.08)", marginBottom: 20, border: "1px solid rgba(0,0,0,0.04)" }}>
+          <div style={{ background: G.white, borderRadius: 28, padding: isMobile ? "20px 20px 16px" : "36px 36px 28px", boxShadow: "0 16px 48px rgba(0,0,0,0.08)", marginBottom: 20, border: "1px solid rgba(0,0,0,0.04)" }}>
 
             {/* 문제 */}
             <div style={{ fontSize: 17, fontWeight: 700, color: G.black, marginBottom: 24, lineHeight: 1.5 }}>{q.question}</div>
@@ -270,7 +276,7 @@ export default function Practice() {
 
           {/* 보기 (빈칸/객관식) */}
           {(q.type === "fill" || q.type === "choice") && (
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 10, marginBottom: 20 }}>
               {q.options.map(opt => {
                 let bg = G.white, border = "2px solid #e5e0d8", color = G.black;
                 if (!checked && selected === opt) { bg = "rgba(255,77,0,0.06)"; border = `2px solid ${G.accent}`; color = G.accent; }
@@ -286,8 +292,8 @@ export default function Practice() {
                     fontFamily: "'Noto Sans KR', sans-serif", textAlign: "left",
                     transition: "all 0.2s", display: "flex", alignItems: "center", gap: 10,
                   }}>
-                    {checked && opt === q.answer && <span>✅</span>}
-                    {checked && opt === selected && opt !== q.answer && <span>❌</span>}
+                    {checked && opt === q.answer && <CheckCircle size={15} color={G.green} strokeWidth={2.5} />}
+                    {checked && opt === selected && opt !== q.answer && <XCircle size={15} color={G.red} strokeWidth={2.5} />}
                     {opt}
                   </button>
                 );
@@ -299,7 +305,10 @@ export default function Practice() {
           {checked && (
             <div style={{ background: isCorrect ? "#f0fdf4" : "#fef2f2", border: `1px solid ${isCorrect ? "#86efac" : "#fca5a5"}`, borderRadius: 16, padding: "16px 20px", marginBottom: 20 }}>
               <div style={{ fontSize: 15, fontWeight: 700, color: isCorrect ? G.green : G.red, marginBottom: 6 }}>
-                {isCorrect ? "✅ 정답이에요!" : "❌ 틀렸어요!"}
+                <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  {isCorrect ? <CheckCircle size={15} color={G.green} strokeWidth={2.5} /> : <XCircle size={15} color={G.red} strokeWidth={2.5} />}
+                  {isCorrect ? "정답이에요!" : "틀렸어요!"}
+                </span>
               </div>
               <div style={{ fontSize: 13, color: "#374151", lineHeight: 1.7 }}>{q.explanation}</div>
             </div>
@@ -310,7 +319,9 @@ export default function Practice() {
             {!checked ? (
               <Button onClick={check} disabled={!canCheck} style={{ flex: 1, borderRadius: 20, padding: "18px", fontSize: 15, ...(!canCheck && { background: "#e5e0d8", color: G.gray, boxShadow: "none", opacity: 1 }) }}>정답 확인</Button>
             ) : (
-              <Button onClick={next} style={{ flex: 1, borderRadius: 20, padding: "18px", fontSize: 15, background: G.black, boxShadow: "0 8px 24px rgba(0,0,0,0.2)" }}>{index + 1 >= total ? "결과 보기 🏆" : "다음 문제 →"}</Button>
+              <Button onClick={next} style={{ flex: 1, borderRadius: 20, padding: "18px", fontSize: 15, background: G.black, boxShadow: "0 8px 24px rgba(0,0,0,0.2)", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+                {index + 1 >= total ? <><Trophy size={15} strokeWidth={2} /> 결과 보기</> : "다음 문제 →"}
+              </Button>
             )}
           </div>
 
