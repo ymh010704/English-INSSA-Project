@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import useBreakpoint from "../hooks/useBreakpoint";
 import { PenLine, Trophy, ThumbsUp, Dumbbell, RotateCcw, Home, CheckCircle, XCircle } from "lucide-react";
 
 import G from "../constants/colors";
