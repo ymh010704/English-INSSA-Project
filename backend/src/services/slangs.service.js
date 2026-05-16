@@ -20,7 +20,8 @@ export const list = async () => {
 };
 
 export const getShorts = async () => {
-  const [rows] = await pool.query(
+  // query 대신 execute를 사용해보거나, pool이 제대로 불러와졌는지 확인
+  const [rows] = await pool.execute(
     "SELECT slang_id, word, definition_ko, example_en, example_ko, shorts_url FROM slangs WHERE shorts_url IS NOT NULL AND shorts_url != '' AND shorts_url != 'SKIPPED' ORDER BY created_at DESC"
   );
   return rows;
