@@ -157,16 +157,32 @@ function AIChatPreview({ navigate }) {
 }
 
 /* ── 4. 이번 주 학습 그래프 ── */
-function WeeklyProgress({ navigate }) {
-  const days = [
-    { d: "월", done: true,  count: 3 },
-    { d: "화", done: true,  count: 5 },
-    { d: "수", done: true,  count: 4 },
-    { d: "목", done: true,  count: 6 },
-    { d: "금", done: false, count: 2 },
-    { d: "토", done: false, count: 0 },
-    { d: "일", done: false, count: 0, today: true },
-  ];
+function WeeklyProgress({ activityLog = [], streak = 0, navigate }) {
+  const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
+  const today = new Date();
+  
+  // 최근 7일간의 날짜를 생성하여 activityLog와 매칭
+  const days = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date();
+    // 오늘(today)로부터 (6-i)일 전의 날짜를 구함
+    d.setDate(today.getDate() - (6 - i)); 
+    
+    // 백엔드 데이터와 똑같은 'MM-DD' 형식 만들기
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const dateStr = `${mm}-${dd}`;
+    
+    // 데이터 찾기 (정확한 문자열 비교)
+    const log = activityLog.find(l => l.date === dateStr);
+    
+    return {
+      d: dayNames[d.getDay()], // 요일 (월, 화...)
+      count: log ? Number(log.count) : 0, // 숫자로 형변환
+      isToday: d.toDateString() === today.toDateString(),
+      done: log ? Number(log.count) > 0 : false
+    };
+  });
+
   return (
     <div style={{
       background: G.white, borderRadius: 24, padding: 28,
@@ -176,23 +192,43 @@ function WeeklyProgress({ navigate }) {
     }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 22 }}>
         <div>
-          <div style={{ fontSize: 15, fontWeight: 700, color: G.black, display: "flex", alignItems: "center", gap: 6 }}><Calendar size={14} color={G.black} strokeWidth={2} /> 이번 주 학습</div>
-          <div style={{ fontSize: 12, color: G.gray, marginTop: 2, display: "flex", alignItems: "center", gap: 4 }}>4일 연속 학습 중 <Flame size={11} color={G.accent} strokeWidth={2} /></div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: G.black, display: "flex", alignItems: "center", gap: 6 }}>
+            <Calendar size={14} color={G.black} strokeWidth={2} /> 이번 주 학습
+          </div>
+          <div style={{ fontSize: 12, color: G.gray, marginTop: 2, display: "flex", alignItems: "center", gap: 4 }}>
+            {streak}일 연속 학습 중 <Flame size={11} color={G.accent} strokeWidth={2} />
+          </div>
         </div>
         <div onClick={() => navigate("/progress")} style={{ fontSize: 12, color: G.accent, fontWeight: 700, cursor: "pointer" }}>전체 보기 →</div>
       </div>
-      <div style={{ display: "flex", gap: 8, alignItems: "flex-end" }}>
-        {days.map(d => (
-          <div key={d.d} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-            <div style={{ fontSize: 11, fontWeight: d.count > 0 ? 700 : 400, color: d.count > 0 ? G.black : G.gray }}>{d.count > 0 ? d.count : ""}</div>
+      
+      <div style={{ display: "flex", gap: 8, alignItems: "flex-end", height: 100 }}>
+        {days.map((day, i) => (
+          <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+            {/* 숫자가 0보다 클 때만 위에 표시 */}
+            <div style={{ fontSize: 10, fontWeight: 700, color: day.count > 0 ? G.black : "transparent", height: 14 }}>
+              {day.count > 0 ? day.count : ""}
+            </div>
+            
+            {/* 막대 바 */}
             <div style={{
-              width: "100%", borderRadius: 8,
-              height: d.count ? Math.max(d.count * 10, 20) : 8,
-              background: d.today ? G.accent : d.done ? "#fed7aa" : G.lightGray,
-              transition: "height 0.3s",
-              border: d.today ? `2px solid ${G.accent}` : "none",
+              width: "100%", 
+              borderRadius: 6,
+              // 최소 높이 8px, 한 번당 15px씩 상승 (최대 70px)
+              height: day.count > 0 ? Math.min(day.count * 15 + 10, 70) : 8,
+              background: day.isToday ? G.accent : day.done ? "#fed7aa" : G.lightGray,
+              border: day.isToday ? `1.5px solid ${G.accent}` : "none",
+              transition: "height 0.3s ease",
             }} />
-            <div style={{ fontSize: 11, color: d.today ? G.accent : G.gray, fontWeight: d.today ? 700 : 400 }}>{d.d}</div>
+            
+            {/* 요일 이름 */}
+            <div style={{ 
+              fontSize: 11, 
+              color: day.isToday ? G.accent : G.gray, 
+              fontWeight: day.isToday ? 800 : 400 
+            }}>
+              {day.d}
+            </div>
           </div>
         ))}
       </div>
@@ -435,7 +471,13 @@ function MainContent({ stats }) {
 
       {/* 3. 주간 그래프 + 슬랭 퀴즈 */}
       <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? 12 : 20, marginBottom: 16, alignItems: "stretch" }}>
-        <div style={{ flex: 1, display: "flex", flexDirection: "column" }}><WeeklyProgress /></div>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+          <WeeklyProgress
+            activityLog={stats.activityLog || []}
+            streak={stats.streak || 0}
+            navigate={navigate}
+          />
+        </div>
         <div style={{ flex: 1, display: "flex", flexDirection: "column" }}><AIChatChallenge navigate={navigate} /></div>
       </div>
 
@@ -486,7 +528,8 @@ export default function Dashboard() {
     aiCount: 0,
     streak: 0,
     xp: 0,
-    accuracy: 0
+    accuracy: 0,
+    activityLog: [],
   });
 
   useEffect(() => {

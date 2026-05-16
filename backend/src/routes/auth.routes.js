@@ -122,7 +122,7 @@ router.get("/kakao", passport.authenticate("kakao", { session: false }));
 
 // --- 카카오 콜백 처리 ---
 router.get("/kakao/callback", 
-  passport.authenticate("kakao", { session: false, failureRedirect: "http://localhost/login?error=kakao_fail" }),
+  passport.authenticate("kakao", { session: false, failureRedirect: `${FRONT_URL}/login?error=kakao_fail` }),
   (req, res) => {
     try {
       if (!req.user) {
@@ -139,11 +139,11 @@ router.get("/kakao/callback",
 
       console.log(`✅ 로그인 성공: ${req.user.nickname}`);
       // 프론트엔드로 최종 리다이렉트
-      res.redirect(`${domainURL}/login?token=${token}&user=${userData}`);
+      res.redirect(`${FRONT_URL}/login?token=${token}&user=${userData}`);
 
     } catch (err) {
       console.error("🚨 리다이렉트 처리 중 에러:", err.message);
-      res.redirect(`${domainURL}/login?error=server_error"`);
+      res.redirect(`${FRONT_URL}/login?error=server_error"`);
     }
   }
 );
