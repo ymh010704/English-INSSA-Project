@@ -160,7 +160,7 @@ function AIChatPreview({ navigate }) {
 function WeeklyProgress({ activityLog = [], streak = 0, navigate }) {
   const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
   const today = new Date();
-  
+
   // 최근 7일간의 날짜를 생성하여 activityLog와 매칭
   const days = Array.from({ length: 7 }, (_, i) => {
     const d = new Date();
@@ -545,7 +545,7 @@ export default function Dashboard() {
           return;
         }
 
-        const res = await axios.get('http://localhost/api/dashboard/stats', {
+        const res = await axios.get('/api/dashboard/stats', {
           headers: { Authorization: `Bearer ${token}` }
         });
         // 서버 응답이 와야만 업데이트 하도록

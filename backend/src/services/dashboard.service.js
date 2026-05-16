@@ -22,6 +22,22 @@ export const getUserStats = async (userId) => {
         GROUP BY date  -- 별칭(date)을 그대로 사용하거나 DATE_FORMAT(...) 전체를 적어줍니다.
         ORDER BY date ASC
     `; // 대시보드 중간에 있는 일주일치 학습량
+    const q7 = `
+        SELECT 
+            s.category, 
+            COUNT(s.slang_id) as total, 
+            SUM(CASE WHEN l.status = 'mastered' THEN 1 ELSE 0 END) as mastered
+        FROM slangs s
+        LEFT JOIN study_logs l ON s.slang_id = l.slang_id AND l.user_id = ?
+        GROUP BY s.category
+    `; // 진도 관리 -> 카테고리별 숙련도 통계
+    const q8 = `
+        SELECT DISTINCT DATE_FORMAT(created_at, '%e') as day 
+        FROM study_logs 
+        WHERE user_id = ? 
+          AND MONTH(created_at) = MONTH(CURDATE()) 
+          AND YEAR(created_at) = YEAR(CURDATE())
+    `; // 진도 관리 -> 월간 캘린더 (이번 달 공부한 날짜들)
 
     // 2. 결과 배열 구조를 명확히 처리
     const [res1, res2, res3, res4, res5, res6] = await Promise.all([
@@ -30,7 +46,10 @@ export const getUserStats = async (userId) => {
     pool.execute(q3, [userId]), // ai랑 대화 횟수 쿼리
     pool.execute(q4, [userId]), // 대쉬보드 우측 상단에 뜨는 2개 (연속 접속일, xp) 쿼리
     pool.execute(q5, [userId]),  // 정확도 쿼리
-    pool.execute(q6, [userId])
+    pool.execute(q6, [userId]), // 일주일치 학습량
+    pool.execute(q7, [userId]), // 카테고리 숙련도
+    pool.execute(q8, [userId]) // 월간 캘린더
+
     ]);
 
     // 컨트롤러가 바로 쓰도록 추출 로직으로 변경함
@@ -41,7 +60,9 @@ export const getUserStats = async (userId) => {
         streak: res4[0][0]?.current_streak || 0,
         xp: res4[0][0]?.total_xp || 0,
         accuracy: res5[0][0]?.accuracy || 0,
-        activityLog: res6[0] || []
+        activityLog: res6[0] || [],
+        categories: resCat[0], // [{category: 'SNS', total: 20, mastered: 15}, ...]
+        calendarDays: resCal[0].map(r => Number(r.day))
   };
 };
 

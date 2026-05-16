@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import useBreakpoint from "../hooks/useBreakpoint";
 import { Flame, BookOpen, Zap, Moon, Trophy, Crown, Star, Gem, Bot, Sprout, TrendingUp, Award, Smartphone, MessageSquare, ThumbsUp, MinusCircle, Sparkles, Heart, CheckCircle, Timer, BarChart2, Calendar, Lock } from "lucide-react";
@@ -15,26 +16,9 @@ const TIERS = [
   { name: "원어민급", min: 4000, max: 9999, color: "#ff4d00", icon: Crown      },
 ];
 
-const XP = 1240;
-const STREAK = 14;
-
 function getTier(xp) {
   return TIERS.findLast(t => xp >= t.min) || TIERS[0];
 }
-
-const WEEKLY = [
-  { d: "월", count: 3 }, { d: "화", count: 5 }, { d: "수", count: 4 },
-  { d: "목", count: 6 }, { d: "금", count: 2 }, { d: "토", count: 0 }, { d: "일", count: 0 },
-];
-
-const CATEGORIES = [
-  { label: "SNS / 일상",   pct: 72, color: G.accent,  icon: Smartphone, count: 18 },
-  { label: "감탄 / 리액션", pct: 55, color: G.blue,    icon: MessageSquare, count: 11 },
-  { label: "칭찬 / 긍정",  pct: 88, color: G.green,   icon: ThumbsUp,   count: 22 },
-  { label: "완곡 / 거절",  pct: 34, color: G.purple,  icon: MinusCircle, count: 8  },
-  { label: "Gen Z 유행어", pct: 61, color: "#f59e0b",  icon: Sparkles,   count: 15 },
-  { label: "연애 / SNS",   pct: 47, color: "#ec4899",  icon: Heart,      count: 12 },
-];
 
 const BADGES = [
   { icon: Flame,    color: "#f97316", bg: "#fff7ed", name: "7일 연속",      desc: "7일 연속 학습",          done: true  },
@@ -47,15 +31,6 @@ const BADGES = [
   { icon: Gem,      color: "#06b6d4", bg: "#ecfeff", name: "100개 달성",    desc: "표현 100개 학습",        done: false },
   { icon: Bot,      color: "#6366f1", bg: "#eef2ff", name: "AI 마스터",     desc: "AI 대화 50회",           done: false },
 ];
-
-// 이번 달 캘린더 데이터 (3월 기준)
-const CALENDAR = {
-  year: 2026, month: 3,
-  startDay: 0, // 일요일부터 시작, 3월 1일 = 일요일
-  days: 31,
-  studied: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,17,18,19,20,21,22,24,25,26,27,28],
-  today: 5,
-};
 
 /* ── 섹션 카드 래퍼 ── */
 function Section({ title, sub, children, style = {}, icon: Icon }) {
@@ -74,13 +49,13 @@ function Section({ title, sub, children, style = {}, icon: Icon }) {
 }
 
 /* ── XP / 티어 ── */
-function XpTier() {
-  const tier = getTier(XP);
+function XpTier({ xp = 0 }) {
+  const tier = getTier(xp);
   const next = TIERS[TIERS.indexOf(tier) + 1];
-  const pct = next ? ((XP - tier.min) / (next.min - tier.min)) * 100 : 100;
+  const pct = next ? ((xp - tier.min) / (next.min - tier.min)) * 100 : 100;
 
   return (
-    <Section icon={Zap} title="경험치 & 티어" sub={`다음 티어까지 ${next ? next.min - XP : 0} XP`}>
+    <Section icon={Zap} title="경험치 & 티어" sub={`다음 티어까지 ${next ? next.min - xp : 0} XP`}>
       <div style={{ display: "flex", alignItems: "center", gap: 20, marginBottom: 20 }}>
         <div style={{ width: 72, height: 72, borderRadius: 20, background: `${tier.color}18`, border: `2px solid ${tier.color}44`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
           {(() => { const I = tier.icon; return <I size={32} color={tier.color} strokeWidth={1.8} />; })()}
@@ -89,19 +64,22 @@ function XpTier() {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
             <div>
               <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 18, fontWeight: 900, color: tier.color }}>{tier.name}</div>
-              <div style={{ fontSize: 12, color: G.gray, marginTop: 2 }}>현재 {XP.toLocaleString()} XP</div>
+              <div style={{ fontSize: 12, color: G.gray, marginTop: 2 }}>현재 {xp.toLocaleString()} XP</div>
             </div>
             {next && <div style={{ fontSize: 12, color: G.gray }}>{next.name} {next.min.toLocaleString()} XP</div>}
           </div>
+
           <div style={{ height: 10, background: G.lightGray, borderRadius: 100, overflow: "hidden" }}>
             <div style={{ height: "100%", width: `${pct}%`, background: `linear-gradient(90deg, ${tier.color}, ${tier.color}cc)`, borderRadius: 100, transition: "width 1s ease" }} />
           </div>
         </div>
       </div>
+
       <div style={{ display: "flex", gap: 8 }}>
         {TIERS.map(t => {
           const I = t.icon;
-          const unlocked = XP >= t.min;
+          const unlocked = xp >= t.min;
+
           return (
             <div key={t.name} style={{ flex: 1, textAlign: "center", opacity: unlocked ? 1 : 0.3 }}>
               <div style={{
@@ -122,7 +100,7 @@ function XpTier() {
 }
 
 /* ── 스트릭 ── */
-function StreakCard() {
+function StreakCard({ streak = 0 }) {
   return (
     <div style={{ background: `linear-gradient(145deg, ${G.navy}, #1e3a5f)`, borderRadius: 24, padding: "28px 30px", border: "1px solid rgba(255,255,255,0.06)", position: "relative", overflow: "hidden" }}>
       <div style={{ position: "absolute", top: -30, right: -30, width: 140, height: 140, background: "radial-gradient(circle, rgba(255,77,0,0.2) 0%, transparent 70%)", pointerEvents: "none" }} />
@@ -130,27 +108,51 @@ function StreakCard() {
         <Flame size={12} color="rgba(255,255,255,0.4)" strokeWidth={2} /> 연속 학습 스트릭
       </div>
       <div style={{ display: "flex", alignItems: "flex-end", gap: 12, marginBottom: 16 }}>
-        <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 56, fontWeight: 900, color: G.white, lineHeight: 1 }}>{STREAK}</div>
+        <div style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 56, fontWeight: 900, color: G.white, lineHeight: 1 }}>{streak}</div>
         <div style={{ fontSize: 18, color: "rgba(255,255,255,0.5)", marginBottom: 8, fontFamily: "'Noto Sans KR', sans-serif", display: "flex", alignItems: "center", gap: 5 }}>
           일 연속 <Flame size={16} color={G.accent} strokeWidth={2} />
         </div>
       </div>
-      <div style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", fontFamily: "'Noto Sans KR', sans-serif" }}>최장 기록 <span style={{ color: G.accent2, fontWeight: 700 }}>21일</span> · 오늘도 학습하면 <span style={{ color: G.green, fontWeight: 700 }}>15일</span></div>
+      <div style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", fontFamily: "'Noto Sans KR', sans-serif" }}>
+        최장 기록 <span style={{ color: G.accent2, fontWeight: 700 }}>{streak}일</span> · 오늘도 학습하면 <span style={{ color: G.green, fontWeight: 700 }}>{streak + 1}일</span>
+      </div>
     </div>
   );
 }
 
 /* ── 주간 차트 ── */
-function WeeklyChart() {
-  const max = Math.max(...WEEKLY.map(d => d.count), 1);
+function WeeklyChart({ weeklyData = [] }) {
+  const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
+  const today = new Date();
+
+  const weekly = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date();
+    d.setDate(today.getDate() - (6 - i));
+
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    const dateStr = `${mm}-${dd}`;
+
+    const log = weeklyData.find(item => item.date === dateStr);
+
+    return {
+      d: dayNames[d.getDay()],
+      date: dateStr,
+      count: log ? Number(log.count) : 0,
+    };
+  });
+
+  const max = Math.max(...weekly.map(d => d.count), 1);
+
   return (
     <Section icon={TrendingUp} title="주간 학습량" sub="이번 주 일별 학습한 표현 수">
       <div style={{ display: "flex", gap: 8, alignItems: "flex-end", height: 120 }}>
-        {WEEKLY.map((d, i) => {
+        {weekly.map((d, i) => {
           const isToday = i === 6;
           const h = d.count ? Math.max((d.count / max) * 90, 20) : 8;
+
           return (
-            <div key={d.d} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+            <div key={d.date} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
               <div style={{ fontSize: 11, fontWeight: 700, color: d.count > 0 ? G.black : "transparent" }}>{d.count}</div>
               <div style={{ width: "100%", height: h, borderRadius: 8, background: isToday ? G.accent : d.count > 0 ? "#fed7aa" : G.lightGray, transition: "height 0.4s ease", border: isToday ? `2px solid ${G.accent}` : "none" }} />
               <div style={{ fontSize: 11, color: isToday ? G.accent : G.gray, fontWeight: isToday ? 700 : 400 }}>{d.d}</div>
@@ -163,11 +165,11 @@ function WeeklyChart() {
 }
 
 /* ── 카테고리 숙련도 ── */
-function CategoryChart() {
+function CategoryChart({ categories = [] }) {
   return (
     <Section icon={BarChart2} title="카테고리별 숙련도" sub="카테고리별 학습 완료 비율">
       <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-        {CATEGORIES.map(c => (
+        {categories.map(c => (
           <div key={c.label}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 500, color: G.black }}>
@@ -188,10 +190,13 @@ function CategoryChart() {
 }
 
 /* ── 월간 캘린더 ── */
-function MonthlyCalendar() {
-  const { year, month, startDay, days, studied, today } = CALENDAR;
+function MonthlyCalendar({ calendarData }) {
+  if (!calendarData) return null;
+
+  const { year, month, startDay, days, studied, today } = calendarData;
   const dayLabels = ["일", "월", "화", "수", "목", "금", "토"];
   const cells = [];
+
   for (let i = 0; i < startDay; i++) cells.push(null);
   for (let d = 1; d <= days; d++) cells.push(d);
 
@@ -202,11 +207,14 @@ function MonthlyCalendar() {
           <div key={d} style={{ textAlign: "center", fontSize: 10, fontWeight: 700, color: G.gray, padding: "4px 0" }}>{d}</div>
         ))}
       </div>
+
       <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 4 }}>
         {cells.map((d, i) => {
           if (!d) return <div key={`e${i}`} />;
+
           const isStudied = studied.includes(d);
           const isToday = d === today;
+
           return (
             <div key={d} style={{
               aspectRatio: "1", borderRadius: 10,
@@ -222,6 +230,7 @@ function MonthlyCalendar() {
           );
         })}
       </div>
+
       <div style={{ display: "flex", gap: 16, marginTop: 16, justifyContent: "center" }}>
         {[["학습 완료", G.accent, "rgba(255,77,0,0.12)"], ["오늘", G.white, G.accent], ["미학습", G.gray, G.lightGray]].map(([label, color, bg]) => (
           <div key={label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -278,8 +287,64 @@ function BadgeGrid() {
 
 /* ── 메인 ── */
 export default function Progress() {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { isMobile } = useBreakpoint();
+
+  useEffect(() => {
+    const fetchFullStats = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        // 아까 만든 getFullStats 서비스와 연결된 엔드포인트 호출
+        const res = await axios.get("/api/dashboard/stats", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setData(res.data);
+      } catch (err) {
+        console.error("통계 로드 실패:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchFullStats();
+  }, []);
+
+  if (loading) return <div style={{ padding: 40, color: G.navy }}>데이터를 분석 중입니다... 📊</div>;
+  if (!data) return <div style={{ padding: 40 }}>데이터를 불러올 수 없습니다.</div>;
+
+  const XP = data.xp;
+  const STREAK = data.streak;
+
+  const categoryIconMap = { // 뒤에 Smartphone 같은거 db랑 매칭 시켜야함(카테고리) << 위에 하드코딩이 이거여서 이거 씀
+    "SNS / 일상": Smartphone,
+    "감탄 / 리액션": MessageSquare,
+    "칭찬 / 긍정": ThumbsUp,
+    "완곡 / 거절": MinusCircle,
+    "Gen Z 유행어": Sparkles,
+    "연애 / SNS": Heart,
+  };
+
+  const CATEGORIES = (data?.categories || []).map(c => ({
+    label: c.category,
+    pct: Math.round((c.mastered / c.total) * 100) || 0,
+    count: c.total,
+    color: G.accent,
+    icon: categoryIconMap[c.category] || Star
+  }));
+
+  const studiedDays = (data.activityLog || []).map(log =>
+    Number(String(log.date).slice(-2))
+  );
+
+  const CALENDAR = data ? {
+    year: new Date().getFullYear(),
+    month: new Date().getMonth() + 1,
+    startDay: new Date(new Date().getFullYear(), new Date().getMonth(), 1).getDay(),
+    days: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate(),
+    studied: studiedDays,
+    today: new Date().getDate(),
+  } : null;
 
   return (
     <div style={{ minHeight: "100vh", fontFamily: "'Noto Sans KR', sans-serif", background: G.pageBg }}>
@@ -292,10 +357,10 @@ export default function Progress() {
         {/* 상단 요약 */}
         <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(4, 1fr)", gap: 16 }}>
           {[
-            { icon: BookOpen,     label: "총 학습 표현", value: "48개",  color: G.accent },
-            { icon: CheckCircle,  label: "완료한 카드", value: "36개",  color: G.green  },
-            { icon: Flame,        label: "연속 학습일", value: "14일",  color: G.blue   },
-            { icon: Timer,        label: "총 학습 시간", value: "4.2h", color: G.purple },
+            { icon: BookOpen,   label: "총 학습 표현", value: `${data.totalCount || 0}개`,  color: G.accent },
+            { icon: CheckCircle, label: "완료한 카드", value: `${data.masteredCount || 0}개`, color: G.green  },
+            { icon: Flame,       label: "연속 학습일", value: `${data.streak || 0}일`,     color: G.blue   },
+            { icon: Timer,       label: "정확도",     value: `${data.accuracy || 0}%`,    color: G.purple },
           ].map(s => {
             const Icon = s.icon;
             return (
@@ -311,20 +376,20 @@ export default function Progress() {
 
         {/* 스트릭 + XP */}
         <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 2fr", gap: 20 }}>
-          <StreakCard />
-          <XpTier />
+          <StreakCard streak={STREAK} />
+          <XpTier xp={XP} />
         </div>
 
         {/* 주간 차트 + 카테고리 */}
         <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 20 }}>
-          <WeeklyChart />
-          <CategoryChart />
+          <WeeklyChart weeklyData={data.activityLog} />
+          <CategoryChart categories={CATEGORIES} />
         </div>
 
         {/* 캘린더 + 뱃지 */}
         <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 20 }}>
-          <MonthlyCalendar />
-          <BadgeGrid />
+          <MonthlyCalendar calendarData={CALENDAR} />
+          <BadgeGrid stats={data} />
         </div>
       </div>
     </div>
