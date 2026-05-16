@@ -19,6 +19,26 @@ export const list = async () => {
   return rows;
 };
 
+// 슬랭 사전용
+
+export async function getSlangList() {
+  // DB에서 데이터 조회
+  const [rows] = await pool.query(`
+    SELECT 
+      slang_id, word, definition_en, definition_ko, 
+      example_en, example_ko, category, emoji, shorts_url 
+    FROM slangs 
+    ORDER BY word ASC
+  `);
+
+  // UI에 맞춰 데이터 가공 (필요 시)
+  return rows.map(item => ({
+    ...item,
+    // 예: 비디오 경로가 있으면 서버 주소와 연결
+    shorts_url: item.shorts_url ? `/uploads/videos/${item.shorts_url}` : null
+  }));
+}
+
 // 오늘의 학습 단어 5개 가져오기 (learning-intro에 보이는 거)
 export const getTodaySlangs = async () => {
   // 오늘 날짜를 숫자 형태로 생성 (예: 20240520) // 매일 바꿀라고
