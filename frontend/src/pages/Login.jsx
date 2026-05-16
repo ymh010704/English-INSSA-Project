@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { LogIn, UserPlus, KeyRound, Mail, Eye, EyeOff, AlertCircle } from "lucide-react";
 import useBreakpoint from "../hooks/useBreakpoint";
 import Swal from "sweetalert2"; // alert가 너무 딱딱해보여서 추가한 라이브러리
 
@@ -149,9 +150,9 @@ export default function Login() {
   }
 
   const titles = {
-    login:  { emoji: "👋", main: "어서오세요!",   sub: "오늘도 원어민처럼 말해봐요 🔥" },
-    signup: { emoji: "🎉", main: "인싸 되러 왔나요?",  sub: "지금 가입하면 무료로 시작할 수 있어요" },
-    forgot: { emoji: "🔑", main: "비밀번호 찾기",      sub: "가입한 이메일로 재설정 링크를 보내드려요" },
+    login:  { Icon: LogIn,    main: "어서오세요!",        sub: "오늘도 원어민처럼 말해봐요" },
+    signup: { Icon: UserPlus, main: "인싸 되러 왔나요?",   sub: "지금 가입하면 무료로 시작할 수 있어요" },
+    forgot: { Icon: KeyRound, main: "비밀번호 찾기",       sub: "가입한 이메일로 재설정 링크를 보내드려요" },
   };
   const t = titles[mode];
 
@@ -178,7 +179,9 @@ export default function Login() {
 
           {/* 헤더 */}
           <div style={{ textAlign: "center", marginBottom: 32 }}>
-            <div style={{ fontSize: 44, marginBottom: 12 }}>{t.emoji}</div>
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}>
+              <t.Icon size={44} strokeWidth={1.4} color={G.accent} />
+            </div>
             <h1 style={{ fontFamily: "'Unbounded', sans-serif", fontSize: 26, fontWeight: 900, color: G.black, letterSpacing: -0.8, marginBottom: 8, lineHeight: 1.2 }}>
               {t.main}
             </h1>
@@ -238,7 +241,9 @@ export default function Login() {
             {/* 비밀번호 찾기 완료 */}
             {mode === "forgot" && sent ? (
               <div style={{ textAlign: "center", padding: "20px 0" }}>
-                <div style={{ fontSize: 48, marginBottom: 16 }}>📬</div>
+                <div style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}>
+                  <Mail size={48} strokeWidth={1.4} color={G.accent} />
+                </div>
                 <div style={{ fontSize: 15, fontWeight: 700, color: G.black, marginBottom: 8 }}>이메일을 확인해주세요!</div>
                 <div style={{ fontSize: 13, color: G.gray, lineHeight: 1.6, marginBottom: 24 }}>
                   <b>{email}</b>로 비밀번호 재설정 링크를 보냈어요.
@@ -282,8 +287,8 @@ export default function Login() {
                         style={{ ...inputStyle, paddingRight: 44 }}
                         onKeyDown={e => e.key === "Enter" && handleSubmit()}
                       />
-                      <button onClick={() => setShowPw(s => !s)} style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", background: "transparent", border: "none", cursor: "pointer", fontSize: 16, color: G.gray }}>
-                        {showPw ? "🙈" : "👁️"}
+                      <button onClick={() => setShowPw(s => !s)} style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", background: "transparent", border: "none", cursor: "pointer", color: G.gray, display: "flex" }}>
+                        {showPw ? <EyeOff size={16} strokeWidth={1.8} /> : <Eye size={16} strokeWidth={1.8} />}
                       </button>
                     </div>
                   </div>
@@ -305,8 +310,9 @@ export default function Login() {
 
                 {/* 에러 */}
                 {error && (
-                  <div style={{ background: "#fef2f2", border: "1px solid #fca5a5", borderRadius: 10, padding: "10px 14px", fontSize: 13, color: G.red, fontWeight: 600 }}>
-                    ⚠️ {error}
+                  <div style={{ background: "#fef2f2", border: "1px solid #fca5a5", borderRadius: 10, padding: "10px 14px", fontSize: 13, color: G.red, fontWeight: 600, display: "flex", alignItems: "flex-start", gap: 8 }}>
+                    <AlertCircle size={15} strokeWidth={2} style={{ flexShrink: 0, marginTop: 1 }} />
+                    {error}
                   </div>
                 )}
 
@@ -318,7 +324,7 @@ export default function Login() {
                   fontFamily: "'Noto Sans KR', sans-serif",
                   boxShadow: "0 8px 24px rgba(255,77,0,0.3)", marginTop: 4,
                 }}>
-                  {mode === "login" ? "로그인" : mode === "signup" ? "가입하고 시작하기 🚀" : "재설정 링크 보내기 📨"}
+                  {mode === "login" ? "로그인" : mode === "signup" ? "가입하고 시작하기" : "재설정 링크 보내기"}
                 </button>
               </div>
             )}

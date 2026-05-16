@@ -32,7 +32,7 @@ export const getTodaySlangs = async () => {
   const todaySeed = new Date().toISOString().slice(0, 10).replace(/-/g, '');
   
   const query = `
-    SELECT slang_id, word, definition_ko
+    SELECT slang_id, word, definition_ko, category
     FROM slangs
     ORDER BY RAND(${todaySeed})
     LIMIT 5
@@ -46,7 +46,7 @@ export const getTodayDashboardSlangs = async () => {
   const todaySeed = new Date().toISOString().slice(0, 10).replace(/-/g, '');
 
   const query = `
-    SELECT slang_id, word, definition_ko, example_en, example_ko
+    SELECT slang_id, word, definition_ko, category, example_en, example_ko
     FROM slangs
     ORDER BY RAND(${todaySeed})
     LIMIT 1
