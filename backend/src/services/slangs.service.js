@@ -19,8 +19,15 @@ export const list = async () => {
   return rows;
 };
 
-// 슬랭 사전용
+export const getShorts = async () => {
+  const [rows] = await pool.query(
+    "SELECT slang_id, word, definition_ko, example_en, example_ko, shorts_url FROM slangs WHERE shorts_url IS NOT NULL AND shorts_url != '' AND shorts_url != 'SKIPPED' ORDER BY created_at DESC"
+  );
+  return rows;
+};
 
+
+// 슬랭 사전용
 export async function getSlangList() {
   // DB에서 데이터 조회
   const [rows] = await pool.query(`
