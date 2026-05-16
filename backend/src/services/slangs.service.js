@@ -25,7 +25,7 @@ export const getTodaySlangs = async () => {
   const todaySeed = new Date().toISOString().slice(0, 10).replace(/-/g, '');
   
   const query = `
-    SELECT slang_id, word, definition_ko, category, emoji
+    SELECT slang_id, word, definition_ko, example_en, example_ko,category, emoji
     FROM slangs 
     ORDER BY RAND(${todaySeed}) 
     LIMIT 5

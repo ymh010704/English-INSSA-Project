@@ -42,6 +42,8 @@ services:
     command: sh -c "npm install && node src/server.js"
     expose:
       - "3000"
+    ports:
+      - "8000:3000"
     depends_on:
       - mysql
 

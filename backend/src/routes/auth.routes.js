@@ -83,10 +83,12 @@ router.post("/login", async (req, res) => {
     // JWT 토큰 발행
     const token = generateToken(user);
 
+    console.log("DB에서 가져온 유저 데이터 전체:", user);
+
     res.json({ 
       success: true, 
       token,
-      user: { email: user.email, nickname: user.nickname } 
+      user: { email: user.email, nickname: user.nickname, role: user.role } 
     });
   } catch (err) {
     console.error("Login Error:", err);

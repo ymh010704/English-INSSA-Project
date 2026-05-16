@@ -1,7 +1,7 @@
 import { pool } from "../repositories/db.js";
 
 export const getUsers = async () => {
-  const [rows] = await pool.execute('SELECT * FROM users');
+  const [rows] = await pool.execute('SELECT user_id, nickname, email, created_at, role FROM users');
   return rows;
 };
 
@@ -31,10 +31,16 @@ export const deleteUser = async (id) => {
 
 // 슬랭 목록 조회
 export const getSlangs = async () => {
-  const [rows] = await pool.execute(
-    'SELECT * FROM slangs ORDER BY created_at DESC'
-  );
-  return rows;
+  try {
+    const [rows] = await pool.execute(
+      'SELECT * FROM slangs ORDER BY created_at DESC'
+    );
+    console.log("✅ DB 조회 성공! 데이터 개수:", rows.length);
+    return rows;
+  } catch (error) {
+    console.error("❌ [DB ERROR]:", error.message);
+    throw error;
+  }
 };
 
 // 슬랭 추가

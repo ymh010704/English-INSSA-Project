@@ -381,25 +381,39 @@ function ContentPage() {
   const [newSlang, setNewSlang] = useState({ term: "", meaning: "", origin: "", tags: "" });
 
   useEffect(() => {
-    fetch('/api/admin/slangs')
-      .then(res => res.json())
-      .then(data => {
-        if (!Array.isArray(data)) return;
-        const formattedData = data.map(item => ({
-          id: item.slang_id,          
-          term: item.word,            
-          meaning: item.definition_ko, 
-          origin: item.example_ko || "어원 정보 없음", 
-          status: "공개",
-          tags: [], 
-          trend: 80,
-          source: item.source || "Unknown",
-          media: item.media_url || ""
-        }));
-        setSlangs(formattedData);
-      })
-      .catch(err => console.error("데이터 로드 실패:", err));
-  }, []);
+  const token = localStorage.getItem("token");
+
+  fetch('/api/admin/slangs', {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}` 
+    }
+  })
+    .then(res => res.json())
+    .then(response => { // 이름을 response로 바꿈 
+      console.log("서버에서 온 원본 데이터:", response);
+      const actualData = response.data; 
+
+      if (!Array.isArray(actualData)) {
+        console.error("데이터 형식이 배열이 아닙니다:", actualData);
+        return;
+      }
+
+      const formattedData = actualData.map(item => ({
+        id: item.slang_id,          
+        term: item.word,            
+        meaning: item.definition_ko, 
+        origin: item.example_ko || "어원 정보 없음", 
+        status: "공개",
+        tags: item.tags ? item.tags.split(',') : [], // 태그가 문자열이면 배열로 변환
+        trend: 80,
+      }));
+
+      setSlangs(formattedData);
+    })
+    .catch(err => console.error("연결 오류:", err));
+}, []);
 
   const filtered = useMemo(() => {
     if (!Array.isArray(slangs)) return [];
@@ -410,17 +424,30 @@ function ContentPage() {
   }, [slangs, query]);
 
   function deleteSlang(id) {
-    if (window.confirm("정말로 삭제하시겠습니까?")) {
-      fetch(`/api/admin/slangs/${id}`, { method: 'DELETE' })
-        .then(res => {
-          if (res.ok) {
-            setSlangs(prev => prev.filter(s => s.id !== id));
-            alert("삭제 성공!");
-          } else alert("삭제 실패");
-        })
-        .catch(err => console.error("삭제 에러:", err));
-    }
-  }
+    if (window.confirm("정말로 삭제하시겠습니까?")) {
+      // 로컬 스토리지에서 토큰 가져오기
+      const token = localStorage.getItem("token");
+
+      // fetch 옵션에 headers 추가
+      fetch(`/api/admin/slangs/${id}`, { 
+        method: 'DELETE',
+        headers: {
+          "Authorization": `Bearer ${token}` 
+        }
+      })
+        .then(res => {
+          if (res.ok) {
+            setSlangs(prev => prev.filter(s => s.id !== id));
+            alert("삭제 성공!");
+          } else {
+            return res.json().then(data => {
+              alert(`삭제 실패: ${data.error || "권한이 없습니다."}`);
+            });
+          }
+        })
+        .catch(err => console.error("삭제 에러:", err));
+    }
+  }
 
   const statusColor = { "공개": G.green, "검수 대기": "#f59e0b", "비공개": G.gray };
 
@@ -530,16 +557,20 @@ function ContentPage() {
               <textarea placeholder="어원/유래" style={{ padding: "10px 14px", borderRadius: 10, border: "1px solid #ddd", height: 80 }} onChange={e => setNewSlang({...newSlang, origin: e.target.value})} />
               <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
                <Button style={{ flex: 1 }} onClick={() => {
+                  const token = localStorage.getItem("token");
                   const payload = {
                     word: String(newSlang.term || ""),
                     definition_ko: String(newSlang.meaning || ""),
                     definition_en: "English definition", 
                     example_en: "English example",       
-                    example_ko: String(newSlang.origin || "한국어 예문") 
+                    example_ko: String(newSlang.origin || "한국어 예문"), 
+                    category: "Etc",
+                    emoji: "✨"
                   };
                   fetch('/api/admin/slangs', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 
+                    'Authorization': `Bearer ${token}`},
                     body: JSON.stringify(payload)
                   })
                   .then(res => res.json())
@@ -568,29 +599,51 @@ function UsersPage() {
   const [query, setQuery] = useState("");
 
   useEffect(() => {
-    fetch('/api/admin/users')
-      .then(res => res.json())
-      .then(response => {
-        if (response.success && Array.isArray(response.data)) {
-          const formattedUsers = response.data.map((u, index) => ({
-            displayId: index + 1,  
-            id: u.user_id,         
-            name: u.nickname || "이름 없음", 
-            email: u.email,
-            streak: u.streak || 0,
-            accuracy: u.accuracy || 0,
-            reports: u.reports || 0,
-            status: u.role === 1 ? "관리자" : "활성",
-            joinDate: u.created_at ? u.created_at.split('T')[0] : ""
-          }));
-          setUsers(formattedUsers);
-        }
-      });
-  }, []);
+  // 1. 로컬 스토리지에서 토큰 가져오기 
+  const token = localStorage.getItem('token'); 
+
+  fetch('/api/admin/users', {
+    method: 'GET',
+    headers: {
+      // 2. 문지기가 요구하는 형식(Bearer <token>)으로 헤더 추가
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  })
+    .then(res => {
+      if (res.status === 401) {
+        alert("로그인이 필요하거나 권한이 없습니다.");
+        return;
+      }
+      return res.json();
+    })
+    .then(response => {
+      if (response && response.success && Array.isArray(response.data)) {
+        const formattedUsers = response.data.map((u, index) => ({
+          displayId: index + 1,  
+          id: u.id || u.user_id, 
+          name: u.nickname || "이름 없음", 
+          email: u.email,
+          streak: u.streak || 0,
+          accuracy: u.accuracy || 0,
+          reports: u.reports || 0,
+          status: Number(u.role) === 1 ? "관리자" : "활성",
+          joinDate: u.created_at ? u.created_at.split('T')[0] : "2026-05-14"
+        }));
+        setUsers(formattedUsers);
+      }
+    })
+    .catch(err => console.error("데이터 로드 실패:", err));
+}, []);
 
   const handleDeleteUser = (id) => {
     if (window.confirm("정말로 탈퇴 처리하시겠습니까?")) {
-      fetch(`/api/admin/users/${id}`, { method: 'DELETE' })
+      fetch(`/api/admin/users/${id}`, { 
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    })
         .then(res => res.json())
         .then(response => {
           if (response.success) {

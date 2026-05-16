@@ -1,5 +1,9 @@
 /* docker 환경 초기화 테이블 설정 */
 /* ★ DB 구조나 내용 바뀌면 $ docker compose down -v 하고 다시 up 시키면 됩니다 */
+/* SET FOREIGN_KEY_CHECKS = 0; 데이터 날아가서 복구할때 잠깐 썻습니다.
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS slangs;
+*/
 SET NAMES 'utf8mb4';
 SET CHARACTER SET utf8mb4;
 
@@ -55,3 +59,4 @@ INSERT INTO slangs (word, definition_en, definition_ko, example_en, example_ko) 
 ('Main character energy', 'Someone who behaves like they are the protagonist.', '인생의 주인공인 것처럼 자신감 넘치는 에너지.', 'She walked into the room with major main character energy.', '그녀는 주인공 포스를 풍기며 방으로 들어왔어.'),
 ('Rent free', 'When you can’t stop thinking about something.', '머릿속에서 떠나질 않을 때 써요.', 'That song has been living in my head rent free all day.', '그 노래가 하루 종일 머릿속에서 계속 맴돌아.');
 
+/*SET FOREIGN_KEY_CHECKS = 1; 이것도 위에거랑 같은것임 */

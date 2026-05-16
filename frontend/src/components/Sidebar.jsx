@@ -38,12 +38,13 @@ export default function Sidebar() {
       });
 
       // 관리자 권한 확인하고 관리자 탭 추가 <<
-      if (parsedUser.role === 1) {
+      if (parsedUser.role == 1) {
         setDisplayMenus([
           ...menus,
           { id: "admin", icon: "👑", label: "관리자 페이지", path: "/admin", isAdmin: true}
         ]);
         console.log("Admin 계정 로그인 완료 / 사이드바에 관리자 탭 추가");
+        console.log("현재 유저의 role 값:", parsedUser.role, typeof parsedUser.role);
       }
     } catch (e) {
       console.error("유저 정보 파싱 에러:", e);
