@@ -12,13 +12,13 @@ const ReportController = {
 
       return res.status(200).json({ success: true, message: "신고 접수 완료" });
     } catch (err) {
-      console.error("컨트롤러에서 신고 처리 중 에러 발생:", err);
-      return res.status(500).json({ 
-        success: false, 
-       message: `진짜 범인 메세지: ${err.message}`
-      });
-    }
-  },
+  console.error("❌ [Admin Controller - 신고 처리 에러]:", err);
+  return res.status(500).json({ 
+    success: false, 
+    message: "서버 내부 오류가 발생했습니다." 
+  });
+  }
+},
 
 getReportedSlangs: async (req, res) => {
     try {
