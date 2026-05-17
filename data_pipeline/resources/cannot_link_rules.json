@@ -1,0 +1,30 @@
+[
+  [
+    "sex",
+    "drugs"
+  ],
+  [
+    "sex",
+    "crime_violence"
+  ],
+  [
+    "sex",
+    "praise"
+  ],
+  [
+    "body",
+    "praise"
+  ],
+  [
+    "body",
+    "drugs"
+  ],
+  [
+    "praise",
+    "insult"
+  ],
+  [
+    "crime_violence",
+    "praise"
+  ]
+]

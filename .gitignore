@@ -1,0 +1,22 @@
+data_pipeline/dump/
+data_pipeline/__pycache__/
+.vscode/
+node_modules/
+dist/
+.env
+
+# Large data files
+data_pipeline/candidate_context_cache.jsonl
+data_pipeline/candidate_context_summary.jsonl
+data_pipeline/output/context_judgments.jsonl
+data_pipeline/word_summary.jsonl
+data_pipeline/data/
+
+# Claude internal state
+.claude/
+data_pipeline/.claude/
+
+# Misc
+data_pipeline/stratified_review_output/
+data_pipeline/output/debug/
+data_pipeline/output/review/

@@ -1,0 +1,35 @@
+{
+  "positive": [
+    "awesome",
+    "great",
+    "excellent",
+    "best",
+    "amazing",
+    "cool",
+    "fire",
+    "lit",
+    "cute",
+    "beautiful",
+    "remarkable",
+    "exceptional",
+    "success"
+  ],
+  "negative": [
+    "idiot",
+    "trash",
+    "worthless",
+    "terrible",
+    "awful",
+    "mess",
+    "problem",
+    "loser",
+    "jerk",
+    "shit",
+    "nasty",
+    "despicable",
+    "failure",
+    "unpopular",
+    "poor",
+    "smelly"
+  ]
+}
