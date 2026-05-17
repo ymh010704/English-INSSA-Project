@@ -1,7 +1,10 @@
 """
 review_tool.py
 
-db_insert.json의 단어를 하나씩 검수: 승인 / 보류 / 수정필요
+service_public_pending.json의 단어를 하나씩 검수: 승인 / 보류 / 수정필요
+- 승인 → service_public_approved.json에 추가, pending에서 제거
+- 보류 → service_public_pending.json에 유지
+- 수정필요 → service_public_needs_revision.json에 추가, pending에서 제거
 
 실행:
   python data_pipeline/review_tool.py
@@ -14,7 +17,7 @@ import json
 import sys
 from pathlib import Path
 
-INPUT_PATH    = Path("data_pipeline/output/db_insert.json")
+INPUT_PATH    = Path("data_pipeline/output/service_public_pending.json")
 PROGRESS_PATH = Path("data_pipeline/output/review_progress.jsonl")
 APPROVED_PATH = Path("data_pipeline/output/service_public_approved.json")
 PENDING_PATH  = Path("data_pipeline/output/service_public_pending.json")
@@ -23,41 +26,28 @@ REVISION_PATH = Path("data_pipeline/output/service_public_needs_revision.json")
 SEP = "━" * 42
 
 
-def load_input() -> list[dict]:
-    with INPUT_PATH.open(encoding="utf-8") as f:
+def load_json(path: Path) -> list[dict]:
+    if not path.exists():
+        return []
+    with path.open(encoding="utf-8") as f:
         return json.load(f)
 
 
 def load_progress() -> dict[str, dict]:
-    """word → {status, note} 로드.
-    review_progress.jsonl이 없으면 service_public 파일을 초기 체크포인트로 사용."""
+    """word → {status, note} — review_progress.jsonl 로드"""
     result: dict[str, dict] = {}
-    if PROGRESS_PATH.exists():
-        with PROGRESS_PATH.open(encoding="utf-8") as f:
-            for line in f:
-                line = line.strip()
-                if not line:
-                    continue
-                try:
-                    row = json.loads(line)
-                    result[row["word"]] = row
-                except (json.JSONDecodeError, KeyError):
-                    continue
+    if not PROGRESS_PATH.exists():
         return result
-
-    # 체크포인트 없으면 service_public 파일을 초기값으로 bootstrap
-    for path, status in [(APPROVED_PATH, "승인"), (PENDING_PATH, "보류"), (REVISION_PATH, "수정필요")]:
-        if not path.exists():
-            continue
-        with path.open(encoding="utf-8") as f:
-            try:
-                entries = json.load(f)
-            except json.JSONDecodeError:
+    with PROGRESS_PATH.open(encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
                 continue
-        for entry in entries:
-            word = entry.get("word")
-            if word:
-                result[word] = {"word": word, "status": status, "note": entry.get("note")}
+            try:
+                row = json.loads(line)
+                result[row["word"]] = row
+            except (json.JSONDecodeError, KeyError):
+                continue
     return result
 
 
@@ -67,22 +57,35 @@ def append_progress(row: dict) -> None:
         f.write(json.dumps(row, ensure_ascii=False) + "\n")
 
 
-def save_outputs(all_words: list[dict], progress: dict[str, dict]) -> None:
-    lookup = {r["word"]: r for r in all_words}
-    approved, pending, revision = [], [], []
+def save_outputs(all_pending: list[dict], progress: dict[str, dict]) -> None:
+    """
+    - approved: 기존 approved + 이번에 승인한 단어
+    - pending:  all_pending 중 승인/수정필요로 처리되지 않은 단어
+    - revision: 기존 revision + 이번에 수정필요로 분류한 단어
+    """
+    existing_approved = load_json(APPROVED_PATH)
+    existing_revision = load_json(REVISION_PATH)
+    existing_approved_words = {r["word"] for r in existing_approved}
+    existing_revision_words = {r["word"] for r in existing_revision}
+
+    lookup = {r["word"]: r for r in all_pending}
+
+    new_approved, new_revision = [], []
     for word, p in progress.items():
         entry = {**lookup.get(word, {"word": word}), "note": p.get("note")}
-        if p["status"] == "승인":
-            approved.append(entry)
-        elif p["status"] == "보류":
-            pending.append(entry)
-        elif p["status"] == "수정필요":
-            revision.append(entry)
+        if p["status"] == "승인" and word not in existing_approved_words:
+            new_approved.append(entry)
+        elif p["status"] == "수정필요" and word not in existing_revision_words:
+            new_revision.append(entry)
+
+    # pending = 아직 검수 안 됐거나 보류로 유지된 단어
+    done_words = {w for w, p in progress.items() if p["status"] in ("승인", "수정필요")}
+    updated_pending = [r for r in all_pending if r["word"] not in done_words]
 
     for path, data in [
-        (APPROVED_PATH, approved),
-        (PENDING_PATH, pending),
-        (REVISION_PATH, revision),
+        (APPROVED_PATH, existing_approved + new_approved),
+        (PENDING_PATH,  updated_pending),
+        (REVISION_PATH, existing_revision + new_revision),
     ]:
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open("w", encoding="utf-8") as f:
@@ -127,11 +130,11 @@ def main() -> None:
         PROGRESS_PATH.unlink()
         print("[INFO] 체크포인트 초기화됨")
 
-    all_words = load_input()
+    all_pending = load_json(INPUT_PATH)
     progress = load_progress()
 
-    remaining = [r for r in all_words if r["word"] not in progress]
-    total = len(all_words)
+    remaining = [r for r in all_pending if r["word"] not in progress]
+    total = len(all_pending)
 
     counts = {"승인": 0, "보류": 0, "수정필요": 0}
     for p in progress.values():
@@ -140,11 +143,11 @@ def main() -> None:
             counts[s] += 1
 
     reviewed_count = len(progress)
-    print(f"[INFO] 전체 {total}개 | 기존 검수 {reviewed_count}개 | 남은 단어 {len(remaining)}개")
+    print(f"[INFO] 보류 단어 {total}개 | 기존 검수 {reviewed_count}개 | 남은 단어 {len(remaining)}개")
 
     if not remaining:
         print("[DONE] 모든 단어 검수 완료!")
-        save_outputs(all_words, progress)
+        save_outputs(all_pending, progress)
         return
 
     pending_save: list[dict] = []
@@ -158,7 +161,7 @@ def main() -> None:
             if s in counts:
                 counts[s] += 1
         pending_save = []
-        save_outputs(all_words, progress)
+        save_outputs(all_pending, progress)
         print(f"  [저장됨] 승인 {counts['승인']} / 보류 {counts['보류']} / 수정필요 {counts['수정필요']}")
 
     for i, entry in enumerate(remaining, start=reviewed_count + 1):
