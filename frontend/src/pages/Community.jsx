@@ -255,7 +255,7 @@ export default function Community() {
     setPosts(prev => prev.map(p => p.id === id ? { ...p, comments: [...p.comments, { id: Date.now(), user: "두두현", avatar: "🙋", text }] } : p));
   }
   function handleSubmit(data) {
-    const newPost = { id: Date.now(), user: "민혁", avatar: "🙋", time: "방금", ...data, likes: 0, liked: false, correct: 0, wrong: 0, comments: [], status: "pending" };
+    const newPost = { id: Date.now(), user: currentUser, avatar: "🙋", time: "방금", ...data, likes: 0, liked: false, correct: 0, wrong: 0, comments: [], status: "pending" };
     setPosts(prev => [newPost, ...prev]);
   }
 

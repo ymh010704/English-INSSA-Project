@@ -1,17 +1,13 @@
 import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  LayoutDashboard, BookOpen, Users, ShieldAlert, Sparkles,
+import { LayoutDashboard, BookOpen, Users, ShieldAlert, Sparkles,
   BarChart3, CheckCircle2, Search, Plus, Filter,
   Flame, Clock3, Tag, Trash2, Pencil, Eye,
   LogOut, ChevronRight, MessageSquare, Bell, Star, Link,
-  AlertTriangle, ZapOff, BookMarked, UserCheck, UserPlus,
-} from "lucide-react";
-import {
-  LineChart, Line, BarChart, Bar, XAxis, YAxis,
-  CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, Legend,
-} from "recharts";
+  AlertTriangle, ZapOff, BookMarked, UserCheck, UserPlus,} from "lucide-react";
+import {LineChart, Line, BarChart, Bar, XAxis, YAxis,
+  CartesianGrid, Tooltip, ResponsiveContainer,
+  PieChart, Pie, Cell, Legend,} from "recharts";
 import G from "../constants/colors";
 import Button from "../components/Button";
 
@@ -228,6 +224,46 @@ function TrustBadge({ score }) {
 
 /* ─── 대시보드 ──────────────── */
 function DashboardPage({ onAddClick }) {
+const [stats, setStats] = useState({
+    totalUserCount: 0,
+    todayNewUserCount: 0,
+    todayBoardPostCount: 0,
+    pendingSlangCount: 0
+  });
+
+  // 대시보드가 켜질 때 백엔드 API 호출해서 진짜 데이터 불러오기
+  useEffect(() => {
+    // 로그인할 때 저장된 토큰 꺼냄
+    const token = localStorage.getItem("token"); 
+
+    // 상대 경로 호출
+    fetch('http://localhost:8000/api/admin/dashboard', {
+        method: 'GET',
+        headers: {
+            // 백엔드 authenticateJWT 미들웨어 통과를 위한 Bearer 토큰 설정!
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then((res) => {
+        if (!res.ok) throw new Error("인증 실패 또는 서버 에러");
+        return res.json();
+    })
+    .then((resData) => {
+        if (resData.success) {
+            setStats(resData.data); 
+        }
+    })
+    .catch((err) => console.error("대시보드 통계 로딩 실패:", err));
+  }, []);
+
+  const dynamicStats = [
+    { title: "전체 회원수", value: `${stats.totalUserCount}명`, delta: "누적 가입자", icon: Users, color: G.blue }, 
+    { title: "신규 회원", value: `${stats.todayNewUserCount}명`, delta: "오늘 가입", icon: UserPlus, color: G.green },
+    { title: "게시글", value: `${stats.todayBoardPostCount}개`, delta: "오늘 등록", icon: MessageSquare, color: G.purple },
+    { title: "검수대기", value: `${stats.pendingSlangCount}개`, delta: "승인 대기중", icon: BookOpen, color: G.orange },
+  ];
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
       <SectionTitle
@@ -244,24 +280,24 @@ function DashboardPage({ onAddClick }) {
       />
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
-        {STATS.map(s => {
-          const Icon = s.icon;
-          return (
-            <Card key={s.title} style={{ padding: "22px 24px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                <div>
-                  <div style={{ fontSize: 12, color: G.gray, marginBottom: 8 }}>{s.title}</div>
-                  <div style={{ fontSize: 28, fontWeight: 900, color: G.black, fontFamily: "'Unbounded', sans-serif" }}>{s.value}</div>
-                  <div style={{ fontSize: 11, color: G.gray, marginTop: 4 }}>{s.delta}</div>
-                </div>
-                <div style={{ background: `${s.color}15`, borderRadius: 14, padding: 10 }}>
-                  <Icon size={18} color={s.color} />
-                </div>
-              </div>
-            </Card>
-          );
-        })}
-      </div>
+        {dynamicStats.map(s => {
+          const Icon = s.icon;
+          return (
+            <Card key={s.title} style={{ padding: "22px 24px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                <div>
+                  <div style={{ fontSize: 12, color: G.gray, marginBottom: 8 }}>{s.title}</div>
+                  <div style={{ fontSize: 28, fontWeight: 900, color: G.black, fontFamily: "'Unbounded', sans-serif" }}>{s.value}</div>
+                  <div style={{ fontSize: 11, color: G.gray, marginTop: 4 }}>{s.delta}</div>
+                </div>
+                <div style={{ background: `${s.color}15`, borderRadius: 14, padding: 10 }}>
+                  <Icon size={18} color={s.color} />
+                </div>
+              </div>
+            </Card>
+          );
+        })}
+      </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
         {[
@@ -713,7 +749,40 @@ function ReviewPage() {
   const [tab, setTab] = useState("pending");
   const [pending, setPending] = useState(SLANGS.filter(s => s.status === "검수 대기"));
   const [submissions, setSubmissions] = useState(SUBMISSIONS);
-  const [reports, setReports] = useState(REPORTS);
+  
+  // [수정했습니다] 더미 데이터 대신 백엔드 데이터를 가져옴
+  const [reports, setReports] = useState([]);
+
+  // [추가했습니다] 페이지 켜질 때 신고 접수 내역 서버에서 받아오기
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      return;
+    }
+
+    fetch('http://localhost:8000/api/admin/dashboard', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+    .then((res) => {
+      if (!res.ok) throw new Error("데이터 수신 실패");
+      return res.json();
+    })
+    .then((resData ) => {
+      if (resData.success && resData.data && Array.isArray(resData.data.reports)) {
+        setReports(resData.data.reports); 
+      } else
+        setReports([]);
+    })
+    .catch((err) => {
+      console.error("통합 데이터 로딩 실패:", err);
+      setReports([]); 
+    });
+  }, []);
 
   const severityColor = { "높음": G.red, "중간": "#f59e0b", "낮음": G.green };
 
@@ -725,7 +794,7 @@ function ReviewPage() {
         tabs={[
           { key: "pending",     label: `검수 대기 (${pending.length})`     },
           { key: "submissions", label: `신조어 제보 (${submissions.length})` },
-          { key: "reports",     label: `신고 접수 (${reports.length})`      },
+          { key: "reports",     label: `신고 접수 (${reports.length})`      }, 
         ]}
         active={tab} onChange={setTab}
       />
@@ -773,7 +842,7 @@ function ReviewPage() {
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
             <thead>
               <tr style={{ borderBottom: "1.5px solid #f0ede6" }}>
-                {["신조어", "뜻", "제보자", "신뢰도 점수", ""].map(h => (
+                {["신조어", "뜻", "제보자", ""].map(h => ( // [수정했습니다] 신뢰도 점수 삭제함
                   <th key={h} style={{ padding: "14px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: G.gray }}>{h}</th>
                 ))}
               </tr>
@@ -802,37 +871,59 @@ function ReviewPage() {
         </Card>
       )}
 
+      {/* [수정했습니다] , 데이터 매핑만 DB 필드로 매칭 */}
       {tab === "reports" && (
         <Card>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-            <thead>
-              <tr style={{ borderBottom: "1.5px solid #f0ede6" }}>
-                {["표현", "신고 사유", "심각도", "신고자", "신뢰도", ""].map(h => (
-                  <th key={h} style={{ padding: "14px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: G.gray }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {reports.map(r => (
-                <tr key={r.id} style={{ borderBottom: "1px solid #f7f4ef" }}
-                  onMouseEnter={e => e.currentTarget.style.background = "#fafaf9"}
-                  onMouseLeave={e => e.currentTarget.style.background = "transparent"}
-                >
-                  <td style={{ padding: "14px 16px", fontWeight: 700 }}>{r.term}</td>
-                  <td style={{ padding: "14px 16px", color: G.gray }}>{r.reason}</td>
-                  <td style={{ padding: "14px 16px" }}><Badge color={severityColor[r.severity] || G.gray}>{r.severity}</Badge></td>
-                  <td style={{ padding: "14px 16px", color: G.gray }}>{r.reporter}</td>
-                  <td style={{ padding: "14px 16px" }}><TrustBadge score={r.trust} /></td>
-                  <td style={{ padding: "14px 16px" }}>
-                    <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
-                      <Button variant="secondary" size="sm" onClick={() => setReports(p => p.filter(x => x.id !== r.id))}>검토 완료</Button>
-                      <Button size="sm" onClick={() => setReports(p => p.filter(x => x.id !== r.id))}>숨김</Button>
-                    </div>
-                  </td>
+          {reports.length === 0 ? (
+            <div style={{ padding: 40, textAlign: "center", color: G.gray, fontSize: 14 }}>신고 접수 항목이 없습니다</div>
+          ) : (
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+              <thead>
+                <tr style={{ borderBottom: "1.5px solid #f0ede6" }}>
+                  {["표현 (단어)", "최신 신고 사유", "신고 누적 횟수", ""].map(h => (
+                    <th key={h} style={{ padding: "14px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: G.gray }}>{h}</th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {reports.map(r => (
+                  <tr key={r.slang_id} style={{ borderBottom: "1px solid #f7f4ef" }}
+                    onMouseEnter={e => e.currentTarget.style.background = "#fafaf9"}
+                    onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                  >
+                    {/* 단어 */}
+                    <td style={{ padding: "14px 16px", fontWeight: 700, color: G.black }}>{r.word}</td>
+                    
+                    {/* 최신 신고 사유 */}
+                    <td style={{ padding: "14px 16px", color: G.gray }}>{r.report_reason || "사유 미지정"}</td>
+                    
+                    {/* 누적 횟수 배지 스타일 */}
+                    <td style={{ padding: "14px 16px" }}>
+                      <span style={{ 
+                        background: `${G.red}15`, 
+                        color: G.red, 
+                        padding: "4px 10px", 
+                        borderRadius: 20, 
+                        fontSize: 12, 
+                        fontWeight: 700 
+                      }}>
+                        {r.report_count}회 신고됨
+                      </span>
+                    </td>
+
+                    {/* 버튼 */}
+                    <td style={{ padding: "14px 16px" }}>
+                      <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
+                        <Button variant="secondary" size="sm" onClick={() => setReports(p => p.filter(x => x.slang_id !== r.slang_id))}>유지</Button>
+                        <Button size="sm" onClick={() => setReports(p => p.filter(x => x.slang_id !== r.slang_id))}
+                          style={{ background: G.red, color: G.white }}>삭제</Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </Card>
       )}
     </div>

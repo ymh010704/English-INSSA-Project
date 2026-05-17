@@ -47,3 +47,18 @@ export const getTodayDashboardSlangs = async () => {
   const [rows] = await pool.execute(query);
   return rows[0];
 };
+
+// 유저가 슬랭학습 하다 신고했을때 업데이트하는 로직
+export const reportSlang = async (word, reason) => {
+  try {
+    
+    const [result] = await pool.execute(
+      'UPDATE slangs SET report_count = report_count + 1, report_reason = ? WHERE word = ?',
+      [reason || '유저 신고 접수', word]
+    );
+    return result;
+  } catch (error) {
+    console.error("❌ [DB 슬랭 신고 업데이트 에러]:", error.message);
+    throw error;
+  }
+};

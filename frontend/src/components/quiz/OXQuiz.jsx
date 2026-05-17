@@ -109,7 +109,7 @@ export default function OXQuiz({ data, onNext, savedSelection }) {
         />
         {/* 신고 버튼 */}
         <SideButton 
-          onClick={() => alert("문제가 신고되었습니다.")} 
+          onClick={() => alert("문제가 신고되었습니다.")}
           icon="🚨" 
           label="신고" 
         />

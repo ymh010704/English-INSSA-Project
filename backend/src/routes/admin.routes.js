@@ -13,4 +13,8 @@ router.get('/slangs', authenticateJWT, AdminController.getSlangs);
 router.post('/slangs', authenticateJWT, AdminController.createSlang);
 router.delete('/slangs/:id', authenticateJWT, AdminController.deleteSlang);
 
+// 관리자페이지 대시보드 데이터 주소
+router.get('/dashboard', authenticateJWT, AdminController.getDashboardData);
+
+
 export default router;

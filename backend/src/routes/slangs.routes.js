@@ -9,4 +9,6 @@ router.get('/search', SlangController.searchSlangs);
 router.get('/today', authenticateJWT, SlangController.getTodaySlangs);
 router.get('/today-dashboard', SlangController.getTodayDashboardSlangs); // 대시보드용
 
+router.post('/report', SlangController.handleReportSlang); // 유저의 슬랭 신고
+
 export default router;
