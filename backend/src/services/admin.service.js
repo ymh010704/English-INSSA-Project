@@ -67,9 +67,9 @@ export const deleteSlang = async (id) => {
 // 대시보드 메인 화면 통계 숫자 집계 함수
 export const getDashboardStats = async () => {
   try {
-    const [totalUsersResult] = await pool.execute('SELECT COUNT(*) as count FROM users');
-    const [pendingSlangsResult] = await pool.execute('SELECT COUNT(*) as count FROM slangs');
-    const [todayNewUsersResult] = await pool.execute('SELECT COUNT(*) as count FROM users WHERE DATE(created_at) = CURDATE()');
+    const [totalUsersResult] = await pool.execute('SELECT COUNT(*) as totalUserCount FROM users');
+    const [pendingSlangsResult] = await pool.execute('SELECT COUNT(*) as pendingSlangCount FROM slangs');
+    const [todayNewUsersResult] = await pool.execute('SELECT COUNT(*) as todayNewUserCount FROM users WHERE DATE(created_at) = CURDATE()');
     
     let todayBoardPostCount = 0;
     try {
@@ -81,14 +81,20 @@ export const getDashboardStats = async () => {
     }
 
     return {
-      totalUserCount: totalUsersResult[0]?.count || 0,
-      pendingSlangCount: pendingSlangsResult[0]?.count || 0,
-      todayNewUserCount: todayNewUsersResult[0]?.count || 0,
-      todayBoardPostCount: todayBoardPostCount
+      totalUserCount: totalUsersResult[0]?.totalUserCount || 0,
+      todayNewUserCount: todayNewUsersResult[0]?.todayNewUserCount || 0,
+      todayBoardPostCount: 0, 
+      pendingSlangCount: pendingSlangsResult[0]?.pendingSlangCount || 0
     };
+
   } catch (error) {
     console.error("❌ [DB 어드민 대시보드 조회 최종 에러]:", error.message);
-    throw error;
+    return {
+      totalUserCount: totalUsersResult[0]?.totalUserCount || 0,
+      todayNewUserCount: todayNewUsersResult[0]?.todayNewUserCount || 0,
+      todayBoardPostCount: 0, 
+      pendingSlangCount: pendingSlangsResult[0]?.pendingSlangCount || 0
+    };
   }
 };
 
@@ -101,6 +107,35 @@ export const getReportedSlangs = async () => {
     return rows;
   } catch (error) {
     console.error("❌ [DB 어드민 신고 슬랭 조회 에러]:", error.message);
+    throw error;
+  }
+};
+
+export const increaseReportCount = async (slangId) => {
+  try {
+    const [result] = await pool.execute(
+      'UPDATE slangs SET report_count = report_count + 1 WHERE slang_id = ?',
+      [slangId]
+    );
+    return result;
+  } catch (error) {
+    console.error("❌ [DB 어드민 신고 횟수 증가 에러]:", error.message);
+    throw error;
+  }
+};
+
+//슬랭의 신고 기록을 초기화
+export const clearSlangReport = async (slangId) => {
+  try {
+    const query = `
+      UPDATE slangs 
+      SET report_count = 0, report_reason = NULL 
+      WHERE slang_id = ?
+    `;
+    const [result] = await pool.execute(query, [slangId]);
+    return result.affectedRows > 0;
+  } catch (error) {
+    console.error("❌ [DB 신고 기록 초기화 에러]:", error.message);
     throw error;
   }
 };

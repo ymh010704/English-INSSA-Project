@@ -231,16 +231,13 @@ const [stats, setStats] = useState({
     pendingSlangCount: 0
   });
 
-  // 대시보드가 켜질 때 백엔드 API 호출해서 진짜 데이터 불러오기
   useEffect(() => {
-    // 로그인할 때 저장된 토큰 꺼냄
-    const token = localStorage.getItem("token"); 
+    const token = localStorage.getItem("token");
+    if (!token) return;
 
-    // 상대 경로 호출
-    fetch('http://localhost:8000/api/admin/dashboard', {
+    fetch('/api/admin/dashboard', {
         method: 'GET',
         headers: {
-            // 백엔드 authenticateJWT 미들웨어 통과를 위한 Bearer 토큰 설정!
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
         }
@@ -250,8 +247,8 @@ const [stats, setStats] = useState({
         return res.json();
     })
     .then((resData) => {
-        if (resData.success) {
-            setStats(resData.data); 
+        if (resData.success && resData.data) {
+            setStats(resData.data.stats); 
         }
     })
     .catch((err) => console.error("대시보드 통계 로딩 실패:", err));
@@ -749,40 +746,61 @@ function ReviewPage() {
   const [tab, setTab] = useState("pending");
   const [pending, setPending] = useState(SLANGS.filter(s => s.status === "검수 대기"));
   const [submissions, setSubmissions] = useState(SUBMISSIONS);
-  
-  // [수정했습니다] 더미 데이터 대신 백엔드 데이터를 가져옴
   const [reports, setReports] = useState([]);
-
-  // [추가했습니다] 페이지 켜질 때 신고 접수 내역 서버에서 받아오기
+  
+  // [추가완] 페이지 켜질 때 신고 접수 내역 서버에서 받아오기
   useEffect(() => {
     const token = localStorage.getItem("token");
-
     if (!token) {
       return;
     }
 
-    fetch('http://localhost:8000/api/admin/dashboard', {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
+    fetch('/api/admin/dashboard', { 
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
     })
     .then((res) => {
-      if (!res.ok) throw new Error("데이터 수신 실패");
-      return res.json();
+        if (!res.ok) throw new Error("신고 목록 조회 실패");
+        return res.json();
     })
-    .then((resData ) => {
-      if (resData.success && resData.data && Array.isArray(resData.data.reports)) {
-        setReports(resData.data.reports); 
-      } else
-        setReports([]);
+    .then((resData) => {
+        if (resData.success && resData.data) {
+            setReports(resData.data.reports || []); 
+            console.log("신고 데이터:", resData.data.reports);
+        }
     })
-    .catch((err) => {
-      console.error("통합 데이터 로딩 실패:", err);
-      setReports([]); 
-    });
+    .catch((err) => console.error("신고 목록 로딩 실패... ", err));
   }, []);
+
+const handleDeleteReport = async (slangId) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return alert("인증 토큰이 없습니다. 다시 로그인해 주세요.");
+
+      const response = await fetch(`/api/admin/reports/delete/${slangId}`, { 
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const resData = await response.json();
+
+      if (resData.success) {
+        setReports(prev => prev.filter(item => item.slang_id !== slangId));
+        alert("신고 기록이 성공적으로 삭제되어 정상 단어로 복구되었습니다! ");
+      } else {
+        alert("처리에 실패했습니다: " + resData.message);
+      }
+    } catch (err) {
+      console.error("신고 삭제 중 에러 발생:", err);
+      alert("서버와 통신 중 에러가 발생했습니다.");
+    }
+  };
 
   const severityColor = { "높음": G.red, "중간": "#f59e0b", "낮음": G.green };
 
@@ -914,9 +932,14 @@ function ReviewPage() {
                     {/* 버튼 */}
                     <td style={{ padding: "14px 16px" }}>
                       <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
-                        <Button variant="secondary" size="sm" onClick={() => setReports(p => p.filter(x => x.slang_id !== r.slang_id))}>유지</Button>
-                        <Button size="sm" onClick={() => setReports(p => p.filter(x => x.slang_id !== r.slang_id))}
-                          style={{ background: G.red, color: G.white }}>삭제</Button>
+                        <Button variant="secondary" size="sm" onClick={() => alert("신고 상태를 유지합니다.")}>유지</Button>
+                        <Button 
+                          size="sm" 
+                          onClick={() => handleDeleteReport(r.slang_id)} 
+                          style={{ background: G.red, color: G.white }}
+                        >
+                    삭제
+                  </Button>
                       </div>
                     </td>
                   </tr>

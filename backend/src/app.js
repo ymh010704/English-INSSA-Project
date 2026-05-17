@@ -8,6 +8,7 @@ import { errorHandler } from "./middlewares/error.middleware.js";
 import studiesRoutes from './routes/studies.routes.js';
 import dashboardRouter from './routes/dashboard.routes.js';
 import boardRouter from './routes/board.routes.js';
+import reportRouter from './routes/report.routes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -28,6 +29,8 @@ app.use("/api", routes);
 
 app.use('/api/studies', studiesRoutes);
 app.use('/api/dashboard', dashboardRouter);
+
+app.use('/api/report', reportRouter);
 
 // 2. 자유게시판 라우트 
 app.use('/api/board', boardRouter);

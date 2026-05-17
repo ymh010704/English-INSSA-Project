@@ -91,6 +91,26 @@ export const getDashboardData = async (req, res) => {
     });
   }
 };
+
+// 신고 기록 삭제
+export const deleteReportLog = async (req, res) => {
+  try {
+    const { slangId } = req.params;
+    
+    
+    const isSuccess = await AdminService.clearSlangReport(slangId);
+    
+    if (isSuccess) {
+      return res.status(200).json({ success: true, message: "신고 기록이 초기화되었습니다." });
+    } else {
+      return res.status(404).json({ success: false, message: "존재하지 않는 슬랭입니다." });
+    }
+  } catch (err) {
+    console.error("신고 기록 삭제 컨트롤러 에러:", err);
+    return res.status(500).json({ success: false, message: "서버 처리 실패" });
+  }
+};
+
 /*
 // 신고 슬랭 목록 조회 컨트롤러
 export const getReportedSlangsData = async (req, res) => {
