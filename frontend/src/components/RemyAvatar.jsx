@@ -13,8 +13,8 @@ function CameraSetup() {
 }
 
 function RemyModel({ speaking }) {
-  const idleFbx = useLoader(FBXLoader, "/models/Remy@Breathing Idle.fbx");
-  const talkFbx = useLoader(FBXLoader, "/models/Remy@Talking.fbx");
+  const idleFbx = useLoader(FBXLoader, "/models/remy_breathing_idle.fbx");
+  const talkFbx = useLoader(FBXLoader, "/models/remy_talking.fbx");
 
   const mixerRef = useRef(null);
   const idleActionRef = useRef(null);
