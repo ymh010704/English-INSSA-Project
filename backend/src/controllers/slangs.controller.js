@@ -63,6 +63,7 @@ export const getShorts = async (req, res) => {
     const data = await SlangService.getShorts();
     res.json({ success: true, data });
   } catch (err) {
+    console.error("🚨 Shorts API Error:", err);
     res.status(500).json({ success: false, error: err.message });
   }
 };
