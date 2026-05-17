@@ -7,4 +7,4 @@ const router = express.Router();
 
 router.get('/stats', authenticateJWT, DashboardController.getStats);
 
-export default router;
+export default router; 

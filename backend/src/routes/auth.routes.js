@@ -101,20 +101,54 @@ router.post("/login", async (req, res) => {
 router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 
 // GET /api/auth/google/callback
-router.get("/google/callback", 
-  passport.authenticate("google", { session: false, failureRedirect: "/login" }),
-  (req, res) => {
-    const token = generateToken(req.user);
-    const user = encodeURIComponent(JSON.stringify({ 
-      id: req.user.user_id || req.user.id,
-      email: req.user.email, 
-      nickname: req.user.nickname,
-      provider: req.user.provider || 'google'
-    }));
-    // 프론트엔드 로그인 페이지로 토큰과 유저 정보를 들고 리다이렉트
-    res.redirect(`${FRONT_URL}/login?token=${token}&user=${user}`);
-  }
-);
+router.get("/google/callback", (req, res, next) => {
+  passport.authenticate("google", { session: false }, (err, user, info) => {
+    if (err) {
+      console.error("Google OAuth Error:", err);
+
+      return res.status(500).json({
+        ok: false,
+        where: "passport.authenticate google",
+        message: err.message,
+        stack: err.stack,
+      });
+    }
+
+    if (!user) {
+      console.error("Google OAuth No User:", info);
+
+      return res.status(401).json({
+        ok: false,
+        where: "no user",
+        info,
+      });
+    }
+
+    try {
+      const token = generateToken(user);
+
+      const encodedUser = encodeURIComponent(
+        JSON.stringify({
+          id: user.user_id || user.id,
+          email: user.email,
+          nickname: user.nickname,
+          provider: user.provider || "google",
+        })
+      );
+
+      return res.redirect(`${FRONT_URL}/login?token=${token}&user=${encodedUser}`);
+    } catch (error) {
+      console.error("Google callback final error:", error);
+
+      return res.status(500).json({
+        ok: false,
+        where: "generateToken or redirect",
+        message: error.message,
+        stack: error.stack,
+      });
+    }
+  })(req, res, next);
+});
 
 // --- 카카오 로그인 ---
 // GET /api/auth/kakao
