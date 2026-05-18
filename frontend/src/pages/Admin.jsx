@@ -1,387 +1,424 @@
 import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  LayoutDashboard, BookOpen, Users, ShieldAlert, Sparkles,
-  BarChart3, CheckCircle2, Search, Plus, Filter,
-  Flame, Clock3, Tag, Trash2, Pencil, Eye,
-  LogOut, ChevronRight, MessageSquare, Bell, Star, Link,
-  AlertTriangle, ZapOff, BookMarked, UserCheck, UserPlus,
+  LayoutDashboard, BookOpen, Users, ShieldAlert, Sparkles,
+  BarChart3, CheckCircle2, Search, Plus, Filter,
+  Flame, Clock3, Tag, Trash2, Pencil, Eye,
+  LogOut, ChevronRight, MessageSquare, Bell, Star, Link,
+  AlertTriangle, ZapOff, BookMarked, UserCheck, UserPlus,
 } from "lucide-react";
 import {
-  LineChart, Line, BarChart, Bar, XAxis, YAxis,
-  CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, Legend,
+  LineChart, Line, BarChart, Bar, XAxis, YAxis,
+  CartesianGrid, Tooltip, ResponsiveContainer,
+  PieChart, Pie, Cell, Legend,
 } from "recharts";
 import G from "../constants/colors";
 import Button from "../components/Button";
 
-/* ─── 데이터  ───────────────────────── */
-const STATS = [
-  { title: "전체 슬랭",   value: "284",   delta: "+12 this week", icon: BookOpen,      color: G.accent  },
-  { title: "활성 사용자", value: "1,842", delta: "+8.4%",         icon: Users,         color: G.blue    },
-  { title: "검수 대기",   value: "17",    delta: "Need review",   icon: CheckCircle2, color: "#f59e0b" },
-  { title: "신고 접수",   value: "6",     delta: "2 urgent",      icon: ShieldAlert,  color: G.red      },
-];
+/* ─── 데이터  ───────────────────────── */
+/*const STATS = [
+  { title: "전체 슬랭",   value: "284",   delta: "+12 this week", icon: BookOpen,      color: G.accent  },
+  { title: "활성 사용자", value: "1,842", delta: "+8.4%",         icon: Users,         color: G.blue    },
+  { title: "검수 대기",   value: "17",    delta: "Need review",   icon: CheckCircle2, color: "#f59e0b" },
+  { title: "신고 접수",   value: "6",     delta: "2 urgent",      icon: ShieldAlert,  color: G.red      },
+];*/
 
 const WEEKLY = [
-  { name: "월", users: 540, completion: 61 },
-  { name: "화", users: 720, completion: 68 },
-  { name: "수", users: 660, completion: 65 },
-  { name: "목", users: 870, completion: 74 },
-  { name: "금", users: 920, completion: 78 },
-  { name: "토", users: 750, completion: 69 },
-  { name: "일", users: 690, completion: 64 },
+  { name: "월", users: 540, completion: 61 },
+  { name: "화", users: 720, completion: 68 },
+  { name: "수", users: 660, completion: 65 },
+  { name: "목", users: 870, completion: 74 },
+  { name: "금", users: 920, completion: 78 },
+  { name: "토", users: 750, completion: 69 },
+  { name: "일", users: 690, completion: 64 },
 ];
 
 const TRENDING = [
-  { name: "no cap", score: 94 },
-  { name: "ate",    score: 88 },
-  { name: "delulu", score: 81 },
-  { name: "lowkey", score: 74 },
-  { name: "rizz",   score: 71 },
+  { name: "no cap", score: 94 },
+  { name: "ate",    score: 88 },
+  { name: "delulu", score: 81 },
+  { name: "lowkey", score: 74 },
+  { name: "rizz",   score: 71 },
 ];
 
 const WRONG_SLANGS = [
-  { name: "Rent free",               score: 312 },
-  { name: "Main character energy", score: 278 },
-  { name: "Sus",                    score: 241 },
-  { name: "Stan",                  score: 198 },
-  { name: "Tea",                   score: 165 },
+  { name: "Rent free",               score: 312 },
+  { name: "Main character energy", score: 278 },
+  { name: "Sus",                    score: 241 },
+  { name: "Stan",                  score: 198 },
+  { name: "Tea",                   score: 165 },
 ];
 
 const RIGHT_SLANGS = [
-  { name: "Bet",      score: 654 },
-  { name: "Flex",     score: 589 },
-  { name: "No cap",   score: 541 },
-  { name: "Ghosting", score: 487 },
-  { name: "Slay",     score: 432 },
+  { name: "Bet",      score: 654 },
+  { name: "Flex",     score: 589 },
+  { name: "No cap",   score: 541 },
+  { name: "Ghosting", score: 487 },
+  { name: "Slay",     score: 432 },
 ];
 
 const AVG_QUIZ = [
-  { name: "월", avg: 3.8 },
-  { name: "화", avg: 4.2 },
-  { name: "수", avg: 5.1 },
-  { name: "목", avg: 4.6 },
-  { name: "금", avg: 5.5 },
-  { name: "토", avg: 3.2 },
-  { name: "일", avg: 4.7 },
+  { name: "월", avg: 3.8 },
+  { name: "화", avg: 4.2 },
+  { name: "수", avg: 5.1 },
+  { name: "목", avg: 4.6 },
+  { name: "금", avg: 5.5 },
+  { name: "토", avg: 3.2 },
+  { name: "일", avg: 4.7 },
 ];
 
 const PIPELINE = [
-  { label: "작성 완료",   value: 82 },
-  { label: "검수 대기",   value: 46 },
-  { label: "승인 완료",   value: 71 },
-  { label: "공개 배포",   value: 64 },
+  { label: "작성 완료",   value: 82 },
+  { label: "검수 대기",   value: 46 },
+  { label: "승인 완료",   value: 71 },
+  { label: "공개 배포",   value: 64 },
 ];
 
 const AGE_GROUPS = [
-  { name: "10대",  value: 38, color: G.accent  },
-  { name: "20대",  value: 42, color: G.blue    },
-  { name: "30대",  value: 13, color: G.purple  },
-  { name: "40대+", value: 7,  color: G.green   },
+  { name: "10대",  value: 38, color: G.accent  },
+  { name: "20대",  value: 42, color: G.blue    },
+  { name: "30대",  value: 13, color: G.purple  },
+  { name: "40대+", value: 7,  color: G.green   },
 ];
 
 const DAILY_ACTIVE = [
-  { name: "재방문",  value: 289, color: G.blue   },
-  { name: "신규방문", value: 23,  color: G.accent },
+  { name: "재방문",  value: 289, color: G.blue   },
+  { name: "신규방문", value: 23,  color: G.accent },
 ];
 
 const SIGNUP_SOURCE = [
-  { name: "일반가입", value: 11, color: G.navy   },
-  { name: "Google",  value: 8,  color: G.blue    },
-  { name: "Kakao",   value: 4,  color: "#f59e0b" },
+  { name: "일반가입", value: 11, color: G.navy   },
+  { name: "Google",  value: 8,  color: G.blue    },
+  { name: "Kakao",   value: 4,  color: "#f59e0b" },
 ];
 
 const SLANGS = [
-  { id: 1, term: "no cap",  meaning: "진짜, 거짓 없이",    origin: "African American Vernacular English", tags: ["SNS","Gen Z"], level: "중급", status: "공개",    validity: "트렌디",      trend: 94, source: "TikTok",  media: "https://youtube.com/shorts/abc" },
-  { id: 2, term: "ate",     meaning: "완전 잘했다, 찢었다", origin: "Drag culture",                        tags: ["밈","Gen Z"], level: "초급", status: "검수 대기", validity: "트렌디",      trend: 88, source: "X",       media: "" },
-  // ... 생략
+  { id: 1, term: "no cap",  meaning: "진짜, 거짓 없이",    origin: "African American Vernacular English", tags: ["SNS","Gen Z"], level: "중급", status: "공개",    validity: "트렌디",      trend: 94, source: "TikTok",  media: "https://youtube.com/shorts/abc" },
+  { id: 2, term: "ate",     meaning: "완전 잘했다, 찢었다", origin: "Drag culture",                        tags: ["밈","Gen Z"], level: "초급", status: "검수 대기", validity: "트렌디",      trend: 88, source: "X",       media: "" },
+  // ... 생략
 ];
 
 const SUBMISSIONS = [
-  { id: 1, term: "understood the assignment", meaning: "상황을 완벽히 파악하고 해낸 것", reporter: "김민지", trust: 89, status: "대기" },
-  // ... 생략
+  { id: 1, term: "understood the assignment", meaning: "상황을 완벽히 파악하고 해낸 것", reporter: "김민지", trust: 89, status: "대기" },
+  // ... 생략
 ];
 
 const REPORTS = [
-  { id: 1, term: "smash", reason: "성적인 의미 오해 가능",   severity: "높음", reporter: "user_204", trust: 72 },
-  // ... 생략
+  { id: 1, term: "smash", reason: "성적인 의미 오해 가능",   severity: "높음", reporter: "user_204", trust: 72 },
+  // ... 생략
 ];
 
 const EXAMPLES = [
-  { id: 1, term: "no cap", author: "김민지",  content: "This food is amazing, no cap!", likes: 34, isBest: true  },
-  // ... 생략
+  { id: 1, term: "no cap", author: "김민지",  content: "This food is amazing, no cap!", likes: 34, isBest: true  },
+  // ... 생략
 ];
 
 const AI_LOGS = [
-  { id: 1, content: "wtf is this shit lol",        user: "user_099", filtered: "욕설", action: "숨김처리", time: "2026-04-04 14:22" },
-  // ... 생략
+  { id: 1, content: "wtf is this shit lol",        user: "user_099", filtered: "욕설", action: "숨김처리", time: "2026-04-04 14:22" },
+  // ... 생략
 ];
 
 const POPULAR_SEARCHES = [
-  { name: "rizz",   count: 412 },
-  { name: "no cap", count: 389 },
-  // ... 생략
+  { name: "rizz",   count: 412 },
+  { name: "no cap", count: 389 },
+  // ... 생략
 ];
 
 const ZERO_RESULTS = [
-  { word: "understood the assignment", count: 87, date: "2026-04-04" },
-  // ... 생략
+  { word: "understood the assignment", count: 87, date: "2026-04-04" },
+  // ... 생략
 ];
 
 const DROPOUT_DATA = [
-  { name: "도입부",   rate: 8  },
-  { name: "예시1",    rate: 12 },
-  // ... 생략
+  { name: "도입부",   rate: 8  },
+  { name: "예시1",    rate: 12 },
+  // ... 생략
 ];
 
 const WEIGHTS = [
-  { label: "인기 점수",   value: 30 },
-  { label: "개인화 점수", value: 40 },
-  { label: "최신성",      value: 20 },
-  { label: "학습 부족도", value: 10 },
+  { label: "인기 점수",   value: 30 },
+  { label: "개인화 점수", value: 40 },
+  { label: "최신성",      value: 20 },
+  { label: "학습 부족도", value: 10 },
 ];
 
 const MENU = [
-  { key: "dashboard",    label: "대시보드",           icon: LayoutDashboard },
-  { key: "content",      label: "콘텐츠 관리",         icon: BookOpen        },
-  { key: "users",        label: "유저 관리",           icon: Users            },
-  { key: "review",       label: "검수 / 신고",         icon: ShieldAlert     },
-  { key: "community",    label: "커뮤니티",            icon: MessageSquare   },
-  { key: "analytics",    label: "통계",                icon: BarChart3        },
-  { key: "notification", label: "공지사항",              icon: Bell             },
-  { key: "recommend",    label: "추천 설정 (보류)",   icon: Sparkles         },
+  { key: "dashboard",    label: "대시보드",           icon: LayoutDashboard },
+  { key: "content",      label: "콘텐츠 관리",         icon: BookOpen        },
+  { key: "users",        label: "유저 관리",           icon: Users            },
+  { key: "review",       label: "검수 / 신고",         icon: ShieldAlert     },
+  { key: "community",    label: "커뮤니티",            icon: MessageSquare   },
+  { key: "analytics",    label: "통계",                icon: BarChart3        },
+  { key: "notification", label: "공지사항",              icon: Bell             },
+  { key: "recommend",    label: "추천 설정 (보류)",   icon: Sparkles         },
 ];
 
 /* ─── 공통 컴포넌트 ─────────────────────────── */
 function Card({ children, style = {} }) {
-  return (
-    <div style={{ background: G.white, borderRadius: 20, border: "1px solid rgba(0,0,0,0.05)", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", ...style }}>
-      {children}
-    </div>
-  );
+  return (
+    <div style={{ background: G.white, borderRadius: 20, border: "1px solid rgba(0,0,0,0.05)", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", ...style }}>
+      {children}
+    </div>
+  );
 }
 
 function SectionTitle({ title, subtitle, action }) {
-  return (
-    <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
-      <div>
-        <div style={{ fontSize: 22, fontWeight: 800, color: G.black }}>{title}</div>
-        {subtitle && <div style={{ fontSize: 13, color: G.gray, marginTop: 4 }}>{subtitle}</div>}
-      </div>
-      {action}
-    </div>
-  );
+  return (
+    <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+      <div>
+        <div style={{ fontSize: 22, fontWeight: 800, color: G.black }}>{title}</div>
+        {subtitle && <div style={{ fontSize: 13, color: G.gray, marginTop: 4 }}>{subtitle}</div>}
+      </div>
+      {action}
+    </div>
+  );
 }
 
 function Badge({ children, color = G.gray, bg }) {
-  return (
-    <span style={{ fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 100, background: bg || `${color}18`, color, whiteSpace: "nowrap" }}>
-      {children}
-    </span>
-  );
+  return (
+    <span style={{ fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 100, background: bg || `${color}18`, color, whiteSpace: "nowrap" }}>
+      {children}
+    </span>
+  );
 }
 
 function ProgressBar({ value, color = G.accent }) {
-  return (
-    <div style={{ height: 8, background: G.lightGray, borderRadius: 100, overflow: "hidden" }}>
-      <div style={{ height: "100%", width: `${value}%`, background: color, borderRadius: 100, transition: "width 0.8s ease" }} />
-    </div>
-  );
+  return (
+    <div style={{ height: 8, background: G.lightGray, borderRadius: 100, overflow: "hidden" }}>
+      <div style={{ height: "100%", width: `${value}%`, background: color, borderRadius: 100, transition: "width 0.8s ease" }} />
+    </div>
+  );
 }
 
 function SubTabs({ tabs, active, onChange }) {
-  return (
-    <div style={{ display: "flex", gap: 4, background: G.lightGray, borderRadius: 14, padding: 4, width: "fit-content" }}>
-      {tabs.map(t => (
-        <button key={t.key} onClick={() => onChange(t.key)} style={{
-          padding: "8px 20px", borderRadius: 10, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600,
-          background: active === t.key ? G.white : "transparent",
-          color: active === t.key ? G.black : G.gray,
-          boxShadow: active === t.key ? "0 1px 4px rgba(0,0,0,0.08)" : "none",
-          fontFamily: "'Noto Sans KR', sans-serif", transition: "all 0.15s",
-        }}>{t.label}</button>
-      ))}
-    </div>
-  );
+  return (
+    <div style={{ display: "flex", gap: 4, background: G.lightGray, borderRadius: 14, padding: 4, width: "fit-content" }}>
+      {tabs.map(t => (
+        <button key={t.key} onClick={() => onChange(t.key)} style={{
+          padding: "8px 20px", borderRadius: 10, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600,
+          background: active === t.key ? G.white : "transparent",
+          color: active === t.key ? G.black : G.gray,
+          boxShadow: active === t.key ? "0 1px 4px rgba(0,0,0,0.08)" : "none",
+          fontFamily: "'Noto Sans KR', sans-serif", transition: "all 0.15s",
+        }}>{t.label}</button>
+      ))}
+    </div>
+  );
 }
 
 function IconBtn({ icon: Icon, onClick, danger = false }) {
-  return (
-    <button onClick={onClick} style={{
-      width: 32, height: 32, borderRadius: 10, border: `1px solid ${danger ? G.red + "40" : G.border}`,
-      background: "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-      color: danger ? G.red : G.gray,
-    }}
-      onMouseEnter={e => e.currentTarget.style.background = danger ? "#fef2f2" : G.lightGray}
-      onMouseLeave={e => e.currentTarget.style.background = "white"}
-    >
-      <Icon size={14} />
-    </button>
-  );
+  return (
+    <button onClick={onClick} style={{
+      width: 32, height: 32, borderRadius: 10, border: `1px solid ${danger ? G.red + "40" : G.border}`,
+      background: "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+      color: danger ? G.red : G.gray,
+    }}
+      onMouseEnter={e => e.currentTarget.style.background = danger ? "#fef2f2" : G.lightGray}
+      onMouseLeave={e => e.currentTarget.style.background = "white"}
+    >
+      <Icon size={14} />
+    </button>
+  );
 }
 
 function TrustBadge({ score }) {
-  const color = score >= 80 ? G.green : score >= 60 ? "#f59e0b" : G.red;
-  return <Badge color={color}>{score}점</Badge>;
+  const color = score >= 80 ? G.green : score >= 60 ? "#f59e0b" : G.red;
+  return <Badge color={color}>{score}점</Badge>;
 }
 
 /* ─── 대시보드 ──────────────── */
-function DashboardPage({ onAddClick }) {
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-      <SectionTitle
-        title="오늘의 현황"
-        subtitle={new Date().toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric", weekday: "long" })}
-        action={
-          <div style={{ display: "flex", gap: 8 }}>
-            <Button variant="secondary" size="sm"><Bell size={14} style={{ marginRight: 6 }} />알림</Button>
-            <Button size="sm" onClick={onAddClick}>
-              <Plus size={14} style={{ marginRight: 6 }} />새 슬랭 등록
-            </Button>
-          </div>
-        }
-      />
+function DashboardPage({ onAddClick, statsData }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+      <SectionTitle
+        title="오늘의 현황"
+        subtitle={new Date().toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric", weekday: "long" })}
+        action={
+          <div style={{ display: "flex", gap: 8 }}>
+            <Button variant="secondary" size="sm"><Bell size={14} style={{ marginRight: 6 }} />알림</Button>
+            <Button size="sm" onClick={onAddClick}>
+              <Plus size={14} style={{ marginRight: 6 }} />새 슬랭 등록
+            </Button>
+          </div>
+        }
+      />
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
-        {STATS.map(s => {
-          const Icon = s.icon;
-          return (
-            <Card key={s.title} style={{ padding: "22px 24px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                <div>
-                  <div style={{ fontSize: 12, color: G.gray, marginBottom: 8 }}>{s.title}</div>
-                  <div style={{ fontSize: 28, fontWeight: 900, color: G.black, fontFamily: "'Unbounded', sans-serif" }}>{s.value}</div>
-                  <div style={{ fontSize: 11, color: G.gray, marginTop: 4 }}>{s.delta}</div>
-                </div>
-                <div style={{ background: `${s.color}15`, borderRadius: 14, padding: 10 }}>
-                  <Icon size={18} color={s.color} />
-                </div>
-              </div>
-            </Card>
-          );
-        })}
-      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
+        {statsData.map(s => {
+          const Icon = s.icon;
+          return (
+            <Card key={s.title} style={{ padding: "22px 24px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                <div>
+                  <div style={{ fontSize: 12, color: G.gray, marginBottom: 8 }}>{s.title}</div>
+                  <div style={{ fontSize: 28, fontWeight: 900, color: G.black, fontFamily: "'Unbounded', sans-serif" }}>{s.value}</div>
+                  <div style={{ fontSize: 11, color: G.gray, marginTop: 4 }}>{s.delta}</div>
+                </div>
+                <div style={{ background: `${s.color}15`, borderRadius: 14, padding: 10 }}>
+                  <Icon size={18} color={s.color} />
+                </div>
+              </div>
+            </Card>
+          );
+        })}
+      </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
-        {[
-          { title: "일일 접속자",   sub: "오늘 기준 총 312명", data: DAILY_ACTIVE,  isPercent: false },
-          { title: "일일 신규가입", sub: "오늘 기준 총 23명",  data: SIGNUP_SOURCE, isPercent: false },
-          { title: "연령대 분포",   sub: "전체 사용자 기준",   data: AGE_GROUPS,    isPercent: true  },
-        ].map(chart => (
-          <Card key={chart.title} style={{ padding: "20px 24px" }}>
-            <div style={{ fontSize: 14, fontWeight: 700 }}>{chart.title}</div>
-            <div style={{ fontSize: 12, color: G.gray, marginBottom: 4 }}>{chart.sub}</div>
-            <ResponsiveContainer width="100%" height={160}>
-              <PieChart>
-                <Pie data={chart.data} cx="50%" cy="50%" innerRadius={45} outerRadius={68} paddingAngle={3} dataKey="value">
-                  {chart.data.map((entry, i) => <Cell key={i} fill={entry.color} />)}
-                </Pie>
-                <Tooltip formatter={v => chart.isPercent ? `${v}%` : `${v}명`} />
-              </PieChart>
-            </ResponsiveContainer>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 14px" }}>
-              {chart.data.map(d => (
-                <div key={d.name} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  <div style={{ width: 8, height: 8, borderRadius: 100, background: d.color, flexShrink: 0 }} />
-                  <span style={{ fontSize: 12, color: G.gray }}>{d.name}</span>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: G.black }}>
-                    {chart.isPercent ? `${d.value}%` : `${d.value}명`}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </Card>
-        ))}
-      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
+        {[
+          { title: "일일 접속자",   sub: "오늘 기준 총 312명", data: DAILY_ACTIVE,  isPercent: false },
+          { title: "일일 신규가입", sub: "오늘 기준 총 23명",  data: SIGNUP_SOURCE, isPercent: false },
+          { title: "연령대 분포",   sub: "전체 사용자 기준",   data: AGE_GROUPS,    isPercent: true  },
+        ].map(chart => (
+          <Card key={chart.title} style={{ padding: "20px 24px" }}>
+            <div style={{ fontSize: 14, fontWeight: 700 }}>{chart.title}</div>
+            <div style={{ fontSize: 12, color: G.gray, marginBottom: 4 }}>{chart.sub}</div>
+            <ResponsiveContainer width="100%" height={160}>
+              <PieChart>
+                <Pie data={chart.data} cx="50%" cy="50%" innerRadius={45} outerRadius={68} paddingAngle={3} dataKey="value">
+                  {chart.data.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+                </Pie>
+                <Tooltip formatter={v => chart.isPercent ? `${v}%` : `${v}명`} />
+              </PieChart>
+            </ResponsiveContainer>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 14px" }}>
+              {chart.data.map(d => (
+                <div key={d.name} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <div style={{ width: 8, height: 8, borderRadius: 100, background: d.color, flexShrink: 0 }} />
+                  <span style={{ fontSize: 12, color: G.gray }}>{d.name}</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: G.black }}>
+                    {chart.isPercent ? `${d.value}%` : `${d.value}명`}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </Card>
+        ))}
+      </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 16 }}>
-        <Card>
-          <div style={{ padding: "20px 24px 0" }}>
-            <div style={{ fontSize: 14, fontWeight: 700 }}>주간 사용자 추이</div>
-          </div>
-          <div style={{ padding: "16px 8px 8px" }}>
-            <ResponsiveContainer width="100%" height={240}>
-              <LineChart data={WEEKLY}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0ede6" />
-                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip />
-                <Line type="monotone" dataKey="users" stroke={G.accent} strokeWidth={3} dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
+      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 16 }}>
+        <Card>
+          <div style={{ padding: "20px 24px 0" }}>
+            <div style={{ fontSize: 14, fontWeight: 700 }}>주간 사용자 추이</div>
+          </div>
+          <div style={{ padding: "16px 8px 8px" }}>
+            <ResponsiveContainer width="100%" height={240}>
+              <LineChart data={WEEKLY}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0ede6" />
+                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                <YAxis tick={{ fontSize: 12 }} />
+                <Tooltip />
+                <Line type="monotone" dataKey="users" stroke={G.accent} strokeWidth={3} dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
 
-        <Card style={{ padding: "20px 24px" }}>
-          <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 16 }}>오늘의 관리 포인트</div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {[
-              { icon: Flame,  color: G.accent, title: "트렌딩 슬랭 업데이트", desc: "급상승 표현 4개가 자동 후보로 등록되었습니다." },
-              { icon: Clock3, color: G.blue,   title: "검수 대기",              desc: "17건 중 5건이 48시간 이상 지연 중입니다." },
-              { icon: ZapOff, color: G.red,    title: "미등록 검색어",            desc: "오늘 미등록 검색어 5건이 수집되었습니다." },
-            ].map(item => {
-              const Icon = item.icon;
-              return (
-                <div key={item.title} style={{ background: G.lightGray, borderRadius: 14, padding: "12px 14px" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, fontWeight: 700, color: G.black, marginBottom: 4 }}>
-                    <Icon size={13} color={item.color} />{item.title}
-                  </div>
-                  <div style={{ fontSize: 12, color: G.gray }}>{item.desc}</div>
-                </div>
-              );
-            })}
-          </div>
-        </Card>
-      </div>
+        <Card style={{ padding: "20px 24px" }}>
+          <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 16 }}>오늘의 관리 포인트</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {[
+              { icon: Flame,  color: G.accent, title: "트렌딩 슬랭 업데이트", desc: "급상승 표현 4개가 자동 후보로 등록되었습니다." },
+              { icon: Clock3, color: G.blue,   title: "검수 대기",              desc: "17건 중 5건이 48시간 이상 지연 중입니다." },
+              { icon: ZapOff, color: G.red,    title: "미등록 검색어",            desc: "오늘 미등록 검색어 5건이 수집되었습니다." },
+            ].map(item => {
+              const Icon = item.icon;
+              return (
+                <div key={item.title} style={{ background: G.lightGray, borderRadius: 14, padding: "12px 14px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, fontWeight: 700, color: G.black, marginBottom: 4 }}>
+                    <Icon size={13} color={item.color} />{item.title}
+                  </div>
+                  <div style={{ fontSize: 12, color: G.gray }}>{item.desc}</div>
+                </div>
+              );
+            })}
+          </div>
+        </Card>
+      </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-        <Card>
-          <div style={{ padding: "20px 24px 0" }}>
-            <div style={{ fontSize: 14, fontWeight: 700 }}>인기 슬랭 TOP 5</div>
-          </div>
-          <div style={{ padding: "16px 8px 8px" }}>
-            <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={TRENDING}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0ede6" />
-                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip />
-                <Bar dataKey="score" fill={G.accent} radius={[8, 8, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+        <Card>
+          <div style={{ padding: "20px 24px 0" }}>
+            <div style={{ fontSize: 14, fontWeight: 700 }}>인기 슬랭 TOP 5</div>
+          </div>
+          <div style={{ padding: "16px 8px 8px" }}>
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={TRENDING}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0ede6" />
+                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                <YAxis tick={{ fontSize: 12 }} />
+                <Tooltip />
+                <Bar dataKey="score" fill={G.accent} radius={[8, 8, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
 
-        <Card style={{ padding: "20px 24px" }}>
-          <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 20 }}>콘텐츠 승인 파이프라인</div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-            {PIPELINE.map(p => (
-              <div key={p.label}>
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 8 }}>
-                  <span style={{ fontWeight: 500 }}>{p.label}</span>
-                  <span style={{ color: G.gray }}>{p.value}%</span>
-                </div>
-                <ProgressBar value={p.value} />
-              </div>
-            ))}
-          </div>
-        </Card>
-      </div>
-    </div>
-  );
+        <Card style={{ padding: "20px 24px" }}>
+          <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 20 }}>콘텐츠 승인 파이프라인</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+            {PIPELINE.map(p => (
+              <div key={p.label}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 8 }}>
+                  <span style={{ fontWeight: 500 }}>{p.label}</span>
+                  <span style={{ color: G.gray }}>{p.value}%</span>
+                </div>
+                <ProgressBar value={p.value} />
+              </div>
+            ))}
+          </div>
+        </Card>
+      </div>
+    </div>
+  );
 }
 
 /* ─── 콘텐츠 관리 ─────────────────── */
 function ContentPage() {
-  const [tab, setTab] = useState("list");
-  const [query, setQuery] = useState("");
-  const [slangs, setSlangs] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newSlang, setNewSlang] = useState({ term: "", meaning: "", origin: "", tags: "" });
+  const [tab, setTab] = useState("list");
+  const [query, setQuery] = useState("");
+  const [slangs, setSlangs] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newSlang, setNewSlang] = useState({ term: "", meaning: "", origin: "", tags: "" });
+  const [selectedSlang, setSelectedSlang] = useState(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
+  const handleUpdateSlang = async (slangId) => {
+    try {
+      const token = localStorage.getItem("token");
+      
+      const response = await fetch(`/api/admin/slangs/${slangId}`, {
+        method: 'PUT', 
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          word: selectedSlang.term,
+          definition_ko: selectedSlang.meaning,
+          example_ko: selectedSlang.origin
+        })
+      });
+
+      const resData = await response.json();
+
+      if (resData.success) {
+        alert("슬랭 컨텐츠가 성공적으로 수정되었습니다! ✨");
+        
+        setSlangs(prev => prev.map(s => s.slang_id === slangId ? selectedSlang : s));
+        
+        setIsEditModalOpen(false);
+        setSelectedSlang(null);
+      } else {
+        alert("수정 실패: " + (resData.message || "오류가 발생했습니다."));
+      }
+    } catch (err) {
+      console.error("슬랭 수정 중 에러:", err);
+      alert("서버 통신 오류가 발생했습니다.");
+    }
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
 
     fetch('/api/admin/slangs', {
       method: "GET",
@@ -391,7 +428,7 @@ function ContentPage() {
       }
     })
       .then(res => res.json())
-      .then(response => { // 이름을 response로 바꿈 
+      .then(response => {
         console.log("서버에서 온 원본 데이터:", response);
         const actualData = response.data; 
 
@@ -402,11 +439,12 @@ function ContentPage() {
 
         const formattedData = actualData.map(item => ({
           id: item.slang_id,          
+          slang_id: item.slang_id, 
           term: item.word,            
           meaning: item.definition_ko, 
           origin: item.example_ko || "어원 정보 없음", 
           status: "공개",
-          tags: item.tags ? item.tags.split(',') : [], // 태그가 문자열이면 배열로 변환
+          tags: item.tags ? item.tags.split(',') : [], 
           trend: 80,
         }));
 
@@ -415,191 +453,247 @@ function ContentPage() {
       .catch(err => console.error("연결 오류:", err));
   }, []);
 
-  const filtered = useMemo(() => {
-    if (!Array.isArray(slangs)) return [];
-    return slangs.filter(s => {
-      const tags = Array.isArray(s.tags) ? s.tags : []; 
-      return [s.term, s.meaning, s.origin, ...tags].join(" ").toLowerCase().includes(query.toLowerCase());
-    });
-  }, [slangs, query]);
+  const filtered = useMemo(() => {
+    if (!Array.isArray(slangs)) return [];
+    return slangs.filter(s => {
+      const tags = Array.isArray(s.tags) ? s.tags : []; 
+      return [s.term, s.meaning, s.origin, ...tags].join(" ").toLowerCase().includes(query.toLowerCase());
+    });
+  }, [slangs, query]);
 
-  function deleteSlang(id) {
-    if (window.confirm("정말로 삭제하시겠습니까?")) {
-      // 로컬 스토리지에서 토큰 가져오기
-      const token = localStorage.getItem("token");
+  function deleteSlang(id) {
+  if (window.confirm("정말로 삭제하시겠습니까?")) {
+    const token = localStorage.getItem("token");
 
-      // fetch 옵션에 headers 추가
-      fetch(`/api/admin/slangs/${id}`, { 
-        method: 'DELETE',
-        headers: {
-          "Authorization": `Bearer ${token}` 
+    fetch(`/api/admin/slangs/${id}`, { 
+      method: 'DELETE',
+      headers: {
+        "Authorization": `Bearer ${token}` 
+      }
+    })
+      .then(res => {
+        if (res.ok) {
+          setSlangs(prev => prev.filter(s => s.slang_id !== id));
+          alert("삭제 성공!");
+        } else {
+          return res.json().then(data => {
+            alert(`삭제 실패: ${data.error || "권한이 없습니다."}`);
+          });
         }
       })
-        .then(res => {
-          if (res.ok) {
-            setSlangs(prev => prev.filter(s => s.id !== id));
-            alert("삭제 성공!");
-          } else {
-            return res.json().then(data => {
-              alert(`삭제 실패: ${data.error || "권한이 없습니다."}`);
-            });
-          }
-        })
-        .catch(err => console.error("삭제 에러:", err));
-    }
+      .catch(err => console.error("삭제 에러:", err));
   }
+}
 
-  const statusColor = { "공개": G.green, "검수 대기": "#f59e0b", "비공개": G.gray };
+  const statusColor = { "공개": G.green, "검수 대기": "#f59e0b", "비공개": G.gray };
 
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-      <SectionTitle
-        title="콘텐츠 관리"
-        subtitle="슬랭 카드, 어원, 태그, 멀티미디어를 관리합니다."
-        action={<Button size="sm" onClick={() => setIsModalOpen(true)}><Plus size={14} style={{ marginRight: 6 }} />슬랭 추가</Button>}
-      />
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+      <SectionTitle
+        title="콘텐츠 관리"
+        subtitle="슬랭 카드, 어원, 태그, 멀티미디어를 관리합니다."
+        action={<Button size="sm" onClick={() => setIsModalOpen(true)}><Plus size={14} style={{ marginRight: 6 }} />슬랭 추가</Button>}
+      />
 
-      <SubTabs
-        tabs={[{ key: "list", label: "슬랭 목록" }, { key: "media", label: "멀티미디어 매핑" }]}
-        active={tab} onChange={setTab}
-      />
+      <SubTabs
+        tabs={[{ key: "list", label: "슬랭 목록" }, { key: "media", label: "멀티미디어 매핑" }]}
+        active={tab} onChange={setTab}
+      />
 
-      {tab === "list" && (
-        <>
-          <Card style={{ padding: "14px 18px" }}>
-            <div style={{ display: "flex", gap: 10 }}>
-              <div style={{ position: "relative", flex: 1 }}>
-                <Search size={14} color={G.gray} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)" }} />
-                <input value={query} onChange={e => setQuery(e.target.value)} placeholder="슬랭, 뜻, 어원, 태그 검색"
-                  style={{ width: "100%", padding: "10px 14px 10px 36px", borderRadius: 100, border: `1.5px solid ${G.border}`, fontSize: 13, outline: "none", fontFamily: "'Noto Sans KR', sans-serif", boxSizing: "border-box" }} />
-              </div>
-              <Button variant="secondary" size="sm"><Filter size={13} style={{ marginRight: 6 }} />필터</Button>
-            </div>
-          </Card>
-          <Card>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-              <thead>
-                <tr style={{ borderBottom: "1.5px solid #f0ede6" }}>
-                  {["슬랭", "뜻", "어원", "태그", "상태", "트렌드", ""].map(h => (
-                    <th key={h} style={{ padding: "14px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: G.gray }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map(s => (
-                  <tr key={s.id} style={{ borderBottom: "1px solid #f7f4ef" }} onMouseEnter={e => e.currentTarget.style.background = "#fafaf9"} onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
-                    <td style={{ padding: "14px 16px", fontFamily: "'Unbounded', sans-serif", fontWeight: 700, fontSize: 12 }}>{s.term}</td>
-                    <td style={{ padding: "14px 16px", color: G.gray, maxWidth: 160 }}>{s.meaning}</td>
-                    <td style={{ padding: "14px 16px", color: G.gray, fontSize: 12, maxWidth: 140 }}>{s.origin}</td>
-                    <td style={{ padding: "14px 16px" }}>
-                      <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
-                        {(s.tags && Array.isArray(s.tags)) && s.tags.length > 0 ? s.tags.map(t => <Badge key={t} color={G.purple}>{t}</Badge>) : <Badge color={G.gray}>태그 없음</Badge>}
-                      </div>
-                    </td>
-                    <td style={{ padding: "14px 16px" }}><Badge color={statusColor[s.status] || G.gray}>{s.status}</Badge></td>
-                    <td style={{ padding: "14px 16px" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                        <div style={{ width: 50, height: 6, background: G.lightGray, borderRadius: 100, overflow: "hidden" }}>
-                          <div style={{ height: "100%", width: `${s.trend}%`, background: G.accent, borderRadius: 100 }} />
-                        </div>
-                        <span style={{ fontSize: 12, color: G.gray }}>{s.trend}</span>
-                      </div>
-                    </td>
-                    <td style={{ padding: "14px 16px" }}>
-                      <div style={{ display: "flex", gap: 4, justifyContent: "flex-end" }}>
-                        <IconBtn icon={Eye} />
-                        <IconBtn icon={Pencil} />
-                        <IconBtn icon={Trash2} onClick={() => deleteSlang(s.id)} danger />
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </Card>
-        </>
-      )}
+      {tab === "list" && (
+        <>
+          <Card style={{ padding: "14px 18px" }}>
+            <div style={{ display: "flex", gap: 10 }}>
+              <div style={{ position: "relative", flex: 1 }}>
+                <Search size={14} color={G.gray} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)" }} />
+                <input value={query} onChange={e => setQuery(e.target.value)} placeholder="슬랭, 뜻, 어원, 태그 검색"
+                  style={{ width: "100%", padding: "10px 14px 10px 36px", borderRadius: 100, border: `1.5px solid ${G.border}`, fontSize: 13, outline: "none", fontFamily: "'Noto Sans KR', sans-serif", boxSizing: "border-box" }} />
+              </div>
+              <Button variant="secondary" size="sm"><Filter size={13} style={{ marginRight: 6 }} />필터</Button>
+            </div>
+          </Card>
+          <Card>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+              <thead>
+                <tr style={{ borderBottom: "1.5px solid #f0ede6" }}>
+                  {["슬랭", "뜻", "어원", "태그", "상태", "트렌드", ""].map(h => (
+                    <th key={h} style={{ padding: "14px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: G.gray }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map(s => (
+                  <tr key={s.id} style={{ borderBottom: "1px solid #f7f4ef" }} onMouseEnter={e => e.currentTarget.style.background = "#fafaf9"} onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
+                    <td style={{ padding: "14px 16px", fontFamily: "'Unbounded', sans-serif", fontWeight: 700, fontSize: 12 }}>{s.term}</td>
+                    <td style={{ padding: "14px 16px", color: G.gray, maxWidth: 160 }}>{s.meaning}</td>
+                    <td style={{ padding: "14px 16px", color: G.gray, fontSize: 12, maxWidth: 140 }}>{s.origin}</td>
+                    <td style={{ padding: "14px 16px" }}>
+                      <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+                        {(s.tags && Array.isArray(s.tags)) && s.tags.length > 0 ? s.tags.map(t => <Badge key={t} color={G.purple}>{t}</Badge>) : <Badge color={G.gray}>태그 없음</Badge>}
+                      </div>
+                    </td>
+                    <td style={{ padding: "14px 16px" }}><Badge color={statusColor[s.status] || G.gray}>{s.status}</Badge></td>
+                    <td style={{ padding: "14px 16px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <div style={{ width: 50, height: 6, background: G.lightGray, borderRadius: 100, overflow: "hidden" }}>
+                          <div style={{ height: "100%", width: `${s.trend}%`, background: G.accent, borderRadius: 100 }} />
+                        </div>
+                        <span style={{ fontSize: 12, color: G.gray }}>{s.trend}</span>
+                      </div>
+                    </td>
+                    <td style={{ padding: "14px 16px" }}>
+                      <div style={{ display: "flex", gap: 4, justifyContent: "flex-end" }}>
+                        <IconBtn icon={Pencil} onClick={() => {setSelectedSlang(s); setIsEditModalOpen(true);}}
+                          />
+                        <IconBtn icon={Trash2} onClick={() => deleteSlang(s.slang_id)} danger />
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </Card>
+        </>
+      )}
 
-      {tab === "media" && (
-        <Card>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-            <thead>
-              <tr style={{ borderBottom: "1.5px solid #f0ede6" }}>
-                {["슬랭", "연결된 미디어 URL", "출처", ""].map(h => (
-                  <th key={h} style={{ padding: "14px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: G.gray }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {slangs.map(s => (
-                <tr key={s.id} style={{ borderBottom: "1px solid #f7f4ef" }} onMouseEnter={e => e.currentTarget.style.background = "#fafaf9"} onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
-                  <td style={{ padding: "14px 16px", fontFamily: "'Unbounded', sans-serif", fontWeight: 700, fontSize: 12 }}>{s.term}</td>
-                  <td style={{ padding: "14px 16px", flex: 1 }}>
-                    {s.media ? <a href={s.media} target="_blank" rel="noreferrer" style={{ color: G.blue, fontSize: 12, textDecoration: "none" }}><Link size={12} style={{ marginRight: 4, verticalAlign: "middle" }} />{s.media}</a> : <span style={{ color: G.gray, fontSize: 12 }}>— 미연결</span>}
-                  </td>
-                  <td style={{ padding: "14px 16px", color: G.gray }}>{s.source}</td>
-                  <td style={{ padding: "14px 16px" }}><Button variant="secondary" size="sm"><Link size={12} style={{ marginRight: 4 }} />URL 연결</Button></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </Card>
-      )}
+     {/* 슬랭 콘텐츠 수정 */}
+      {isEditModalOpen && selectedSlang && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+          background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 999
+        }}>
+          <div style={{ background: '#fff', padding: '25px', borderRadius: '12px', width: '450px' }}>
+            <h3 style={{ marginBottom: '20px', fontSize: '18px', fontWeight: 'bold', color: '#333' }}>📝 슬랭 콘텐츠 수정</h3>
 
-      {/* ─── 슬랭 추가 ─── */}
-      {isModalOpen && (
-        <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
-          <Card style={{ width: 450, padding: 30 }}>
-            <div style={{ fontSize: 18, fontWeight: 800, marginBottom: 20 }}>새 슬랭 등록</div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 15 }}>
-              <input placeholder="슬랭 (예: Rizz)" style={{ padding: "10px 14px", borderRadius: 10, border: "1px solid #ddd" }} onChange={e => setNewSlang({...newSlang, term: e.target.value})} />
-              <input placeholder="뜻" style={{ padding: "10px 14px", borderRadius: 10, border: "1px solid #ddd" }} onChange={e => setNewSlang({...newSlang, meaning: e.target.value})} />
-              <textarea placeholder="어원/유래" style={{ padding: "10px 14px", borderRadius: 10, border: "1px solid #ddd", height: 80 }} onChange={e => setNewSlang({...newSlang, origin: e.target.value})} />
-              <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
-               <Button style={{ flex: 1 }} onClick={() => {
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginBottom: '20px' }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: '600', fontSize: '12px' }}>슬랭 단어</label>
+                <input 
+                  type="text" 
+                  value={selectedSlang.term} 
+                  onChange={(e) => setSelectedSlang({...selectedSlang, term: e.target.value})}
+                  style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: '600', fontSize: '12px' }}>뜻 (한글)</label>
+                <textarea 
+                  rows="3"
+                  value={selectedSlang.meaning} 
+                  onChange={(e) => setSelectedSlang({...selectedSlang, meaning: e.target.value})}
+                  style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #ccc', resize: 'none', boxSizing: 'border-box' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: '600', fontSize: '12px' }}>예문/어원 (한글)</label>
+                <textarea 
+                  rows="2"
+                  value={selectedSlang.origin} 
+                  onChange={(e) => setSelectedSlang({...selectedSlang, origin: e.target.value})}
+                  style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #ccc', resize: 'none', boxSizing: 'border-box' }}
+                />
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+              <button 
+                onClick={() => { setIsEditModalOpen(false); setSelectedSlang(null); }} 
+                style={{ padding: '8px 16px', background: '#fff', border: '1px solid #ccc', borderRadius: '6px', cursor: 'pointer', fontSize: '12px' }}
+              >
+                취소
+              </button>
+              <button 
+                onClick={() => handleUpdateSlang(selectedSlang.slang_id)} 
+                style={{ padding: '8px 16px', background: '#007bff', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', fontSize: '12px' }}
+              >
+                저장
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {tab === "media" && (
+        <Card>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+            <thead>
+              <tr style={{ borderBottom: "1.5px solid #f0ede6" }}>
+                {["슬랭", "연결된 미디어 URL", "출처", ""].map(h => (
+                  <th key={h} style={{ padding: "14px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: G.gray }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {slangs.map(s => (
+                <tr key={s.id} style={{ borderBottom: "1px solid #f7f4ef" }} onMouseEnter={e => e.currentTarget.style.background = "#fafaf9"} onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
+                  <td style={{ padding: "14px 16px", fontFamily: "'Unbounded', sans-serif", fontWeight: 700, fontSize: 12 }}>{s.term}</td>
+                  <td style={{ padding: "14px 16px", flex: 1 }}>
+                    {s.media ? <a href={s.media} target="_blank" rel="noreferrer" style={{ color: G.blue, fontSize: 12, textDecoration: "none" }}><Link size={12} style={{ marginRight: 4, verticalAlign: "middle" }} />{s.media}</a> : <span style={{ color: G.gray, fontSize: 12 }}>— 미연결</span>}
+                  </td>
+                  <td style={{ padding: "14px 16px", color: G.gray }}>{s.source}</td>
+                  <td style={{ padding: "14px 16px" }}><Button variant="secondary" size="sm"><Link size={12} style={{ marginRight: 4 }} />URL 연결</Button></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Card>
+      )}
+
+      {/* ─── 슬랭 추가 ─── */}
+      {isModalOpen && (
+        <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
+          <Card style={{ width: 450, padding: 30 }}>
+            <div style={{ fontSize: 18, fontWeight: 800, marginBottom: 20 }}>새 슬랭 등록</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 15 }}>
+              <input placeholder="슬랭 (예: Rizz)" style={{ padding: "10px 14px", borderRadius: 10, border: "1px solid #ddd" }} onChange={e => setNewSlang({...newSlang, term: e.target.value})} />
+              <input placeholder="뜻" style={{ padding: "10px 14px", borderRadius: 10, border: "1px solid #ddd" }} onChange={e => setNewSlang({...newSlang, meaning: e.target.value})} />
+              <textarea placeholder="어원/유래" style={{ padding: "10px 14px", borderRadius: 10, border: "1px solid #ddd", height: 80 }} onChange={e => setNewSlang({...newSlang, origin: e.target.value})} />
+              <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
+                <Button style={{ flex: 1 }} onClick={() => {
                   const token = localStorage.getItem("token");
-                  const payload = {
-                    word: String(newSlang.term || ""),
-                    definition_ko: String(newSlang.meaning || ""),
-                    definition_en: "English definition", 
-                    example_en: "English example",       
+                  const payload = {
+                    word: String(newSlang.term || ""),
+                    definition_ko: String(newSlang.meaning || ""),
+                    definition_en: "English definition", 
+                    example_en: "English example",       
                     example_ko: String(newSlang.origin || "한국어 예문"), 
                     category: "Etc",
                     emoji: "✨"
-                  };
-                  fetch('/api/admin/slangs', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 
-                    'Authorization': `Bearer ${token}`},
-                    body: JSON.stringify(payload)
-                  })
-                  .then(res => res.json())
-                  .then(data => {
-                    const newData = { id: data.slangId || Date.now(), term: payload.word, meaning: payload.definition_ko, origin: payload.example_ko, tags: ["신규"], status: "공개", trend: 70 };
-                    setSlangs(prev => [newData, ...prev]);
-                    setIsModalOpen(false);
-                    setNewSlang({ term: "", meaning: "", origin: "", tags: "" });
-                    alert("DB 등록 성공!");
-                  }).catch(err => alert("등록 중 에러 발생!"));
-               }}>등록하기</Button>
-                <Button variant="secondary" style={{ flex: 1 }} onClick={() => setIsModalOpen(false)}>취소</Button>
-              </div>
-            </div>
-          </Card>
-        </div>
-      )}
-    </div>
-  );
+                  };
+                  fetch('/api/admin/slangs', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+                    body: JSON.stringify(payload)
+                  })
+                  .then(res => res.json())
+                  .then(data => {
+                    const newData = { id: data.slangId || Date.now(), slang_id: data.slangId || Date.now(), term: payload.word, meaning: payload.definition_ko, origin: payload.example_ko, tags: ["신규"], status: "공개", trend: 70 };
+                    setSlangs(prev => [newData, ...prev]);
+                    setIsModalOpen(false);
+                    setNewSlang({ term: "", meaning: "", origin: "", tags: "" });
+                    alert("DB 등록 성공!");
+                  }).catch(err => alert("등록 중 에러 발생!"));
+                }}>등록하기</Button>
+                <Button variant="secondary" style={{ flex: 1 }} onClick={() => setIsModalOpen(false)}>취소</Button>
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
+    </div>
+  );
 }
 
 /* ─── 유저 관리 ────────────────── */
 function UsersPage() {
-  const [users, setUsers] = useState([]);
-  const [confirm, setConfirm] = useState(null);
-  const [query, setQuery] = useState("");
+  const [users, setUsers] = useState([]);
+  const [confirm, setConfirm] = useState(null);
+  const [query, setQuery] = useState("");
 
-  useEffect(() => {
-    // 1. 로컬 스토리지에서 토큰 가져오기 
+  useEffect(() => {
+    // 1. 로컬 스토리지에서 토큰 가져오기 
     const token = localStorage.getItem('token'); 
 
     fetch('/api/admin/users', {
@@ -636,48 +730,48 @@ function UsersPage() {
       .catch(err => console.error("데이터 로드 실패:", err));
   }, []);
 
-  const handleDeleteUser = (id) => {
-    if (window.confirm("정말로 탈퇴 처리하시겠습니까?")) {
-      fetch(`/api/admin/users/${id}`, { 
+  const handleDeleteUser = (id) => {
+    if (window.confirm("정말로 탈퇴 처리하시겠습니까?")) {
+      fetch(`/api/admin/users/${id}`, { 
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
       })
-        .then(res => res.json())
-        .then(response => {
-          if (response.success) {
-            setUsers(prev => prev.filter(user => user.id !== id));
-            alert("성공적으로 탈퇴 처리되었습니다.");
-          }
-        });
-    }
-  };
+        .then(res => res.json())
+        .then(response => {
+          if (response.success) {
+            setUsers(prev => prev.filter(user => user.id !== id));
+            alert("성공적으로 탈퇴 처리되었습니다.");
+          }
+        });
+    }
+  };
 
-  const filtered = useMemo(() =>
-    users.filter(u => [u.name, u.email].join(" ").toLowerCase().includes(query.toLowerCase())),
-    [users, query]);
+  const filtered = useMemo(() =>
+    users.filter(u => [u.name, u.email].join(" ").toLowerCase().includes(query.toLowerCase())),
+    [users, query]);
 
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-      <SectionTitle title="유저 관리" subtitle={`총 ${users.length}명`} />
-      <Card style={{ padding: "14px 18px" }}>
-        <div style={{ position: "relative" }}>
-          <Search size={14} color={G.gray} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)" }} />
-          <input value={query} onChange={e => setQuery(e.target.value)} placeholder="이름, 이메일 검색"
-            style={{ width: "100%", padding: "10px 14px 10px 36px", borderRadius: 100, border: `1.5px solid ${G.border}`, fontSize: 13, outline: "none", fontFamily: "'Noto Sans KR', sans-serif", boxSizing: "border-box" }} />
-        </div>
-      </Card>
-      <Card>
-        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-          <thead>
-            <tr style={{ borderBottom: "1.5px solid #f0ede6" }}>
-              {["#", "이름", "이메일", "연속 학습", "정답률", "신고누적", "상태", "가입일", ""].map(h => (
-                <th key={h} style={{ padding: "14px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: G.gray }}>{h}</th>
-              ))}
-            </tr>
-          </thead>
-         <tbody>
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+      <SectionTitle title="유저 관리" subtitle={`총 ${users.length}명`} />
+      <Card style={{ padding: "14px 18px" }}>
+        <div style={{ position: "relative" }}>
+          <Search size={14} color={G.gray} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)" }} />
+          <input value={query} onChange={e => setQuery(e.target.value)} placeholder="이름, 이메일 검색"
+            style={{ width: "100%", padding: "10px 14px 10px 36px", borderRadius: 100, border: `1.5px solid ${G.border}`, fontSize: 13, outline: "none", fontFamily: "'Noto Sans KR', sans-serif", boxSizing: "border-box" }} />
+        </div>
+      </Card>
+      <Card>
+        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+          <thead>
+            <tr style={{ borderBottom: "1.5px solid #f0ede6" }}>
+              {["#", "이름", "이메일", "연속 학습", "정답률", "신고누적", "상태", "가입일", ""].map(h => (
+                <th key={h} style={{ padding: "14px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: G.gray }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+         <tbody>
   {filtered.map((u, index) => ( 
     <tr key={u.id} style={{ borderBottom: "1px solid #f7f4ef" }} onMouseEnter={e => e.currentTarget.style.background = "#fafaf9"} onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
       <td style={{ padding: "14px 16px" }}>{index + 1}</td> 
@@ -702,10 +796,10 @@ function UsersPage() {
     </tr>
   ))}
 </tbody>
-        </table>
-      </Card>
-    </div>
-  );
+        </table>
+      </Card>
+    </div>
+  );
 }
 
 /* ─── 검수 / 신고 ───────────────────────────────────── */
@@ -713,7 +807,61 @@ function ReviewPage() {
   const [tab, setTab] = useState("pending");
   const [pending, setPending] = useState(SLANGS.filter(s => s.status === "검수 대기"));
   const [submissions, setSubmissions] = useState(SUBMISSIONS);
-  const [reports, setReports] = useState(REPORTS);
+  const [reports, setReports] = useState([]);
+  
+  // [추가완] 페이지 켜질 때 신고 접수 내역 서버에서 받아오기
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      return;
+    }
+
+    fetch('/api/admin/reports/list', { 
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then((res) => {
+        if (!res.ok) throw new Error("신고 목록 조회 실패");
+        return res.json();
+    })
+    .then((resData) => {
+        if (resData.success && resData.data) {
+    setReports(resData.data || []); 
+    console.log("신고 데이터 :", resData.data);
+}
+    })
+    .catch((err) => console.error("신고 목록 로딩 실패... ", err));
+  }, []);
+
+const handleDeleteReport = async (slangId) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return alert("인증 토큰이 없습니다. 다시 로그인해 주세요.");
+
+      const response = await fetch(`/api/admin/reports/delete/${slangId}`, { 
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const resData = await response.json();
+
+      if (resData.success) {
+        setReports(prev => prev.filter(item => item.slang_id !== slangId));
+        alert("신고 기록이 성공적으로 삭제되어 정상 단어로 복구되었습니다! ");
+      } else {
+        alert("처리에 실패했습니다: " + resData.message);
+      }
+    } catch (err) {
+      console.error("신고 삭제 중 에러 발생:", err);
+      alert("서버와 통신 중 에러가 발생했습니다.");
+    }
+  };
 
   const severityColor = { "높음": G.red, "중간": "#f59e0b", "낮음": G.green };
 
@@ -725,7 +873,7 @@ function ReviewPage() {
         tabs={[
           { key: "pending",     label: `검수 대기 (${pending.length})`     },
           { key: "submissions", label: `신조어 제보 (${submissions.length})` },
-          { key: "reports",     label: `신고 접수 (${reports.length})`      },
+          { key: "reports",     label: `신고 접수 (${reports.length})`      }, 
         ]}
         active={tab} onChange={setTab}
       />
@@ -773,7 +921,7 @@ function ReviewPage() {
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
             <thead>
               <tr style={{ borderBottom: "1.5px solid #f0ede6" }}>
-                {["신조어", "뜻", "제보자", "신뢰도 점수", ""].map(h => (
+                {["신조어", "뜻", "제보자", ""].map(h => ( // [수정했습니다] 신뢰도 점수 삭제함
                   <th key={h} style={{ padding: "14px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: G.gray }}>{h}</th>
                 ))}
               </tr>
@@ -802,37 +950,64 @@ function ReviewPage() {
         </Card>
       )}
 
+      {/* [수정했습니다] , 데이터 매핑만 DB 필드로 매칭 */}
       {tab === "reports" && (
         <Card>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-            <thead>
-              <tr style={{ borderBottom: "1.5px solid #f0ede6" }}>
-                {["표현", "신고 사유", "심각도", "신고자", "신뢰도", ""].map(h => (
-                  <th key={h} style={{ padding: "14px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: G.gray }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {reports.map(r => (
-                <tr key={r.id} style={{ borderBottom: "1px solid #f7f4ef" }}
-                  onMouseEnter={e => e.currentTarget.style.background = "#fafaf9"}
-                  onMouseLeave={e => e.currentTarget.style.background = "transparent"}
-                >
-                  <td style={{ padding: "14px 16px", fontWeight: 700 }}>{r.term}</td>
-                  <td style={{ padding: "14px 16px", color: G.gray }}>{r.reason}</td>
-                  <td style={{ padding: "14px 16px" }}><Badge color={severityColor[r.severity] || G.gray}>{r.severity}</Badge></td>
-                  <td style={{ padding: "14px 16px", color: G.gray }}>{r.reporter}</td>
-                  <td style={{ padding: "14px 16px" }}><TrustBadge score={r.trust} /></td>
-                  <td style={{ padding: "14px 16px" }}>
-                    <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
-                      <Button variant="secondary" size="sm" onClick={() => setReports(p => p.filter(x => x.id !== r.id))}>검토 완료</Button>
-                      <Button size="sm" onClick={() => setReports(p => p.filter(x => x.id !== r.id))}>숨김</Button>
-                    </div>
-                  </td>
+          {reports.length === 0 ? (
+            <div style={{ padding: 40, textAlign: "center", color: G.gray, fontSize: 14 }}>신고 접수 항목이 없습니다</div>
+          ) : (
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+              <thead>
+                <tr style={{ borderBottom: "1.5px solid #f0ede6" }}>
+                  {["표현 (단어)", "최신 신고 사유", "신고 누적 횟수", ""].map(h => (
+                    <th key={h} style={{ padding: "14px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: G.gray }}>{h}</th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {reports.map(r => (
+                  <tr key={r.slang_id} style={{ borderBottom: "1px solid #f7f4ef" }}
+                    onMouseEnter={e => e.currentTarget.style.background = "#fafaf9"}
+                    onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                  >
+                    {/* 단어 */}
+                    <td style={{ padding: "14px 16px", fontWeight: 700, color: G.black }}>{r.word}</td>
+                    
+                    {/* 최신 신고 사유 */}
+                    <td style={{ padding: "14px 16px", color: G.gray }}>{r.report_reason || "사유 미지정"}</td>
+                    
+                    {/* 누적 횟수 배지 스타일 */}
+                    <td style={{ padding: "14px 16px" }}>
+                      <span style={{ 
+                        background: `${G.red}15`, 
+                        color: G.red, 
+                        padding: "4px 10px", 
+                        borderRadius: 20, 
+                        fontSize: 12, 
+                        fontWeight: 700 
+                      }}>
+                        {r.report_count}회 신고됨
+                      </span>
+                    </td>
+
+                    {/* 버튼 */}
+                    <td style={{ padding: "14px 16px" }}>
+                      <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
+                        <Button variant="secondary" size="sm" onClick={() => alert("신고 상태를 유지합니다.")}>유지</Button>
+                        <Button 
+                          size="sm" 
+                          onClick={() => handleDeleteReport(r.slang_id)} 
+                          style={{ background: G.red, color: G.white }}
+                        >
+                    삭제
+                  </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </Card>
       )}
     </div>
@@ -1160,11 +1335,41 @@ export default function Admin() {
   const navigate = useNavigate();
   const [active, setActive] = useState("dashboard");
   const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const [statsData, setStatsData] = useState([
+    { title: "전체 슬랭",   value: "0",   delta: "+12 this week", icon: BookOpen,      color: G.accent  },
+    { title: "활성 사용자", value: "0",   delta: "+8.4%",         icon: Users,         color: G.blue    },
+    { title: "검수 대기",   value: "17",  delta: "Need review",   icon: CheckCircle2,  color: "#f59e0b" },
+    { title: "신고 접수",   value: "6",   delta: "2 urgent",      icon: ShieldAlert,   color: G.red     },
+  ]);
 
+  // 2. [기존 유지] 권한 검사
   useEffect(() => { if (user?.role !== 1) navigate("/dashboard"); }, []);
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    fetch('/api/admin/dashboard/stats', {
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    })
+      .then(res => res.json())
+      .then(resData => {
+        if (resData.success) {
+          const d = resData.data;
+          setStatsData([
+            { title: "전체 슬랭",   value: d.totalSlangs,   delta: `현재 ${d.totalSlangs}개`, icon: BookOpen,      color: G.accent  },
+            { title: "활성 사용자", value: d.activeUsers,  delta: `총 회원 ${d.activeUsers}명`,  icon: Users,         color: G.blue    },
+            { title: "검수 대기",   value: d.pendingReviews, delta: "Need review",   icon: CheckCircle2,  color: "#f59e0b" },
+            { title: "신고 접수",   value: d.reports,      delta: "2 urgent",      icon: ShieldAlert,   color: G.red     },
+          ]);
+        }
+      })
+      .catch(err => console.error("🚨 관리자 대시보드 통계 로딩 실패:", err));
+  }, []);
+
   const pages = {
-    dashboard: <DashboardPage onAddClick={() => setActive("content")} />,
+    dashboard: <DashboardPage onAddClick={() => setActive("content")} statsData={statsData} />,
     content: <ContentPage />,
     users: <UsersPage />,
     review: <ReviewPage />,

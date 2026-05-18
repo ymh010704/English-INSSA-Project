@@ -383,7 +383,7 @@ export default function Community() {
                     {post.comments && post.comments.length > 0 && (
                       <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 12 }}>
                         {post.comments.map((comment) => (
-                          <div key={comment.id} style={{ fontSize: 13, lineHeight: "1.4" }}>
+                          <div key={`community-item-${comment.id}`} style={{ fontSize: 13, lineHeight: "1.4" }}>
                             <strong style={{ color: G.black, marginRight: 6 }}>{comment.user}</strong>
                             <span style={{ color: "#555" }}>{comment.content}</span>
                           </div>

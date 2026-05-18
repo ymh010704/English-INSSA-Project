@@ -9,6 +9,7 @@ import studiesRoutes from './routes/studies.routes.js';
 import dashboardRouter from './routes/dashboard.routes.js';
 import practiceRouter from './routes/practice.routes.js';
 import boardRouter from './routes/board.routes.js';
+import reportRouter from './routes/report.routes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

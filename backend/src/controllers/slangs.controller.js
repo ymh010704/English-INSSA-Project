@@ -57,6 +57,23 @@ export const getTodayDashboardSlangs = async (req, res) => {
   }
 };
 
+// 슬랭 신고 컨트롤러
+export const handleReportSlang = async (req, res) => {
+  try {
+    const { word, reason } = req.body; // 프론트에서 보낸 단어와 신고 사유
+    
+    if (!word) {
+      return res.status(400).json({ success: false, message: '신고할 단어가 없습니다.' });
+    }
+
+    await SlangService.reportSlang(word, reason);
+    res.json({ success: true, message: '신고가 정상적으로 접수되었습니다.' });
+  } catch (err) {
+    console.error('슬랭 신고 처리 실패:', err);
+    res.status(500).json({ success: false, message: '신고 처리 중 서버 에러 발생' });
+  }
+};
+
 // 쇼츠용 슬랭 목록 (shorts_url 있는 것만)
 export const getShorts = async (req, res) => {
   try {

@@ -70,6 +70,40 @@ export default function OXQuiz({ data, onNext, savedSelection }) {
     }
   };
 
+  const handleSlangReport = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const currentSlangId = data?.id; 
+      const currentWord = data?.word || data?.term || "단어";
+
+      if (!currentSlangId) {
+        alert("🚨 단어 정보를 가져올 수 없습니다.");
+        return;
+      }
+      const response = await fetch('/api/admin/report-slang', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          slangId: currentSlangId
+        })
+      });
+
+      const resData = await response.json();
+
+      if (resData.success) {
+        alert(`🚨 '${currentWord}' 단어가 관리자 시스템에 정상 신고 접수되었습니다!`);
+      } else {
+        alert(`신고 실패: ${resData.message}`);
+      }
+    } catch (err) {
+      console.error("신고 에러:", err);
+      alert(`시스템 오류: ${err.message}`);
+    }
+  };
+
   // 사용자가 고른 답이 실제 정답과 일치하는지 판별
   const isUserCorrect = (selected === 'O' && data.isCorrect === true) || 
                         (selected === 'X' && data.isCorrect === false);
@@ -109,7 +143,7 @@ export default function OXQuiz({ data, onNext, savedSelection }) {
         />
         {/* 신고 버튼 */}
         <SideButton 
-          onClick={() => alert("문제가 신고되었습니다.")} 
+          onClick={handleSlangReport} 
           icon="🚨" 
           label="신고" 
         />
