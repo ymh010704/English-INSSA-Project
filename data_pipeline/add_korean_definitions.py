@@ -5,15 +5,12 @@ final_dataset.jsonl의 각 단어에 definition_ko (한국어 정의) 및 catego
 
 배치 처리로 API 비용 최소화:
   - GPT-4.1-nano 사용 (저비용)
-  - 20개 단어씩 배치 → 전체 ~4800개 = 약 240회 API 호출
+  - 20개 단어씩 배치 → 전체 ~3300개 = 약 165회 API 호출
   - 예상 비용: < $0.10 USD
 
 실행:
-  python data_pipeline/add_korean_definitions.py [--subset auto|curated|all]
-
-  --subset auto     : auto_approved.jsonl만 번역 (599개, 가장 빠름)
-  --subset curated  : curated_dataset.jsonl 번역 (1181개)
-  --subset all      : final_dataset.jsonl 전체 번역 (4813개)
+  python data_pipeline/add_korean_definitions.py
+  python data_pipeline/add_korean_definitions.py --recategorize
 """
 
 from __future__ import annotations
@@ -27,11 +24,6 @@ from typing import Any
 
 from openai import OpenAI
 
-INPUT_FILES = {
-    "auto":    Path("data_pipeline/output/auto_approved.jsonl"),
-    "curated": Path("data_pipeline/output/curated_dataset.jsonl"),
-    "all":     Path("data_pipeline/output/final_dataset.jsonl"),
-}
 FINAL_PATH = Path("data_pipeline/output/final_dataset.jsonl")
 
 OPENAI_MODEL   = os.getenv("OPENAI_MODEL", "gpt-4.1-nano")
@@ -177,10 +169,8 @@ def main() -> None:
     import sys
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     parser = argparse.ArgumentParser()
-    parser.add_argument("--subset", choices=["auto", "curated", "all"], default="all",
-                        help="번역 대상 서브셋 (기본: all)")
     parser.add_argument("--recategorize", action="store_true",
-                        help="category만 E 프롬프트로 재분류 (definition_ko 유지)")
+                        help="category만 별도 프롬프트로 재분류 (definition_ko 유지)")
     args = parser.parse_args()
 
     api_key = os.getenv("OPENAI_API_KEY", "").strip()
@@ -211,14 +201,12 @@ def main() -> None:
                 print(f"  {w:<10} {r.get('category', [])}")
         return
 
-    input_path = INPUT_FILES[args.subset]
-    rows = load_jsonl(input_path)
-    print(f"[INFO] Model: {OPENAI_MODEL} | Subset: {args.subset} | Words: {len(rows)}")
+    rows = load_jsonl(FINAL_PATH)
+    print(f"[INFO] Model: {OPENAI_MODEL} | Words: {len(rows)}")
 
-    # 이미 처리된 단어 로드 (final_dataset 기준)
-    final_rows = load_jsonl(FINAL_PATH)
+    # 이미 처리된 단어 스킵
     existing: dict[str, dict] = {}
-    for r in final_rows:
+    for r in rows:
         if r.get("definition_ko") and isinstance(r.get("category"), list):
             existing[r["word"]] = {
                 "definition_ko": r["definition_ko"],
@@ -244,7 +232,7 @@ def main() -> None:
 
     # final_dataset에 definition_ko + category 삽입
     updated_final = []
-    for r in final_rows:
+    for r in rows:
         info = translations.get(r["word"])
         if info:
             r["definition_ko"] = info["definition_ko"]
