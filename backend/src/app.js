@@ -10,6 +10,7 @@ import dashboardRouter from './routes/dashboard.routes.js';
 import practiceRouter from './routes/practice.routes.js';
 import boardRouter from './routes/board.routes.js';
 import reportRouter from './routes/report.routes.js';
+import bookmarkRouter from './routes/bookmarks.routes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -32,6 +33,7 @@ app.use('/api/studies', studiesRoutes);
 app.use('/api/dashboard', dashboardRouter);
 app.use('/api/practice', practiceRouter);
 app.use('/api/board', boardRouter); // 2. 자유게시판 라우트 
+app.use("/api/bookmarks", bookmarkRouter);
 
 
 // --- 3. 정적 파일 및 클라이언트 사이드 라우팅 처리 ---

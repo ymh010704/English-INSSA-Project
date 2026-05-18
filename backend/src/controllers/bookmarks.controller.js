@@ -39,3 +39,27 @@ export const getMyBookmarks = async (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 };
+
+
+
+// 북마크 학습
+export const getBookmarkStudyQuiz = async (req, res) => {
+  try {
+    const userId = req.user.user_id || req.user.id;
+    const count = Number(req.query.count || 5);
+
+    const quizList = await BookmarkService.generateBookmarkQuiz(userId, count);
+
+    return res.json({
+      success: true,
+      data: quizList,
+    });
+  } catch (error) {
+    console.error("❌ 북마크 학습 퀴즈 생성 실패:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "북마크 학습 퀴즈를 불러오지 못했습니다.",
+    });
+  }
+};

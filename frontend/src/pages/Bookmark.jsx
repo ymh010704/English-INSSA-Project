@@ -135,7 +135,7 @@ export default function Bookmark() {
     
         <PageHeader
           title="북마크" icon={BookmarkIcon}
-          right={<Button onClick={() => navigate("/card-study")} size="sm">북마크로 학습 →</Button>}
+          right={<Button onClick={() => navigate("/bookmark-study")} size="sm">북마크로 학습 →</Button>}
         />
 
         <div style={{ padding: isMobile ? "16px" : "36px 40px" }}>

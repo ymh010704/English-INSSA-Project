@@ -18,6 +18,7 @@ import Community from "./pages/Community";
 import SlangList from "./pages/SlangList";
 import Shorts from "./pages/Shorts";
 import MyPage from "./pages/MyPage";
+import BookmarkStudy from "./pages/BookmarkStudy";
 
 export default function App() {
   return (
@@ -41,6 +42,7 @@ export default function App() {
         <Route path="/slangs" element={<Layout><SlangList /></Layout>} />
         <Route path="/shorts" element={<Layout><Shorts /></Layout>} />
         <Route path="/mypage" element={<Layout><MyPage /></Layout>} />
+        <Route path="/bookmark-study" element={<Layout><BookmarkStudy /></Layout>} />
       </Routes>
     </BrowserRouter>
   );
