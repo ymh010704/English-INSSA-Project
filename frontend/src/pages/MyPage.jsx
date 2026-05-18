@@ -17,24 +17,33 @@ const TIERS = [
 ];
 
 const BADGES = [
-  { icon: Flame,    color: "#f97316", bg: "#fff7ed", name: "7일 연속",      desc: "7일 연속 학습",          done: true  },
-  { icon: BookOpen, color: "#3b82f6", bg: "#eff6ff", name: "첫 10개",       desc: "표현 10개 학습",         done: true  },
-  { icon: Zap,      color: "#eab308", bg: "#fefce8", name: "스피드 러너",   desc: "하루 10개 학습",         done: true  },
-  { icon: Moon,     color: "#8b5cf6", bg: "#f5f3ff", name: "야간 학습",     desc: "밤 11시 이후 학습",      done: true  },
-  { icon: Trophy,   color: "#f59e0b", bg: "#fffbeb", name: "퍼펙트 스코어", desc: "연습 100% 달성",         done: true  },
-  { icon: Crown,    color: "#ff4d00", bg: "#fff5f0", name: "30일 연속",     desc: "30일 연속 학습",         done: false },
-  { icon: Star,     color: "#10b981", bg: "#f0fdf4", name: "올라운더",      desc: "모든 카테고리 50% 이상",  done: false },
-  { icon: Gem,      color: "#06b6d4", bg: "#ecfeff", name: "100개 달성",    desc: "표현 100개 학습",        done: false },
-  { icon: Bot,      color: "#6366f1", bg: "#eef2ff", name: "AI 마스터",     desc: "AI 대화 50회",           done: false },
-];
-
-const WEEKLY = [
-  { d: "월", v: 3 }, { d: "화", v: 5 }, { d: "수", v: 4 },
-  { d: "목", v: 6 }, { d: "금", v: 2 }, { d: "토", v: 0 }, { d: "일", v: 0 },
+  { icon: Flame,    color: "#f97316", bg: "#fff7ed", name: "7일 연속",      desc: "7일 연속 학습"          },
+  { icon: BookOpen, color: "#3b82f6", bg: "#eff6ff", name: "첫 10개",       desc: "표현 10개 학습"         },
+  { icon: Zap,      color: "#eab308", bg: "#fefce8", name: "스피드 러너",   desc: "하루 10개 학습"         },
+  { icon: Moon,     color: "#8b5cf6", bg: "#f5f3ff", name: "야간 학습",     desc: "밤 11시 이후 학습"      },
+  { icon: Trophy,   color: "#f59e0b", bg: "#fffbeb", name: "퍼펙트 스코어", desc: "연습 100% 달성"         },
+  { icon: Crown,    color: "#ff4d00", bg: "#fff5f0", name: "30일 연속",     desc: "30일 연속 학습"         },
+  { icon: Star,     color: "#10b981", bg: "#f0fdf4", name: "올라운더",      desc: "모든 카테고리 50% 이상" },
+  { icon: Gem,      color: "#06b6d4", bg: "#ecfeff", name: "100개 달성",    desc: "표현 100개 학습"        },
+  { icon: Bot,      color: "#6366f1", bg: "#eef2ff", name: "AI 마스터",     desc: "AI 대화 50회"           },
 ];
 
 function getTier(xp) {
   return [...TIERS].reverse().find(t => xp >= t.min) || TIERS[0];
+}
+
+function buildWeekly(activityLog) {
+  const today = new Date();
+  const todayDay = today.getDay(); // 0=일, 1=월, ..., 6=토
+  const KOR = ["월", "화", "수", "목", "금", "토", "일"];
+  return KOR.map((d, i) => {
+    const offset = i - (todayDay === 0 ? 6 : todayDay - 1);
+    const date = new Date(today);
+    date.setDate(today.getDate() + offset);
+    const key = `${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    const found = activityLog.find(a => a.date === key);
+    return { d, v: found ? Number(found.count) : 0 };
+  });
 }
 
 /* ── 섹션 카드 ── */
@@ -68,18 +77,20 @@ export default function MyPage() {
 
   const [user, setUser] = useState({ nickname: "인싸", email: "", provider: "local" });
   const [avatar, setAvatar] = useState(null);
-  const [stats, setStats] = useState({ streak: 0, totalSlangs: 0, bookmarks: 0 });
+  const [stats, setStats] = useState({ streak: 0, masteredCount: 0, bookmarks: 0, xp: 0, activityLog: [] });
+  const [badges, setBadges] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const XP = 1240;
+  const XP = stats.xp;
   const tier = getTier(XP);
   const tierIdx = TIERS.findIndex(t => t.name === tier.name);
   const nextTier = TIERS[tierIdx + 1];
   const tierPct = nextTier ? ((XP - tier.min) / (nextTier.min - tier.min)) * 100 : 100;
 
-  const doneBadges = BADGES.filter(b => b.done);
-  const lockedBadges = BADGES.filter(b => !b.done);
-  const weekMax = Math.max(...WEEKLY.map(d => d.v), 1);
+  const doneBadges = BADGES.filter(b => badges.includes(b.name));
+  const lockedBadges = BADGES.filter(b => !badges.includes(b.name));
+  const weekly = buildWeekly(stats.activityLog);
+  const weekMax = Math.max(...weekly.map(d => d.v), 1);
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -94,12 +105,14 @@ export default function MyPage() {
 
     Promise.allSettled([
       axios.get("/api/dashboard/stats", { headers: { Authorization: `Bearer ${token}` } })
-        .then(r => setStats(p => ({ ...p, streak: r.data.streak || 0, totalSlangs: r.data.totalSlangs || 0 }))),
-      axios.get("/api/slangs/bookmarks", { headers: { Authorization: `Bearer ${token}` } })
+        .then(r => setStats(p => ({ ...p, streak: r.data.streak || 0, masteredCount: r.data.masteredCount || 0, xp: r.data.xp || 0, activityLog: r.data.activityLog || [] }))),
+      axios.get("/api/bookmarks/list", { headers: { Authorization: `Bearer ${token}` } })
         .then(r => {
-          const list = Array.isArray(r.data) ? r.data : r.data.data || [];
+          const list = Array.isArray(r.data.data) ? r.data.data : [];
           setStats(p => ({ ...p, bookmarks: list.length }));
         }),
+      axios.get("/api/dashboard/badges", { headers: { Authorization: `Bearer ${token}` } })
+        .then(r => setBadges(Array.isArray(r.data.badges) ? r.data.badges : [])),
     ]).finally(() => setLoading(false));
   }, []);
 
@@ -236,7 +249,7 @@ export default function MyPage() {
           <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)", marginTop: 28, paddingTop: 24, borderTop: "1px solid rgba(255,255,255,0.07)" }}>
             {[
               { icon: Flame,    label: "연속 학습", value: `${stats.streak}일`          },
-              { icon: BookOpen, label: "배운 슬랭", value: `${stats.totalSlangs}개`     },
+              { icon: BookOpen, label: "배운 슬랭", value: `${stats.masteredCount}개`     },
               { icon: BookmarkIcon, label: "북마크",    value: `${stats.bookmarks}개`       },
               { icon: Zap,      label: "경험치",    value: `${XP.toLocaleString()} XP` },
             ].map((s, i) => {
@@ -263,8 +276,7 @@ export default function MyPage() {
             <Card>
               <SectionTitle icon={BarChart2} sub="일별 학습한 표현 수">이번 주 활동</SectionTitle>
               <div style={{ display: "flex", gap: 8, alignItems: "flex-end", height: 88 }}>
-                {WEEKLY.map((d, i) => {
-                  const isToday = i === new Date().getDay() === 0 ? 6 : new Date().getDay() - 1;
+                {weekly.map((d, i) => {
                   const isTodayBool = i === (new Date().getDay() === 0 ? 6 : new Date().getDay() - 1);
                   const h = d.v ? Math.max((d.v / weekMax) * 64, 16) : 6;
                   return (
